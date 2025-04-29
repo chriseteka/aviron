@@ -57,7 +57,7 @@ java {
 
 javadoc {
     exclude "com/github/jlangch/aviron/commands/**"
-    exclude "com/github/jlangch/venice/server/**"
+    exclude "com/github/jlangch/aviron/server/**"
     source = sourceSets.main.allJava
 }
 
