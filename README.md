@@ -7,6 +7,7 @@ Aviron is zero dependency Clam AV Java client.
 
 [Change Log](ChangeLog.md)
 
+
 ## Getting the latest release
 
 You can can pull it from the central Maven repositories:
