@@ -266,27 +266,52 @@ public class Client {
             return new Client(this);
         }
 
-        /** The ClamAV server hostname. Defaults to <code>localhost</code> */
+        /**
+         *  The ClamAV server hostname. Defaults to <code>localhost</code>
+         *  
+         * @param hostname server hostname
+         * @return this builder
+         */
         public Builder serverHostname(final String hostname) {
             this.serverHostname = hostname;
             return this;
         }
-        /** The ClamAV server port. Defaults to <code>3310</code> */
+        /** 
+         * The ClamAV server port. Defaults to <code>3310</code> 
+         *  
+         * @param port server port
+         * @return this builder
+         */
         public Builder serverPort(final int port) {
             this.serverPort = port;
             return this;
         }
-        /** The ClamAV server file separator. Defaults to <code>FileSeparator.JVM_PLATFORM</code> */
+        /** 
+         * The ClamAV server file separator. Defaults to <code>FileSeparator.JVM_PLATFORM</code> 
+         *  
+         * @param separator server file separator
+         * @return this builder
+         */
         public Builder serverFileSeparator(final FileSeparator separator) {
             this.serverFileSeparator = separator;
             return this;
         }
-        /** The connection timeout, 0 means indefinite. Defaults to <code>3'000ms</code> */
+        /** 
+         * The connection timeout, 0 means indefinite. Defaults to <code>3'000ms</code> 
+         *  
+         * @param timeoutMillis connection timeout in millis
+         * @return this builder
+         */
         public Builder connectionTimeout(final int timeoutMillis) {
             this.connectionTimeoutMillis = timeoutMillis;
             return this;
         }
-        /** The read timeout, 0 means indefinite. Defaults to <code>20'000ms</code> */
+        /** 
+         * The read timeout, 0 means indefinite. Defaults to <code>20'000ms</code> 
+         *  
+         * @param timeoutMillis read timeout in millis
+         * @return this builder
+         */
         public Builder readTimeout(final int timeoutMillis) {
             this.readTimeoutMillis = timeoutMillis;
             return this;
