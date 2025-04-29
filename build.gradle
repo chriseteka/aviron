@@ -68,7 +68,7 @@ jar {
 
 publishing {
     publications {
-        venicePublication(MavenPublication) {
+        avironPublication(MavenPublication) {
             groupId = 'com.github.jlangch'
             artifactId = 'aviron'
             version = "${project.version}"
