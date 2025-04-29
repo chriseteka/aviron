@@ -5,12 +5,12 @@ import java.nio.file.Path;
 import java.util.List;
 
 import com.github.jlangch.aviron.commands.Command;
-import com.github.jlangch.aviron.commands.Ping;
-import com.github.jlangch.aviron.commands.Reload;
-import com.github.jlangch.aviron.commands.Stats;
-import com.github.jlangch.aviron.commands.Shutdown;
-import com.github.jlangch.aviron.commands.Version;
-import com.github.jlangch.aviron.commands.VersionCommands;
+import com.github.jlangch.aviron.commands.mgmt.Ping;
+import com.github.jlangch.aviron.commands.mgmt.Reload;
+import com.github.jlangch.aviron.commands.mgmt.Shutdown;
+import com.github.jlangch.aviron.commands.mgmt.Stats;
+import com.github.jlangch.aviron.commands.mgmt.Version;
+import com.github.jlangch.aviron.commands.mgmt.VersionCommands;
 import com.github.jlangch.aviron.commands.scan.ContScan;
 import com.github.jlangch.aviron.commands.scan.InStream;
 import com.github.jlangch.aviron.commands.scan.MultiScan;

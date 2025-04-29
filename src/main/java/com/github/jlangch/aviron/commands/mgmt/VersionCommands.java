@@ -1,8 +1,11 @@
-package com.github.jlangch.aviron.commands;
+package com.github.jlangch.aviron.commands.mgmt;
 
 import java.util.Arrays;
 import java.util.List;
 
+import com.github.jlangch.aviron.commands.Command;
+import com.github.jlangch.aviron.commands.CommandDef;
+import com.github.jlangch.aviron.commands.CommandFormat;
 import com.github.jlangch.aviron.ex.InvalidResponseException;
 
 

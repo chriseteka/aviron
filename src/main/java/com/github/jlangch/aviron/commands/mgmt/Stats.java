@@ -1,5 +1,8 @@
-package com.github.jlangch.aviron.commands;
+package com.github.jlangch.aviron.commands.mgmt;
 
+import com.github.jlangch.aviron.commands.Command;
+import com.github.jlangch.aviron.commands.CommandDef;
+import com.github.jlangch.aviron.commands.CommandFormat;
 
 /**
  * It is mandatory to newline terminate this command, or prefix with n or z, 
