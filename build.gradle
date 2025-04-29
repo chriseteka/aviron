@@ -50,6 +50,22 @@ dependencies {
 
 }
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+javadoc {
+    exclude "com/github/jlangch/aviron/commands/**"
+    exclude "com/github/jlangch/venice/server/**"
+    source = sourceSets.main.allJava
+}
+
+jar {
+    archiveFileName = "aviron-${project.version}.jar"
+}
+
+
 publishing {
     publications {
         venicePublication(MavenPublication) {
