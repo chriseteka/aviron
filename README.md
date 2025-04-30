@@ -1,4 +1,4 @@
-[![](https://github.com/jlangch/aviron/blob/master/doc/maven-central.svg)](https://search.maven.org/search?q=a:aviron%20AND%20g:com.github.jlangch)
+[![](https://github.com/jlangch/aviron/blob/master/doc/maven-central.svg)](https://search.maven.org/search?q=a:%22aviron%22%20AND%20g:%22com.github.jlangch%22)
 [![](https://github.com/jlangch/aviron/blob/master/doc/license.svg)](./LICENSE)
 ![Java Version](https://img.shields.io/badge/java-%3E%3D%201.8-success)
 
@@ -6,6 +6,7 @@
 [![Release Date](https://img.shields.io/github/release-date/jlangch/aviron?color=blue)](https://github.com/jlangch/aviron/releases/latest)
 [![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/jlangch/aviron/latest)](https://github.com/jlangch/aviron/commits/)
 
+https://search.maven.org/search?q=g:%22com.puppycrawl.tools%22%20AND%20a:%22checkstyle%22
 
 # Aviron
 
