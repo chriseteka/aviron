@@ -60,8 +60,7 @@
 //       - Choose Staging Repositories
 //       - Find the release 'comgithubjlangch-*'
 //       - Verify the contents are ok
-//       - Click Close (wait for validation steps under the Activity tab
-//         to complete)
+//       - Click Close (wait for validation under the Activity tab to complete)
 //       - Click Release
 //
 //   [3] Draft a GitHub Venice release
