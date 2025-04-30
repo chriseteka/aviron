@@ -1,3 +1,13 @@
+[![](https://github.com/jlangch/aviron/blob/master/doc/maven-central.svg)](https://search.maven.org/search?q=a:aviron)
+[![](https://github.com/jlangch/aviron/blob/master/doc/license.svg)](./LICENSE)
+![Java Version](https://img.shields.io/badge/java-%3E%3D%201.8-success)
+[![CI](https://github.com/jlangch/aviron/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/jlangch/aviron/actions/workflows/ci.yml)
+
+[![Release (latest by date)](https://img.shields.io/github/v/release/jlangch/aviron)](https://github.com/jlangch/aviron/releases/latest)
+[![Release Date](https://img.shields.io/github/release-date/jlangch/aviron?color=blue)](https://github.com/jlangch/aviron/releases/latest)
+[![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/jlangch/aviron/latest)](https://github.com/jlangch/aviron/commits/)
+
+
 # Aviron
 
 Aviron is zero dependency Clam AV Java client.
