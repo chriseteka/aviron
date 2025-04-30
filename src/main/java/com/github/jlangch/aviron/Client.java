@@ -276,6 +276,7 @@ public class Client {
             this.serverHostname = hostname;
             return this;
         }
+        
         /** 
          * The ClamAV server port. Defaults to <code>3310</code> 
          *  
@@ -286,6 +287,7 @@ public class Client {
             this.serverPort = port;
             return this;
         }
+        
         /** 
          * The ClamAV server file separator. Defaults to <code>FileSeparator.JVM_PLATFORM</code> 
          *  
@@ -296,6 +298,7 @@ public class Client {
             this.serverFileSeparator = separator;
             return this;
         }
+        
         /** 
          * The connection timeout, 0 means indefinite. Defaults to <code>3'000ms</code> 
          *  
@@ -306,6 +309,7 @@ public class Client {
             this.connectionTimeoutMillis = timeoutMillis;
             return this;
         }
+        
         /** 
          * The read timeout, 0 means indefinite. Defaults to <code>20'000ms</code> 
          *  
