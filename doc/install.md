@@ -6,6 +6,7 @@
 [Install ClamAV](https://www.liquidweb.com/blog/install-clamav/)
 
 
+
 ## ClamAV configuration
 
 The Clam AV Java client communicates over the TCP Socket at port 3310 with the Clam daemon. 
@@ -28,6 +29,7 @@ are available at:
 /opt/homebrew/etc/clamav/clamd.conf
 
 /opt/homebrew/etc/clamav/freshclam.conf
+
 
 
 ## ClamAV Documentation
