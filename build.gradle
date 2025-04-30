@@ -42,6 +42,9 @@
 //       - Update the ChangeLog for the release version
 //       - Update the 'README.md'
 //       - Commit the 'README.md' change
+//       - Patch the release version number in:
+//           {proj}/doc/maven-central.svg
+//           {proj}/README.md    (chapter Getting the latest release)
 //
 //   [2] Publish to Maven
 //       - ./gradlew clean javadocjar sources jar publish
@@ -61,17 +64,13 @@
 //         to complete)
 //       - Click Release
 //
-//   [3] Patch the release version number in:
-//       {proj}/doc/maven-central.svg
-//       {proj}/README.md    (chapter Getting the latest release)
-//
-//   [4] Draft a GitHub Venice release
+//   [3] Draft a GitHub Venice release
 //       - Draft a new release in Git (https://github.com/jlangch/aviron/releases)
 //         This will create the release tag
 //         => don't miss to set "latest flag"!
 //       - Pull the changes (commit tag)
 //
-//   [5] Open new development cycle
+//   [4] Open new development cycle
 //       - Change version in 'gradle.properties' to '1.x.y-SNAPSHOT'
 //       - Add an empty ChangeLog entry for the new version
 //       - Commit with message "opened new dev cycle"
