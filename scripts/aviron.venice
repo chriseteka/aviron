@@ -103,7 +103,9 @@
   (assert (some? sonatype-user) "Please provide the Sonatype user!")
   (assert (some? sonatype-pwd) "Please provide the Sonatype password!")
   (gradle-tasks "clean" 
-                "jar" 
+                "javadocjar"
+                "sources" 
+                "jar"
                 "publish"
                 "-Dorg.gradle.internal.publish.checksums.insecure=true"
                 "-Dorg.gradle.internal.http.socketTimeout=60000"
