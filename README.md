@@ -20,7 +20,7 @@ Aviron is a zero dependency Clam AV Java client.
 
 ## Examples
 
-```
+```java
 final String baseDir = "/data/files/";
 
 final Client client = new Client.Builder()
