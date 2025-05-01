@@ -1,4 +1,4 @@
-package com.github.jlangch.aviron.server;
+package com.github.jlangch.aviron.util;
 
 import java.util.function.Supplier;
 

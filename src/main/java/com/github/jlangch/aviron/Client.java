@@ -19,8 +19,8 @@ import com.github.jlangch.aviron.commands.scan.ScanResult;
 import com.github.jlangch.aviron.ex.ClamavException;
 import com.github.jlangch.aviron.ex.UnknownCommandException;
 import com.github.jlangch.aviron.server.CommandRunDetails;
-import com.github.jlangch.aviron.server.Lazy;
 import com.github.jlangch.aviron.server.ServerIO;
+import com.github.jlangch.aviron.util.Lazy;
 
 
 /**
