@@ -1,0 +1,43 @@
+package com.github.jlangch.aviron.util;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+
+public class Shell {
+
+    public static ShellResult execCmd(final String... command) throws IOException {
+        final String cmdFormatted = formatCmd(command);
+        
+        try {
+            final Process proc = Runtime.getRuntime().exec(command, null);
+            int exitCode = proc.waitFor();
+            
+            String stdout = slurp(proc.getInputStream());
+            String stderr = slurp(proc.getErrorStream());
+                        
+            return new ShellResult(stdout, stderr, exitCode);
+        }
+        catch(Exception ex) {
+            throw new RuntimeException("Failed to run Shell command: " + cmdFormatted, ex);
+        }
+    }
+    
+    private static String formatCmd(final String... command) {
+        return String.join(" ", Arrays.asList(command));
+    }
+    
+    private static String slurp(final InputStream is) throws IOException {
+        try (BufferedReader br = new BufferedReader(
+                                        new InputStreamReader(
+                                                is, StandardCharsets.UTF_8))) {
+            return br.lines()
+                     .collect(Collectors.joining("\n"));
+        }
+    }
+}
