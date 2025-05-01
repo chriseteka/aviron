@@ -46,7 +46,7 @@ System.out.println(client.scan(new ByteArrayInputStream(data)));
 
 You can can pull it from the central Maven repositories:
 
-```
+```java
 <dependency>
   <groupId>com.github.jlangch</groupId>
   <artifactId>aviron</artifactId>
