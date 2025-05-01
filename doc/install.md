@@ -42,6 +42,8 @@ are available at:
 
 [Install ClamAV on AlmaLinux](https://truehost.com/support/knowledge-base/how-to-install-clamav-for-malware-scanning-on-linux/)
 
+[Clamd stuck at 100% CPU](https://anset.org/2019/08/30/fixing-clamd-stuck-at-100-cpu/)
+
 
 
 ## Clamd Help
