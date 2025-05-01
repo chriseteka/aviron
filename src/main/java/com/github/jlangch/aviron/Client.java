@@ -248,7 +248,7 @@ public class Client {
      * 
      * @return the clamd PID
      */
-    public String getClamdPid() {
+    public String getClamdPID() {
         if (OS.isLinux() || OS.isMacOSX()) {
             try {
                 final ShellResult r = Shell.execCmd("pgrep","clamd");
