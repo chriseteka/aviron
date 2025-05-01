@@ -246,6 +246,9 @@ public class Client {
     /**
      * Returns the clamd PID or null if clamd is not running.
      * 
+     * <p>
+     * Note: This function is available for Linux and MacOS only!
+     * 
      * @return the clamd PID
      */
     public String getClamdPID() {
