@@ -20,6 +20,23 @@ Aviron is a zero dependency Clam AV Java client.
 
 ## Examples
 
+Enable _TCPSocket_ and _TCPAddr_ configuration parameters in _clamd.conf_:
+
+```
+TCPSocket 3310
+
+TCPAddr localhost
+```
+
+Start _clamd_ as foreground process for testing:
+
+```sh
+clamd --foreground
+```
+
+
+Java example:
+
 ```java
 final String baseDir = "/data/files/";
 
