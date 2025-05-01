@@ -10,7 +10,7 @@
 
 # Aviron
 
-Aviron is zero dependency Clam AV Java client.
+Aviron is a zero dependency Clam AV Java client.
 
 
 ## Change Log
