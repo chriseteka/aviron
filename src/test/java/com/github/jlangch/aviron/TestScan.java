@@ -52,9 +52,5 @@ public class TestScan {
         System.out.println(client.scan(new ByteArrayInputStream(data), 4096));
         System.out.println();
         System.out.println();
-
     }
- 
-    
-    
 }
