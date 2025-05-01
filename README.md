@@ -48,7 +48,7 @@ public class Scan {
     public static void main(String[] args) throws Exception {
         final String baseDir = "/data/files/";
 
-        // Note: The file separator depends on the server type (Unix, Windows)
+        // Note: The file separator depends on the server's type (Unix, Windows)
         //       clamd is running on!
         final Client client = new Client.Builder()
                                       .serverHostname("localhost")
