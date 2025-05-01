@@ -18,6 +18,30 @@ Aviron is a zero dependency Clam AV Java client.
 [Change Log](ChangeLog.md)
 
 
+## Examples
+
+```
+final String baseDir = "/data/files/";
+
+final Client client = new Client.Builder()
+                              .serverHostname("localhost")
+                              .serverFileSeparator(FileSeparator.UNIX)
+                              .build();
+
+System.out.println("Reachable: " + client.isReachable());
+
+// scan single file
+System.out.println(client.scan(Paths.get(baseDir, "document.pdf")));
+
+// scan dir (recursive)
+System.out.println(client.scan(Paths.get(baseDir), true));
+
+// scan streamed data
+final byte[] data = Files.readAllBytes(Paths.get(baseDir, "document.pdf"));
+System.out.println(client.scan(new ByteArrayInputStream(data)));
+```
+
+
 ## Getting the latest release
 
 You can can pull it from the central Maven repositories:
