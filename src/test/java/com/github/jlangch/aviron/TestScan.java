@@ -1,6 +1,9 @@
 package com.github.jlangch.aviron;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -50,6 +53,13 @@ public class TestScan {
         byte[] data = Files.readAllBytes(Paths.get(baseDir, "Messung-Lichtgeschwindigkeit-RØMER.pdf"));
         System.out.println(client.scan(new ByteArrayInputStream(data)));
         System.out.println(client.scan(new ByteArrayInputStream(data), 4096));
+        System.out.println();
+        System.out.println();
+        
+        System.out.println("[Scan Streamed Data 2]");
+        try (InputStream is = new FileInputStream(new File(baseDir, "document.pdf"))) {
+            System.out.println(client.scan(is));
+        }
         System.out.println();
         System.out.println();
     }

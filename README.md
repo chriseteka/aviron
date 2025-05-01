@@ -38,9 +38,8 @@ clamd --foreground
 Java example:
 
 ```java
-import java.io.ByteArrayInputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.*;
+import java.nio.file.*;
 
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
@@ -64,8 +63,9 @@ public class TestScan {
         System.out.println(client.scan(Paths.get(baseDir), true));
 
         // scan streamed data
-        final byte[] data = Files.readAllBytes(Paths.get(baseDir, "document.pdf"));
-        System.out.println(client.scan(new ByteArrayInputStream(data)));
+        try (InputStream is = new FileInputStream(new File(baseDir, "document.pdf"))) {
+            System.out.println(client.scan(is));
+        }
     }
 }
 ```
