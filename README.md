@@ -44,9 +44,8 @@ import java.nio.file.*;
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
 
-public class TestScan {
+public class Scan {
     public static void main(String[] args) throws Exception {
-
         final String baseDir = "/data/files/";
 
         final Client client = new Client.Builder()
