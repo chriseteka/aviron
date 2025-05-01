@@ -26,25 +26,25 @@ public class StringUtils {
         return s == null ? true : s.trim().isEmpty();
     }
 
-	/**
-	 * Splits a text into lines
-	 * 
-	 * @param text	a string
-	 * 
-	 * @return the lines (maybe empty if the text was <tt>null</tt> or empty
-	 */
-	public static List<String> splitIntoLines(final String text) {
-		if (text == null || text.isEmpty()) {
-			return new ArrayList<>();
-		}
-		else {
-			try(final BufferedReader br = new BufferedReader(new StringReader(text))) {
-				return br.lines().collect(Collectors.toList());
-			}
-			catch(IOException | RuntimeException ex) {
-				throw new RuntimeException("Failed to split text into lines", ex);
-			}
-		}
-	}
+    /**
+     * Splits a text into lines
+     * 
+     * @param text    a string
+     * 
+     * @return the lines (maybe empty if the text was <tt>null</tt> or empty
+     */
+    public static List<String> splitIntoLines(final String text) {
+        if (text == null || text.isEmpty()) {
+            return new ArrayList<>();
+        }
+        else {
+            try(final BufferedReader br = new BufferedReader(new StringReader(text))) {
+                return br.lines().collect(Collectors.toList());
+            }
+            catch(IOException | RuntimeException ex) {
+                throw new RuntimeException("Failed to split text into lines", ex);
+            }
+        }
+    }
 
 }
