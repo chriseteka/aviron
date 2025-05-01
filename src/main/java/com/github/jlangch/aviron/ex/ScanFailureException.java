@@ -1,7 +1,7 @@
 package com.github.jlangch.aviron.ex;
 
 
-public class ScanFailureException extends ClamavException {
+public class ScanFailureException extends AvironException {
    
     public ScanFailureException(final String responseString) {
         super(String.format("Scan failure: %s", responseString));

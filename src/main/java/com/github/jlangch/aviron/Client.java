@@ -16,7 +16,7 @@ import com.github.jlangch.aviron.commands.scan.InStream;
 import com.github.jlangch.aviron.commands.scan.MultiScan;
 import com.github.jlangch.aviron.commands.scan.Scan;
 import com.github.jlangch.aviron.commands.scan.ScanResult;
-import com.github.jlangch.aviron.ex.ClamavException;
+import com.github.jlangch.aviron.ex.AvironException;
 import com.github.jlangch.aviron.ex.UnknownCommandException;
 import com.github.jlangch.aviron.server.CommandRunDetails;
 import com.github.jlangch.aviron.server.ServerIO;
@@ -250,11 +250,11 @@ public class Client {
 
             throw new UnknownCommandException(command.getCommandString());
         }
-        catch (ClamavException ex) {
+        catch (AvironException ex) {
             throw ex;
         }
         catch (RuntimeException ex) {
-            throw new ClamavException(
+            throw new AvironException(
                     String.format("Failed to send command: %s", command.getCommandString()),
                     ex);
         }
