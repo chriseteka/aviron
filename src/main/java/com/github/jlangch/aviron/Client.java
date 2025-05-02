@@ -29,8 +29,12 @@ import com.github.jlangch.aviron.util.StringUtils;
 
 
 /**
- * The ClamAV client provides access to the ClamAV functions like file scanning,
- * updating the ClamAV virus databases, or getting the scanning stats.
+ * The ClamAV client provides access to the ClamAV daemon (clamd) functions 
+ * like file scanning, updating the ClamAV virus databases, or getting the 
+ * scanning stats.
+ * 
+ * <p>The ClamAV client communicates through a <i>Socket</i> with the
+ * <i>clamd</i> daemon.
  * 
  * <pre>
  * Client client = new Client.Builder()
