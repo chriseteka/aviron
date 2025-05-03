@@ -151,13 +151,15 @@ public class Admin {
                 throw new NotRunningException("No cpulimit processes running!");
             }
             
+            final String clamdPID = getClamdPID();
+            
             pids.forEach(pid -> {
                 try {
                     final ShellResult r = Shell.execCmd("kill", "-SIGINT", pid);
                     if (r.getExitCode() != 0) {
                         throw new AvironException(
-                                "Failed to deactivate a CPU limit on the clamd "
-                                + "process (" + pid + ").\n"
+                                "Failed to deactivate the CPU limit on the clamd "
+                                + "process (" + clamdPID + ").\n"
                                 + "\nExit code: " + r.getExitCode()
                                 + "\nError msg: " + r.getStderr());
                     }
