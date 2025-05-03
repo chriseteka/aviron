@@ -32,7 +32,7 @@ public class TestShutdownServer {
         System.out.println();
         
         System.out.println("[clamd PID]");
-        System.out.println(client.getClamdPID());
+        System.out.println(Admin.getClamdPID());
         System.out.println();
         System.out.println();
 

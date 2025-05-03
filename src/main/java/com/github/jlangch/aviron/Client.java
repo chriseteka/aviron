@@ -1,6 +1,5 @@
 package com.github.jlangch.aviron;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
@@ -22,10 +21,6 @@ import com.github.jlangch.aviron.ex.UnknownCommandException;
 import com.github.jlangch.aviron.server.CommandRunDetails;
 import com.github.jlangch.aviron.server.ServerIO;
 import com.github.jlangch.aviron.util.Lazy;
-import com.github.jlangch.aviron.util.OS;
-import com.github.jlangch.aviron.util.Shell;
-import com.github.jlangch.aviron.util.ShellResult;
-import com.github.jlangch.aviron.util.StringUtils;
 
 
 /**
@@ -247,41 +242,6 @@ public class Client {
     }
 
 
-    /**
-     * Returns the clamd PID or null if clamd is not running.
-     * 
-     * <p>
-     * Note: This function is available for Linux and MacOS only!
-     * 
-     * @return the clamd PID
-     */
-    public String getClamdPID() {
-        if (OS.isLinux() || OS.isMacOSX()) {
-            try {
-                final ShellResult r = Shell.execCmd("pgrep", "clamd");
-                if (r.getExitCode() == 0) {
-                    return StringUtils
-                                .splitIntoLines(r.getStdout())
-                                .stream()
-                                .filter(s -> !StringUtils.isBlank(s))
-                                .findFirst()
-                                .orElse(null);
-                }
-                else {
-                    return null;
-                }
-            }
-            catch(IOException ex) {
-                throw new AvironException("Failed to get clamd PID", ex);
-            }
-        }
-        else {
-            throw new AvironException(
-                    "Client::getClamdPid is available for Linux and MacOS only!");
-        }
-    }
-    
-
     private List<String> loadAvailableCommands() {
         return new VersionCommands().send(server);
     }
@@ -303,7 +263,6 @@ public class Client {
                     ex);
         }
     }
-
 
     public static class Builder {
         public Client build() {

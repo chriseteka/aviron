@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 
 ## [1.1.0] - 2025-05-xx
 
-- ...
+- Added admin functions to control the CPU limit of the clamd daemon (not yet tested!)
 
 
 
