@@ -176,4 +176,17 @@ public class Admin {
         }
     }
 
+    /**
+     * Returns the number of available processors or number of hyperthreads 
+     * if the CPU supports hyperthreads.
+     * 
+     * <p>
+     * Note: In a shell run: sysctl -n hw.ncpu
+     * 
+     * @return the number of CPUs
+     */
+    public static int getNrOfCpus() {
+        return Runtime.getRuntime().availableProcessors();
+    }
+
 }
