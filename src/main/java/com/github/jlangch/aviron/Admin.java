@@ -102,6 +102,10 @@ public class Admin {
      * </ul>
      * 
      * <p>
+     * Note: If the <i>clamd</i> process terminates the controlling <i>cpulimit</i>
+     *       process will terminate automatically as well.
+     * 
+     * <p>
      * Note: This function is available for Linux and MacOS only!
      * 
      * @param limit a percent value 0..LIMIT
