@@ -181,6 +181,7 @@ public class Admin {
      * <pre>
      * Linux shell:    nproc --all
      * MacOS shell:    sysctl -n hw.ncpu
+     * Java:           Runtime.getRuntime().availableProcessors()
      * </pre>
      * 
      * @return the number of CPUs
