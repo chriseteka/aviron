@@ -13,10 +13,10 @@ import com.github.jlangch.aviron.util.StringUtils;
 
 
 /**
- * Offers functions to control the CPU limit of the clamd daemon.
+ * Offers functions to control the CPU limit of the <i>clamd</i> daemon.
  * 
  * <p>
- * The <i>cpulimit</i> must be installed on the host running the
+ * The <i>cpulimit</i> tool must be installed on the host running the
  * <i>clamd</i> daemon:
  * 
  * <pre>
@@ -27,7 +27,7 @@ import com.github.jlangch.aviron.util.StringUtils;
 public class Admin {
 
     /**
-     * Returns the <i>clamd</i> PID or null if <i>clamd</i> daemon  is not running.
+     * Returns the <i>clamd</i> PID or null if <i>clamd</i> daemon is not running.
      * 
      * <p>
      * Note: This function is available for Linux and MacOS only!
