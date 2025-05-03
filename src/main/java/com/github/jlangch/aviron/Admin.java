@@ -143,23 +143,25 @@ public class Admin {
      */
     public static void deactivateCpuLimit() {
         if (OS.isLinux() || OS.isMacOSX()) {
-            try {
-                final String pid = getClamdPID();
-                if (pid == null) {
-                    throw new NotRunningException("The clamd daemon is not running!");
-                 }
-                
-                final ShellResult r = Shell.execCmd("kill", "-SIGINT", pid);
-                if (r.getExitCode() != 0) {
-                    throw new AvironException(
-                            "Failed to deactivate a CPU limit on the clamd process.\n" +
-                            "\nExit code: " + r.getExitCode() +
-                            "\nError msg: " + r.getStderr());
+            final List<String> pids = getCpulimitPIDs();
+            if (pids.isEmpty()) {
+                throw new NotRunningException("No cpulimit processes running!");
+            }
+            
+            pids.forEach(pid -> {
+                try {
+                    final ShellResult r = Shell.execCmd("kill", "-SIGINT", pid);
+                    if (r.getExitCode() != 0) {
+                        throw new AvironException(
+                                "Failed to deactivate a CPU limit on the clamd process.\n" +
+                                "\nExit code: " + r.getExitCode() +
+                                "\nError msg: " + r.getStderr());
+                    }
                 }
-            }
-            catch(IOException ex) {
-                throw new AvironException("Failed to deactivate a CPU limit on the clamd process", ex);
-            }
+                catch(IOException ex) {
+                    throw new AvironException("Failed to deactivate a CPU limit on the clamd process", ex);
+                }
+            });
         }
         else {
             throw new AvironException(
