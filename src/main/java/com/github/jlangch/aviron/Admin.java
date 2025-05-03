@@ -105,7 +105,8 @@ public class Admin {
     public static void activateCpuLimit(final int limit) {
         if (OS.isLinux() || OS.isMacOSX()) {
             if (limit < 0 || limit > 100) {
-                throw new IllegalArgumentException("A limit value must be in the range 0...100!");
+                throw new IllegalArgumentException(
+                		"A limit value must be in the range 0...100!");
             }
             
             try {
@@ -114,7 +115,8 @@ public class Admin {
                     throw new NotRunningException("The clamd daemon is not running!");
                  }
                 
-                final ShellResult r = Shell.execCmd("cpulimit", "--limit"+limit, "--pid="+pid);
+                final ShellResult r = Shell.execCmd(
+                						"cpulimit", "--limit" + limit, "--pid=" + pid);
                 if (r.getExitCode() != 0) {
                     throw new AvironException(
                             "Failed to activate a CPU limit on the clamd process.\n" +
@@ -123,7 +125,8 @@ public class Admin {
                 }
             }
             catch(IOException ex) {
-                throw new AvironException("Failed to activate a CPU limit on the clamd process", ex);
+                throw new AvironException(
+                		"Failed to activate a CPU limit on the clamd process", ex);
             }
         }
         else {
@@ -153,13 +156,15 @@ public class Admin {
                     final ShellResult r = Shell.execCmd("kill", "-SIGINT", pid);
                     if (r.getExitCode() != 0) {
                         throw new AvironException(
-                                "Failed to deactivate a CPU limit on the clamd process.\n" +
-                                "\nExit code: " + r.getExitCode() +
-                                "\nError msg: " + r.getStderr());
+                                "Failed to deactivate a CPU limit on the clamd "
+                                + "process (" + pid + ").\n"
+                                + "\nExit code: " + r.getExitCode()
+                                + "\nError msg: " + r.getStderr());
                     }
                 }
                 catch(IOException ex) {
-                    throw new AvironException("Failed to deactivate a CPU limit on the clamd process", ex);
+                    throw new AvironException(
+                    		"Failed to deactivate a CPU limit on the clamd process", ex);
                 }
             });
         }
