@@ -14,6 +14,15 @@ import com.github.jlangch.aviron.util.StringUtils;
 
 /**
  * Offers functions to control the CPU limit of the clamd daemon.
+ * 
+ * <p>
+ * The <i>cpulimit</i> must be installed on the host running the
+ * <i>clamd</i> daemon:
+ * 
+ * <pre>
+ * Alma Linux:         dnf install cpulimit
+ * MacOS (Homebrew):   brew install cpulimit
+ * </pre>
  */
 public class Admin {
 
@@ -90,11 +99,13 @@ public class Admin {
      * 
      * <p>
      * Note: This function is available for Linux and MacOS only!
+     * 
+     * @param limit a percent value 0..100
      */
-    public static void activateCpuLimit(final int percent) {
+    public static void activateCpuLimit(final int limit) {
         if (OS.isLinux() || OS.isMacOSX()) {
-            if (percent < 0 || percent > 100) {
-                throw new IllegalArgumentException("A percent value must be in the range 0...100!");
+            if (limit < 0 || limit > 100) {
+                throw new IllegalArgumentException("A limit value must be in the range 0...100!");
             }
             
             try {
@@ -103,7 +114,7 @@ public class Admin {
                     throw new NotRunningException("The clamd daemon is not running!");
                  }
                 
-                final ShellResult r = Shell.execCmd("cpulimit", "--limit"+percent, "--pid="+pid);
+                final ShellResult r = Shell.execCmd("cpulimit", "--limit"+limit, "--pid="+pid);
                 if (r.getExitCode() != 0) {
                     throw new AvironException(
                             "Failed to activate a CPU limit on the clamd process.\n" +
