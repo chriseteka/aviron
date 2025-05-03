@@ -1,5 +1,6 @@
 package com.github.jlangch.aviron.util;
 
+import java.util.List;
 
 public class ShellResult {
 
@@ -18,8 +19,16 @@ public class ShellResult {
         return stdout;
     }
 
+    public List<String> getStdoutLines() {
+        return StringUtils.splitIntoLines(stdout);
+    }
+
     public String getStderr() {
         return stderr;
+    }
+
+    public List<String> getStderrLines() {
+        return StringUtils.splitIntoLines(stderr);
     }
 
     public int getExitCode() {

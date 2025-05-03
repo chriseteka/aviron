@@ -39,9 +39,8 @@ public class Admin {
             try {
                 final ShellResult r = Shell.execCmd("pgrep", "clamd");
                 if (r.getExitCode() == 0) {
-                    return StringUtils
-                                .splitIntoLines(r.getStdout())
-                                .stream()
+                    return r.getStdoutLines()
+                            .stream()
                                 .filter(s -> !StringUtils.isBlank(s))
                                 .findFirst()
                                 .orElse(null);
@@ -74,11 +73,10 @@ public class Admin {
             try {
                 final ShellResult r = Shell.execCmd("pgrep", "cpulimit");
                 if (r.getExitCode() == 0) {
-                    return StringUtils
-                                .splitIntoLines(r.getStdout())
-                                .stream()
-                                .filter(s -> !StringUtils.isBlank(s))
-                                .collect(Collectors.toList());
+                    return r.getStdoutLines()
+                            .stream()
+                            .filter(s -> !StringUtils.isBlank(s))
+                            .collect(Collectors.toList());
                 }
                 else {
                     return null;
@@ -95,34 +93,34 @@ public class Admin {
     }
     
     /**
-     * Activates a CPU limit [0..100%] on the <i>clamd</i> process
+     * Activates a CPU limit [0..LIMIT] on the <i>clamd</i> process
+     * 
+     * <p>The value of LIMIT depends on the number of logical processors: 
+     * <ul>
+     *  <li>on a 8 core <i>MacBook Air</i> LIMIT is 800%</li>
+     *  <li>on a <i>Intel</i> single core with 2 hyperthreads LIMIT is 200%</li>
+     * </ul>
      * 
      * <p>
      * Note: This function is available for Linux and MacOS only!
      * 
-     * @param limit a percent value 0..100
+     * @param limit a percent value 0..LIMIT
      */
     public static void activateCpuLimit(final int limit) {
         if (OS.isLinux() || OS.isMacOSX()) {
-            if (limit < 0 || limit > 100) {
+            if (limit < 0) {
                 throw new IllegalArgumentException(
-                		"A limit value must be in the range 0...100!");
+                		"A limit value must not be negative!");
             }
             
             try {
                 final String pid = getClamdPID();
                 if (pid == null) {
                     throw new NotRunningException("The clamd daemon is not running!");
-                 }
-                
-                final ShellResult r = Shell.execCmd(
-                						"cpulimit", "--limit" + limit, "--pid=" + pid);
-                if (r.getExitCode() != 0) {
-                    throw new AvironException(
-                            "Failed to activate a CPU limit on the clamd process.\n" +
-                            "\nExit code: " + r.getExitCode() +
-                            "\nError msg: " + r.getStderr());
                 }
+                
+                // run cpulimit as background process
+                Shell.execCmdInBackground("cpulimit", "--limit" + limit, "--pid=" + pid);
             }
             catch(IOException ex) {
                 throw new AvironException(
@@ -180,8 +178,10 @@ public class Admin {
      * Returns the number of available processors or number of hyperthreads 
      * if the CPU supports hyperthreads.
      * 
-     * <p>
-     * Note: In a shell run: sysctl -n hw.ncpu
+     * <pre>
+     * Linux shell:    nproc --all
+     * MacOS shell:    sysctl -n hw.ncpu
+     * </pre>
      * 
      * @return the number of CPUs
      */
