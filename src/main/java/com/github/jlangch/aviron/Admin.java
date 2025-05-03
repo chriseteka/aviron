@@ -27,7 +27,8 @@ import com.github.jlangch.aviron.util.StringUtils;
 public class Admin {
 
     /**
-     * Returns the <i>clamd</i> PID or null if <i>clamd</i> daemon is not running.
+     * Returns the <i>clamd</i> PID or <code>null</code> if <i>clamd</i> daemon 
+     * is not running.
      * 
      * <p>
      * Note: This function is available for Linux and MacOS only!
