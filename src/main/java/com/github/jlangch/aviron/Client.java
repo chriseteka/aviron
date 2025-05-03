@@ -25,8 +25,8 @@ import com.github.jlangch.aviron.util.Lazy;
 
 /**
  * The ClamAV client provides access to the ClamAV daemon (clamd) functions 
- * like file scanning, updating the ClamAV virus databases, or getting the 
- * scanning stats.
+ * like file scanning, updating the daemon's ClamAV virus databases, or getting 
+ * the scanning stats.
  * 
  * <p>The ClamAV client communicates through a <i>Socket</i> with the
  * <i>clamd</i> daemon.
