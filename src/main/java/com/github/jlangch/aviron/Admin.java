@@ -27,12 +27,12 @@ import com.github.jlangch.aviron.util.StringUtils;
 public class Admin {
 
     /**
-     * Returns the clamd PID or null if clamd daemon  is not running.
+     * Returns the <i>clamd</i> PID or null if <i>clamd</i> daemon  is not running.
      * 
      * <p>
      * Note: This function is available for Linux and MacOS only!
      * 
-     * @return the clamd PID
+     * @return the <i>clamd</i> PID
      */
     public static String getClamdPID() {
         if (OS.isLinux() || OS.isMacOSX()) {
@@ -61,7 +61,7 @@ public class Admin {
     }
 
     /**
-     * Returns the cpulimit PIDs. There are two cpulimit processes controlling
+     * Returns the <i>cpulimit</i> PIDs. There are two <i>cpulimit</i> processes controlling
      * the CPU limit of a target process.
      * 
      * <p>
@@ -95,7 +95,7 @@ public class Admin {
     }
     
     /**
-     * Activates a CPU limit [0..100%] on the clamd process
+     * Activates a CPU limit [0..100%] on the <i>clamd</i> process
      * 
      * <p>
      * Note: This function is available for Linux and MacOS only!
@@ -133,10 +133,10 @@ public class Admin {
     }
     
     /**
-     * Deactivates a CPU limit on the clamd process
+     * Deactivates a CPU limit on the <i>clamd</i> process
      * 
      * <p>
-     * Sends a SIGINT to controlling cpulimit process
+     * Sends a <b>SIGINT</b> to controlling <i>cpulimit</i> process
      * 
      * <p>
      * Note: This function is available for Linux and MacOS only!
