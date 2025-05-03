@@ -41,9 +41,9 @@ public class Admin {
                 if (r.getExitCode() == 0) {
                     return r.getStdoutLines()
                             .stream()
-                                .filter(s -> !StringUtils.isBlank(s))
-                                .findFirst()
-                                .orElse(null);
+                            .filter(s -> !StringUtils.isBlank(s))
+                            .findFirst()
+                            .orElse(null);
                 }
                 else {
                     return null;
@@ -137,7 +137,7 @@ public class Admin {
      * Deactivates a CPU limit on the <i>clamd</i> process
      * 
      * <p>
-     * Sends a <b>SIGINT</b> to controlling <i>cpulimit</i> process
+     * Sends a <b>SIGINT</b> to the controlling <i>cpulimit</i> process
      * 
      * <p>
      * Note: This function is available for Linux and MacOS only!
