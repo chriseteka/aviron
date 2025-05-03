@@ -180,7 +180,7 @@ public class Admin {
     }
 
     /**
-     * Returns the number of available processors or number of hyperthreads 
+     * Returns the number of available processors or the number of hyperthreads 
      * if the CPU supports hyperthreads.
      * 
      * <pre>
