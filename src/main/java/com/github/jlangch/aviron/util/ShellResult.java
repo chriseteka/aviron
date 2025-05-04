@@ -34,6 +34,10 @@ public class ShellResult {
     public int getExitCode() {
         return exitCode;
     }
+    
+    public boolean isZeroExitCode() {
+        return exitCode == 0;
+    }
 
 
     @Override

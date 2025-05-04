@@ -39,16 +39,13 @@ public class Admin {
         if (OS.isLinux() || OS.isMacOSX()) {
             try {
                 final ShellResult r = Shell.execCmd("pgrep", "clamd");
-                if (r.getExitCode() == 0) {
-                    return r.getStdoutLines()
-                            .stream()
-                            .filter(s -> !StringUtils.isBlank(s))
-                            .findFirst()
-                            .orElse(null);
-                }
-                else {
-                    return null;
-                }
+                return r.isZeroExitCode()
+                        ? r.getStdoutLines()
+                           .stream()
+                           .filter(s -> !StringUtils.isBlank(s))
+                           .findFirst()
+                           .orElse(null)
+                        : null;
             }
             catch(IOException ex) {
                 throw new AvironException("Failed to get clamd PID", ex);
@@ -73,15 +70,12 @@ public class Admin {
         if (OS.isLinux() || OS.isMacOSX()) {
             try {
                 final ShellResult r = Shell.execCmd("pgrep", "cpulimit");
-                if (r.getExitCode() == 0) {
-                    return r.getStdoutLines()
-                            .stream()
-                            .filter(s -> !StringUtils.isBlank(s))
-                            .collect(Collectors.toList());
-                }
-                else {
-                    return null;
-                }
+                return r.isZeroExitCode()
+                        ? r.getStdoutLines()
+                           .stream()
+                           .filter(s -> !StringUtils.isBlank(s))
+                           .collect(Collectors.toList())
+                        : null;
             }
             catch(IOException ex) {
                 throw new AvironException("Failed to get cpulimit PIDs", ex);
@@ -115,7 +109,7 @@ public class Admin {
         if (OS.isLinux() || OS.isMacOSX()) {
             if (limit < 0) {
                 throw new IllegalArgumentException(
-                		"A limit value must not be negative!");
+                        "A limit value must not be negative!");
             }
             
             try {
@@ -129,7 +123,7 @@ public class Admin {
             }
             catch(IOException ex) {
                 throw new AvironException(
-                		"Failed to activate a CPU limit on the clamd process", ex);
+                        "Failed to activate a CPU limit on the clamd process", ex);
             }
         }
         else {
@@ -159,7 +153,7 @@ public class Admin {
             pids.forEach(pid -> {
                 try {
                     final ShellResult r = Shell.execCmd("kill", "-SIGINT", pid);
-                    if (r.getExitCode() != 0) {
+                    if (!r.isZeroExitCode()) {
                         throw new AvironException(
                                 "Failed to deactivate the CPU limit on the clamd "
                                 + "process (" + clamdPID + ").\n"
@@ -169,7 +163,7 @@ public class Admin {
                 }
                 catch(IOException ex) {
                     throw new AvironException(
-                    		"Failed to deactivate a CPU limit on the clamd process", ex);
+                            "Failed to deactivate a CPU limit on the clamd process", ex);
                 }
             });
         }
