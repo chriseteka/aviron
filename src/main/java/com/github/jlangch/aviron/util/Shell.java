@@ -57,14 +57,12 @@ public class Shell {
         try {
             final File nohup = File.createTempFile("nohup-", ".out");
             nohup.deleteOnExit();
- 
-            final String nohupCmdSuffix = "2>&1 >" + nohup.getAbsolutePath();
 
             final Process proc = Runtime.getRuntime().exec(
                                     new String[] {
                                             "/bin/sh",
                                             "-c",
-                                            cmdFormatted + " " + nohupCmdSuffix + " &" });
+                                            cmdFormatted + " 2>&1 >" + nohup.getAbsolutePath() + " &" });
  
             // start result
             final int exitCode = proc.waitFor();
