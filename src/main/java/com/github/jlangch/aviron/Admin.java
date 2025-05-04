@@ -64,6 +64,8 @@ public class Admin {
      * @return the <i>clamd</i> PID
      */
     public static String getClamdPID() {
+       	Shell.validateLinuxOrMacOSX("Admin::getClamdPID");
+
     	final List<String> pids = Shell.pgrep("clamd");
     	return pids.isEmpty() ? null : pids.get(0);
     }
@@ -78,6 +80,8 @@ public class Admin {
      * @return the list with PIDs
      */
     public static List<String> getCpulimitPIDs() {
+       	Shell.validateLinuxOrMacOSX("Admin::getCpulimitPIDs");
+
     	return Shell.pgrep("cpulimit");
     }
 
@@ -163,6 +167,8 @@ public class Admin {
      * Note: This function is available for Linux and MacOS only!
      */
     public static void killClamd() {
+       	Shell.validateLinuxOrMacOSX("Admin::killClamd");
+
         Shell.kill(Signal.SIGINT, getClamdPID());
     }
 
