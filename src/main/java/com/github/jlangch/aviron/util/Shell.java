@@ -47,7 +47,23 @@ public class Shell {
         }
     }
 
-    public static ShellBackgroundResult execCmdBackground(final String... command) throws IOException {
+    public static ShellResult execCmdBackground(final String... command) throws IOException {
+        final String cmdFormatted = formatCmd(command);
+
+        try {
+            final Process proc = Runtime.getRuntime().exec(
+                                    new String[] { "/bin/sh", "-c", cmdFormatted + " &" });
+
+            return getShellResult(proc);
+        }
+        catch(Exception ex) {
+            throw new RuntimeException(
+                    "Failed to run background command: /bin/sh -c " + cmdFormatted  + " &", 
+                    ex);
+        }
+    }
+
+    public static ShellBackgroundResult execCmdBackgroundNohup(final String... command) throws IOException {
         final String cmdFormatted = formatCmd(command);
 
         try {
@@ -66,7 +82,8 @@ public class Shell {
             throw new RuntimeException(
                     "Failed to run background command: /bin/sh -c " 
                     + cmdFormatted 
-                    + " 2>&1 >nohup.out &", ex);
+                    + " 2>&1 >nohup.out &", 
+                    ex);
         }
     }
 
