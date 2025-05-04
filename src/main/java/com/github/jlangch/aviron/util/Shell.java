@@ -80,7 +80,7 @@ public class Shell {
         }
         catch(Exception ex) {
             throw new RuntimeException(
-                    "Failed to run background command: /bin/sh -c " 
+                    "Failed to run nohup background command: /bin/sh -c " 
                     + cmdFormatted 
                     + " 2>&1 >nohup.out &", 
                     ex);
