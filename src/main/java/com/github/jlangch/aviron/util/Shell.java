@@ -23,6 +23,7 @@
 package com.github.jlangch.aviron.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -50,11 +51,27 @@ public class Shell {
         }
     }
 
-    public static void execCmdBackground(final String... command) throws IOException {
+    public static ShellBackgroundResult execCmdBackground(final String... command) throws IOException {
         final String cmdFormatted = formatCmd(command);
 
         try {
-            Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", cmdFormatted + " &" });
+            final File nohup = File.createTempFile("nohup-", ".out");
+ 
+            final String nohupCmdSuffix = "2>&1 >" + nohup.getAbsolutePath();
+
+            final Process proc = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", cmdFormatted + " " + nohupCmdSuffix + " &" });
+ 
+            // start result
+            final int exitCode = proc.waitFor();
+            final String stdout = slurp(proc.getInputStream());
+            final String stderr = slurp(proc.getErrorStream());         
+            final ShellResult startResult = new ShellResult(stdout, stderr, exitCode);
+
+            if (nohup.isFile()) {
+                nohup.deleteOnExit();
+            }
+            
+            return new ShellBackgroundResult(startResult, nohup);
         }
         catch(Exception ex) {
             throw new RuntimeException(

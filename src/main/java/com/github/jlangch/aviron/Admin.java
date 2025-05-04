@@ -30,6 +30,7 @@ import com.github.jlangch.aviron.ex.AvironException;
 import com.github.jlangch.aviron.ex.NotRunningException;
 import com.github.jlangch.aviron.util.OS;
 import com.github.jlangch.aviron.util.Shell;
+import com.github.jlangch.aviron.util.ShellBackgroundResult;
 import com.github.jlangch.aviron.util.ShellResult;
 import com.github.jlangch.aviron.util.StringUtils;
 import com.github.jlangch.aviron.util.Version;
@@ -134,11 +135,12 @@ public class Admin {
      * Note: This function is available for Linux and MacOS only!
      * 
      * @param limit a percent value 0..LIMIT
+     * @return the nohup file
      * 
      * @see Admin#deactivateCpuLimit() deactivateCpuLimit
      * @see Admin#getNrOfCpus() getNrOfCpus
      */
-    public static void activateCpuLimit(final int limit) {
+    public static ShellBackgroundResult activateCpuLimit(final int limit) {
         if (OS.isLinux() || OS.isMacOSX()) {
             if (limit < 0) {
                 throw new IllegalArgumentException(
@@ -152,7 +154,7 @@ public class Admin {
                 }
 
                 // run cpulimit as background process
-                Shell.execCmdBackground("cpulimit", "--limit=" + limit, "--pid=" + pid);
+                return Shell.execCmdBackground("cpulimit", "--limit=" + limit, "--pid=" + pid);
             }
             catch(IOException ex) {
                 throw new AvironException(
@@ -205,6 +207,39 @@ public class Admin {
         else {
             throw new AvironException(
                     "Admin::deactivateCpuLimit is available for Linux and MacOS only!");
+        }
+    }
+
+
+    /**
+     * Kills  the <i>clamd</i> process if its running.
+     * 
+     * <p>
+     * Note: This function is available for Linux and MacOS only!
+     */
+    public static void killClamd() {
+        if (OS.isLinux() || OS.isMacOSX()) {
+            final String pid = getClamdPID();
+            
+            if (pid != null) {
+                try {
+                    final ShellResult r = Shell.execCmd("kill", "-SIGINT", pid);
+                    if (!r.isZeroExitCode()) {
+                        throw new AvironException(
+                                "Failed to kill clamd process (" + pid + ").\n"
+                                + "\nExit code: " + r.getExitCode()
+                                + "\nError msg: " + r.getStderr());
+                    }
+                }
+                catch(IOException ex) {
+                    throw new AvironException(
+                            "Failed to kill the clamd process", ex);
+                }
+            }
+        }
+        else {
+            throw new AvironException(
+                    "Admin::getClamdPid is available for Linux and MacOS only!");
         }
     }
 

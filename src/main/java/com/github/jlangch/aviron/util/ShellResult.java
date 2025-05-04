@@ -65,28 +65,24 @@ public class ShellResult {
 
     @Override
     public String toString() {
-        if (exitCode == 0) {
-            return stdout;
+        final String err = StringUtils.trimToNull(stderr);
+        final String out = StringUtils.trimToNull(stdout);
+
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append("Exit code: " + exitCode + "\n");
+        
+        if (out != null) {
+            sb.append("[stdout]\n");
+            sb.append(out);
         }
-        else {
-            final String err = StringUtils.trimToNull(stderr);
-            final String out = StringUtils.trimToNull(stdout);
 
-            StringBuilder sb = new StringBuilder();
-
-            if (out != null) {
-                sb.append(out);
-                sb.append("\n\n\n");
-            }
-
-            if (err != null) {
-                sb.append("Exit code: " + exitCode + "\n");
-                sb.append("Error:\n\n");
-                sb.append(stderr);
-            }
-
-            return sb.toString();
+        if (err != null) {
+            sb.append("\n[stderr]\n");
+            sb.append(err);
         }
+
+        return sb.toString();
     }
 
 
