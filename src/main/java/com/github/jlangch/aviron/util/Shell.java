@@ -28,7 +28,7 @@ public class Shell {
         }
     }
   
-    public static void execCmdInBackground(final String... command) throws IOException {
+    public static void execCmdBackground(final String... command) throws IOException {
         final String cmdFormatted = formatCmd(command);
         
         try {

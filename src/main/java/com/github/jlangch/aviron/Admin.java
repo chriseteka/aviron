@@ -125,7 +125,7 @@ public class Admin {
                 }
                 
                 // run cpulimit as background process
-                Shell.execCmdInBackground("cpulimit", "--limit" + limit, "--pid=" + pid);
+                Shell.execCmdBackground("cpulimit", "--limit" + limit, "--pid=" + pid);
             }
             catch(IOException ex) {
                 throw new AvironException(
