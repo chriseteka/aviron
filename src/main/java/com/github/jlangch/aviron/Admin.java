@@ -53,7 +53,7 @@ public class Admin {
         }
         else {
             throw new AvironException(
-                    "Client::getClamdPid is available for Linux and MacOS only!");
+                    "Admin::getClamdPid is available for Linux and MacOS only!");
         }
     }
 
@@ -83,7 +83,7 @@ public class Admin {
         }
         else {
             throw new AvironException(
-                    "Client::getCpulimitPIDs is available for Linux and MacOS only!");
+                    "Admin::getCpulimitPIDs is available for Linux and MacOS only!");
         }
     }
 
@@ -117,7 +117,7 @@ public class Admin {
                 if (pid == null) {
                     throw new NotRunningException("The clamd daemon is not running!");
                 }
-                
+
                 // run cpulimit as background process
                 Shell.execCmdBackground("cpulimit", "--limit" + limit, "--pid=" + pid);
             }
@@ -128,7 +128,7 @@ public class Admin {
         }
         else {
             throw new AvironException(
-                    "Client::activateCpuLimit is available for Linux and MacOS only!");
+                    "Admin::activateCpuLimit is available for Linux and MacOS only!");
         }
     }
 
@@ -169,7 +169,7 @@ public class Admin {
         }
         else {
             throw new AvironException(
-                    "Client::deactivateCpuLimit is available for Linux and MacOS only!");
+                    "Admin::deactivateCpuLimit is available for Linux and MacOS only!");
         }
     }
 
