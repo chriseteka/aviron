@@ -52,9 +52,9 @@ public class Shell {
     }
 
     public static ShellResult execCmdBackground(final String... command) throws IOException {
-           validateLinuxOrMacOSX("Shell::execCmdBackground");
+        validateLinuxOrMacOSX("Shell::execCmdBackground");
 
-           final String cmdFormatted = formatCmd(command);
+        final String cmdFormatted = formatCmd(command);
 
         try {
             final Process proc = Runtime.getRuntime().exec(
