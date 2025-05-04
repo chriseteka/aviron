@@ -52,7 +52,9 @@ public class Shell {
     }
 
     public static ShellResult execCmdBackground(final String... command) throws IOException {
-        final String cmdFormatted = formatCmd(command);
+       	validateLinuxOrMacOSX("Shell::execCmdBackground");
+
+       	final String cmdFormatted = formatCmd(command);
 
         try {
             final Process proc = Runtime.getRuntime().exec(
@@ -68,7 +70,9 @@ public class Shell {
     }
 
     public static ShellBackgroundResult execCmdBackgroundNohup(final String... command) throws IOException {
-        final String cmdFormatted = formatCmd(command);
+       	validateLinuxOrMacOSX("Shell::execCmdBackgroundNohup");
+
+       	final String cmdFormatted = formatCmd(command);
 
         try {
             final File nohup = File.createTempFile("nohup-", ".out");
@@ -92,50 +96,47 @@ public class Shell {
     }
 
     public static List<String> pgrep(final String process) {
-        if (OS.isLinux() || OS.isMacOSX()) {
-            try {
-                final ShellResult r = Shell.execCmd("pgrep", process);
-                return r.isZeroExitCode()
-                        ? r.getStdoutLines()
-                           .stream()
-                           .filter(s -> !StringUtils.isBlank(s))
-                           .collect(Collectors.toList())
-                        : new ArrayList<>();
-            }
-            catch(IOException ex) {
-                throw new AvironException("Failed to get " + process + " PIDs", ex);
-            }
+    	validateLinuxOrMacOSX("Shell::pgrep");
+
+        try {
+            final ShellResult r = Shell.execCmd("pgrep", process);
+            return r.isZeroExitCode()
+                    ? r.getStdoutLines()
+                       .stream()
+                       .filter(s -> !StringUtils.isBlank(s))
+                       .collect(Collectors.toList())
+                    : new ArrayList<>();
         }
-        else {
-            throw new AvironException(
-                    "Shell::pgrep is available for Linux and MacOS only!");
+        catch(IOException ex) {
+            throw new AvironException("Failed to get " + process + " PIDs", ex);
         }
     }
 
     public static void kill(final Signal signal, final String pid) {
-        if (OS.isLinux() || OS.isMacOSX()) {
-            if (!StringUtils.isBlank(pid)) {
-                try {
-                    final ShellResult r = Shell.execCmd("kill", "-" + signal.signal(), pid);
-                    if (!r.isZeroExitCode()) {
-                        throw new AvironException(
-                                "Failed to kill process (" + pid + ").\n"
-                                + "\nExit code: " + r.getExitCode()
-                                + "\nError msg: " + r.getStderr());
-                    }
-                }
-                catch(IOException ex) {
+    	validateLinuxOrMacOSX("Shell::kill");
+
+        if (!StringUtils.isBlank(pid)) {
+            try {
+                final ShellResult r = Shell.execCmd("kill", "-" + signal.signal(), pid);
+                if (!r.isZeroExitCode()) {
                     throw new AvironException(
-                            "Failed to kill the process " + pid, ex);
+                            "Failed to kill process (" + pid + ").\n"
+                            + "\nExit code: " + r.getExitCode()
+                            + "\nError msg: " + r.getStderr());
                 }
             }
-        }
-        else {
-            throw new AvironException(
-                    "Shell::kill is available for Linux and MacOS only!");
+            catch(IOException ex) {
+                throw new AvironException(
+                        "Failed to kill the process " + pid, ex);
+            }
         }
     }
 
+    public static void validateLinuxOrMacOSX(final String fnName) {
+    	 if (!(OS.isLinux() && OS.isMacOSX())) {
+             throw new AvironException(fnName + " is available for Linux and MacOS only!");
+    	 }
+    }
 
     private static String formatCmd(final String... command) {
         return String.join(" ", Arrays.asList(command));

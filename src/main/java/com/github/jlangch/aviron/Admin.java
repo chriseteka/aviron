@@ -27,7 +27,6 @@ import java.util.List;
 
 import com.github.jlangch.aviron.ex.AvironException;
 import com.github.jlangch.aviron.ex.NotRunningException;
-import com.github.jlangch.aviron.util.OS;
 import com.github.jlangch.aviron.util.Shell;
 import com.github.jlangch.aviron.util.ShellBackgroundResult;
 import com.github.jlangch.aviron.util.Signal;
@@ -105,29 +104,25 @@ public class Admin {
      * @see Admin#getNrOfCpus() getNrOfCpus
      */
     public static ShellBackgroundResult activateCpuLimit(final int limit) {
-        if (OS.isLinux() || OS.isMacOSX()) {
-            if (limit < 0) {
-                throw new IllegalArgumentException(
-                        "A limit value must not be negative!");
-            }
+       	Shell.validateLinuxOrMacOSX("Admin::activateCpuLimit");
 
-            try {
-                final String pid = getClamdPID();
-                if (pid == null) {
-                    throw new NotRunningException("The clamd daemon is not running!");
-                }
-
-                // run cpulimit as background process
-                return Shell.execCmdBackgroundNohup("cpulimit", "--limit=" + limit, "--pid=" + pid);
-            }
-            catch(IOException ex) {
-                throw new AvironException(
-                        "Failed to activate a CPU limit on the clamd process", ex);
-            }
+        if (limit < 0) {
+            throw new IllegalArgumentException(
+                    "A limit value must not be negative!");
         }
-        else {
+
+        try {
+            final String pid = getClamdPID();
+            if (pid == null) {
+                throw new NotRunningException("The clamd daemon is not running!");
+            }
+
+            // run cpulimit as background process
+            return Shell.execCmdBackgroundNohup("cpulimit", "--limit=" + limit, "--pid=" + pid);
+        }
+        catch(IOException ex) {
             throw new AvironException(
-                    "Admin::activateCpuLimit is available for Linux and MacOS only!");
+                    "Failed to activate a CPU limit on the clamd process", ex);
         }
     }
 
@@ -143,26 +138,22 @@ public class Admin {
      * @see Admin#activateCpuLimit(int) activateCpuLimit
      */
     public static void deactivateCpuLimit() {
-        if (OS.isLinux() || OS.isMacOSX()) {
-            final List<String> pids = getCpulimitPIDs();
-            if (pids.isEmpty()) {
-                throw new NotRunningException("No cpulimit processes running!");
-            }
+       	Shell.validateLinuxOrMacOSX("Admin::deactivateCpuLimit");
 
-            pids.forEach(pid -> {
-                try {
-                	Shell.kill(Signal.SIGINT, pid);
-                }
-                catch(Exception ex) {
-                    throw new AvironException(
-                            "Failed to deactivate CPU limit on the clamd process", ex);
-                }
-            });
+        final List<String> pids = getCpulimitPIDs();
+        if (pids.isEmpty()) {
+            throw new NotRunningException("No cpulimit processes running!");
         }
-        else {
-            throw new AvironException(
-                    "Admin::deactivateCpuLimit is available for Linux and MacOS only!");
-        }
+
+        pids.forEach(pid -> {
+            try {
+            	Shell.kill(Signal.SIGINT, pid);
+            }
+            catch(Exception ex) {
+                throw new AvironException(
+                        "Failed to deactivate CPU limit on the clamd process", ex);
+            }
+        });
     }
 
     /**
