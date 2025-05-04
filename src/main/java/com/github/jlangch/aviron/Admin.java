@@ -134,6 +134,9 @@ public class Admin {
      * Note: This function is available for Linux and MacOS only!
      * 
      * @param limit a percent value 0..LIMIT
+     * 
+     * @see Admin#deactivateCpuLimit() deactivateCpuLimit
+     * @see Admin#getNrOfCpus() getNrOfCpus
      */
     public static void activateCpuLimit(final int limit) {
         if (OS.isLinux() || OS.isMacOSX()) {
@@ -170,6 +173,8 @@ public class Admin {
      * 
      * <p>
      * Note: This function is available for Linux and MacOS only!
+     * 
+     * @see Admin#activateCpuLimit(int) activateCpuLimit
      */
     public static void deactivateCpuLimit() {
         if (OS.isLinux() || OS.isMacOSX()) {
