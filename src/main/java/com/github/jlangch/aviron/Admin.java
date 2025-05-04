@@ -80,7 +80,7 @@ public class Admin {
      * @return the list with PIDs
      */
     public static List<String> getCpulimitPIDs() {
-           Shell.validateLinuxOrMacOSX("Admin::getCpulimitPIDs");
+        Shell.validateLinuxOrMacOSX("Admin::getCpulimitPIDs");
 
         return Shell.pgrep("cpulimit");
     }
@@ -108,7 +108,7 @@ public class Admin {
      * @see Admin#getNrOfCpus() getNrOfCpus
      */
     public static ShellBackgroundResult activateCpuLimit(final int limit) {
-           Shell.validateLinuxOrMacOSX("Admin::activateCpuLimit");
+        Shell.validateLinuxOrMacOSX("Admin::activateCpuLimit");
 
         if (limit < 0) {
             throw new IllegalArgumentException(
@@ -142,7 +142,7 @@ public class Admin {
      * @see Admin#activateCpuLimit(int) activateCpuLimit
      */
     public static void deactivateCpuLimit() {
-           Shell.validateLinuxOrMacOSX("Admin::deactivateCpuLimit");
+        Shell.validateLinuxOrMacOSX("Admin::deactivateCpuLimit");
 
         final List<String> pids = getCpulimitPIDs();
         if (pids.isEmpty()) {
@@ -167,7 +167,7 @@ public class Admin {
      * Note: This function is available for Linux and MacOS only!
      */
     public static void killClamd() {
-           Shell.validateLinuxOrMacOSX("Admin::killClamd");
+        Shell.validateLinuxOrMacOSX("Admin::killClamd");
 
         Shell.kill(Signal.SIGINT, getClamdPID());
     }
