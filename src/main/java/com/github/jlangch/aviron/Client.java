@@ -47,6 +47,16 @@ import com.github.jlangch.aviron.util.Lazy;
  * }
  * </pre>
  * 
+ * For testing purposes start clamd in the foreground:
+ * <pre>
+ * // foreground
+ * clamd --foreground
+ * clamd --log=/tmp/clamd.log --pid=/tmp/clamd.pid --foreground
+ * 
+ * // background
+ * nohup clamd --log=/tmp/clamd.log --pid=/tmp/clamd.pid &
+ * </pre>
+ * 
  * @see <a href="https://docs.clamav.net/manual/Usage.html">ClamAV Manual</a>
  * @see <a href="https://linux.die.net/man/8/clamd">Clamd Man Pages</a>
  * @see <a href="https://www.liquidweb.com/blog/install-clamav/">Install ClamAV</a>

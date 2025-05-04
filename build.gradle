@@ -148,6 +148,15 @@ javadoc {
 }
 
 jar {
+    manifest {
+        attributes 'Build-Date':             new Date().format("yyyy-MM-dd'T'HH:mm:ss"),
+                   'Implementation-Vendor':  'com.github.jlangch',
+                   'Implementation-Title':   'Aviron',
+                   'Implementation-Version': "${project.version}",
+                   'Specification-Vendor':   'com.github.jlangch',
+                   'Application-Name':       'Aviron'
+    }
+
     archiveFileName = "aviron-${project.version}.jar"
 }
 

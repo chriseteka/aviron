@@ -51,9 +51,9 @@ public class Scan {
         // Note: The file separator depends on the server's type (Unix, Windows)
         //       clamd is running on!
         final Client client = new Client.Builder()
-                                      .serverHostname("localhost")
-                                      .serverFileSeparator(FileSeparator.UNIX)
-                                      .build();
+                                        .serverHostname("localhost")
+                                        .serverFileSeparator(FileSeparator.UNIX)
+                                        .build();
 
         System.out.println("Reachable: " + client.isReachable());
 
