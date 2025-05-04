@@ -47,7 +47,7 @@ public class Shell {
             return getShellResult(proc);
         }
         catch(Exception ex) {
-            throw new RuntimeException("Failed to run command: " + cmdFormatted, ex);
+            throw new AvironException("Failed to run command: " + cmdFormatted, ex);
         }
     }
 
@@ -63,7 +63,7 @@ public class Shell {
             return getShellResult(proc);
         }
         catch(Exception ex) {
-            throw new RuntimeException(
+            throw new AvironException(
                     "Failed to run background command: /bin/sh -c " + cmdFormatted  + " &", 
                     ex);
         }
@@ -87,7 +87,7 @@ public class Shell {
             return new ShellBackgroundResult(getShellResult(proc), nohup);
         }
         catch(Exception ex) {
-            throw new RuntimeException(
+            throw new AvironException(
                     "Failed to run nohup background command: /bin/sh -c " 
                     + cmdFormatted 
                     + " 2>&1 >nohup.out &", 
