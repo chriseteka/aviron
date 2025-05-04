@@ -52,9 +52,9 @@ public class Shell {
     }
 
     public static ShellResult execCmdBackground(final String... command) throws IOException {
-       	validateLinuxOrMacOSX("Shell::execCmdBackground");
+           validateLinuxOrMacOSX("Shell::execCmdBackground");
 
-       	final String cmdFormatted = formatCmd(command);
+           final String cmdFormatted = formatCmd(command);
 
         try {
             final Process proc = Runtime.getRuntime().exec(
@@ -70,9 +70,9 @@ public class Shell {
     }
 
     public static ShellBackgroundResult execCmdBackgroundNohup(final String... command) throws IOException {
-       	validateLinuxOrMacOSX("Shell::execCmdBackgroundNohup");
+        validateLinuxOrMacOSX("Shell::execCmdBackgroundNohup");
 
-       	final String cmdFormatted = formatCmd(command);
+        final String cmdFormatted = formatCmd(command);
 
         try {
             final File nohup = File.createTempFile("nohup-", ".out");
@@ -96,7 +96,7 @@ public class Shell {
     }
 
     public static List<String> pgrep(final String process) {
-    	validateLinuxOrMacOSX("Shell::pgrep");
+        validateLinuxOrMacOSX("Shell::pgrep");
 
         try {
             final ShellResult r = Shell.execCmd("pgrep", process);
@@ -113,7 +113,7 @@ public class Shell {
     }
 
     public static void kill(final Signal signal, final String pid) {
-    	validateLinuxOrMacOSX("Shell::kill");
+        validateLinuxOrMacOSX("Shell::kill");
 
         if (!StringUtils.isBlank(pid)) {
             try {
@@ -133,9 +133,9 @@ public class Shell {
     }
 
     public static void validateLinuxOrMacOSX(final String fnName) {
-    	 if (!(OS.isLinux() && OS.isMacOSX())) {
+         if (!(OS.isLinux() && OS.isMacOSX())) {
              throw new AvironException(fnName + " is available for Linux and MacOS only!");
-    	 }
+         }
     }
 
     private static String formatCmd(final String... command) {
