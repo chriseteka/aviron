@@ -24,15 +24,13 @@ package com.github.jlangch.aviron;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.github.jlangch.aviron.ex.AvironException;
 import com.github.jlangch.aviron.ex.NotRunningException;
 import com.github.jlangch.aviron.util.OS;
 import com.github.jlangch.aviron.util.Shell;
 import com.github.jlangch.aviron.util.ShellBackgroundResult;
-import com.github.jlangch.aviron.util.ShellResult;
-import com.github.jlangch.aviron.util.StringUtils;
+import com.github.jlangch.aviron.util.Signal;
 import com.github.jlangch.aviron.util.Version;
 
 
@@ -67,25 +65,8 @@ public class Admin {
      * @return the <i>clamd</i> PID
      */
     public static String getClamdPID() {
-        if (OS.isLinux() || OS.isMacOSX()) {
-            try {
-                final ShellResult r = Shell.execCmd("pgrep", "clamd");
-                return r.isZeroExitCode()
-                        ? r.getStdoutLines()
-                           .stream()
-                           .filter(s -> !StringUtils.isBlank(s))
-                           .findFirst()
-                           .orElse(null)
-                        : null;
-            }
-            catch(IOException ex) {
-                throw new AvironException("Failed to get clamd PID", ex);
-            }
-        }
-        else {
-            throw new AvironException(
-                    "Admin::getClamdPid is available for Linux and MacOS only!");
-        }
+    	final List<String> pids = Shell.pgrep("clamd");
+    	return pids.isEmpty() ? null : pids.get(0);
     }
 
     /**
@@ -98,24 +79,7 @@ public class Admin {
      * @return the list with PIDs
      */
     public static List<String> getCpulimitPIDs() {
-        if (OS.isLinux() || OS.isMacOSX()) {
-            try {
-                final ShellResult r = Shell.execCmd("pgrep", "cpulimit");
-                return r.isZeroExitCode()
-                        ? r.getStdoutLines()
-                           .stream()
-                           .filter(s -> !StringUtils.isBlank(s))
-                           .collect(Collectors.toList())
-                        : null;
-            }
-            catch(IOException ex) {
-                throw new AvironException("Failed to get cpulimit PIDs", ex);
-            }
-        }
-        else {
-            throw new AvironException(
-                    "Admin::getCpulimitPIDs is available for Linux and MacOS only!");
-        }
+    	return Shell.pgrep("cpulimit");
     }
 
     /**
@@ -185,22 +149,13 @@ public class Admin {
                 throw new NotRunningException("No cpulimit processes running!");
             }
 
-            final String clamdPID = getClamdPID();
-
             pids.forEach(pid -> {
                 try {
-                    final ShellResult r = Shell.execCmd("kill", "-SIGINT", pid);
-                    if (!r.isZeroExitCode()) {
-                        throw new AvironException(
-                                "Failed to deactivate the CPU limit on the clamd "
-                                + "process (" + clamdPID + ").\n"
-                                + "\nExit code: " + r.getExitCode()
-                                + "\nError msg: " + r.getStderr());
-                    }
+                	Shell.kill(Signal.SIGINT, pid);
                 }
-                catch(IOException ex) {
+                catch(Exception ex) {
                     throw new AvironException(
-                            "Failed to deactivate a CPU limit on the clamd process", ex);
+                            "Failed to deactivate CPU limit on the clamd process", ex);
                 }
             });
         }
@@ -210,37 +165,14 @@ public class Admin {
         }
     }
 
-
     /**
-     * Kills  the <i>clamd</i> process if its running.
+     * Kills the <i>clamd</i> process if its running.
      * 
      * <p>
      * Note: This function is available for Linux and MacOS only!
      */
     public static void killClamd() {
-        if (OS.isLinux() || OS.isMacOSX()) {
-            final String pid = getClamdPID();
-            
-            if (pid != null) {
-                try {
-                    final ShellResult r = Shell.execCmd("kill", "-SIGINT", pid);
-                    if (!r.isZeroExitCode()) {
-                        throw new AvironException(
-                                "Failed to kill clamd process (" + pid + ").\n"
-                                + "\nExit code: " + r.getExitCode()
-                                + "\nError msg: " + r.getStderr());
-                    }
-                }
-                catch(IOException ex) {
-                    throw new AvironException(
-                            "Failed to kill the clamd process", ex);
-                }
-            }
-        }
-        else {
-            throw new AvironException(
-                    "Admin::getClamdPid is available for Linux and MacOS only!");
-        }
+        Shell.kill(Signal.SIGINT, getClamdPID());
     }
 
     /**

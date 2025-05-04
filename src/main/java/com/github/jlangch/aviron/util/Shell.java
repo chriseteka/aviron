@@ -28,8 +28,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
+
+import com.github.jlangch.aviron.ex.AvironException;
 
 
 public class Shell {
@@ -84,6 +88,51 @@ public class Shell {
                     + cmdFormatted 
                     + " 2>&1 >nohup.out &", 
                     ex);
+        }
+    }
+
+    public static List<String> pgrep(final String process) {
+        if (OS.isLinux() || OS.isMacOSX()) {
+            try {
+                final ShellResult r = Shell.execCmd("pgrep", process);
+                return r.isZeroExitCode()
+                        ? r.getStdoutLines()
+                           .stream()
+                           .filter(s -> !StringUtils.isBlank(s))
+                           .collect(Collectors.toList())
+                        : new ArrayList<>();
+            }
+            catch(IOException ex) {
+                throw new AvironException("Failed to get " + process + " PIDs", ex);
+            }
+        }
+        else {
+            throw new AvironException(
+                    "Shell::pgrep is available for Linux and MacOS only!");
+        }
+    }
+
+    public static void kill(final Signal signal, final String pid) {
+        if (OS.isLinux() || OS.isMacOSX()) {
+            if (!StringUtils.isBlank(pid)) {
+                try {
+                    final ShellResult r = Shell.execCmd("kill", "-" + signal.signal(), pid);
+                    if (!r.isZeroExitCode()) {
+                        throw new AvironException(
+                                "Failed to kill process (" + pid + ").\n"
+                                + "\nExit code: " + r.getExitCode()
+                                + "\nError msg: " + r.getStderr());
+                    }
+                }
+                catch(IOException ex) {
+                    throw new AvironException(
+                            "Failed to kill the process " + pid, ex);
+                }
+            }
+        }
+        else {
+            throw new AvironException(
+                    "Shell::kill is available for Linux and MacOS only!");
         }
     }
 
