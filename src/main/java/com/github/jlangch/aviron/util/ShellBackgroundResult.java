@@ -61,17 +61,24 @@ public class ShellBackgroundResult {
             }
         }
         else {
-            return "";
+            return null;
         }
     }
 
- 
+
     @Override
     public String toString() {
         if (nohupFile.isFile()) {
             final StringBuilder sb = new StringBuilder(startResult.toString());
-            sb.append("[nohup]\n");
-            sb.append(getNohupFileText());
+            
+            final String nohup = StringUtils.trimToNull(getNohupFileText()); 
+            if (nohup == null) {
+                sb.append("\n[nohup]  empty\n");
+            }
+            else {
+                sb.append("\n[nohup]\n");
+                sb.append(nohup);
+            }
             return sb.toString();
         }
         else {

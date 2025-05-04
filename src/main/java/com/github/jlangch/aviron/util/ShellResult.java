@@ -70,14 +70,20 @@ public class ShellResult {
 
         final StringBuilder sb = new StringBuilder();
 
-        sb.append("Exit code: " + exitCode + "\n");
+        sb.append("Exit code: " + exitCode);
         
-        if (out != null) {
-            sb.append("[stdout]\n");
+        if (out == null) {
+            sb.append("\n[stdout]  empty\n");
+        }
+        else {
+            sb.append("\n[stdout]\n");
             sb.append(out);
         }
 
-        if (err != null) {
+        if (err == null) {
+            sb.append("\n[stderr]  empty\n");
+        }
+        else {
             sb.append("\n[stderr]\n");
             sb.append(err);
         }
