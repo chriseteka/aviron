@@ -73,7 +73,7 @@ public class ShellBackgroundResult {
             
             final String nohup = StringUtils.trimToNull(getNohupFileText()); 
             if (nohup == null) {
-                sb.append("\n[nohup]  empty\n");
+                sb.append("\n[nohup]   empty\n");
             }
             else {
                 sb.append("\n[nohup]\n");

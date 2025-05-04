@@ -56,26 +56,29 @@ public class Shell {
 
         try {
             final File nohup = File.createTempFile("nohup-", ".out");
+            nohup.deleteOnExit();
  
             final String nohupCmdSuffix = "2>&1 >" + nohup.getAbsolutePath();
 
-            final Process proc = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", cmdFormatted + " " + nohupCmdSuffix + " &" });
+            final Process proc = Runtime.getRuntime().exec(
+                                    new String[] {
+                                            "/bin/sh",
+                                            "-c",
+                                            cmdFormatted + " " + nohupCmdSuffix + " &" });
  
             // start result
             final int exitCode = proc.waitFor();
             final String stdout = slurp(proc.getInputStream());
-            final String stderr = slurp(proc.getErrorStream());         
+            final String stderr = slurp(proc.getErrorStream());
             final ShellResult startResult = new ShellResult(stdout, stderr, exitCode);
-
-            if (nohup.isFile()) {
-                nohup.deleteOnExit();
-            }
-            
+           
             return new ShellBackgroundResult(startResult, nohup);
         }
         catch(Exception ex) {
             throw new RuntimeException(
-                    "Failed to run background command: /bin/sh -c " + cmdFormatted + " &", ex);
+                    "Failed to run background command: /bin/sh -c " 
+                    + cmdFormatted 
+                    + " 2>&1 >nohup.out &", ex);
         }
     }
 
