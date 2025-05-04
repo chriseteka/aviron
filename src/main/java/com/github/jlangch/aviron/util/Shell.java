@@ -39,12 +39,8 @@ public class Shell {
 
         try {
             final Process proc = Runtime.getRuntime().exec(command);
-            int exitCode = proc.waitFor();
 
-            String stdout = slurp(proc.getInputStream());
-            String stderr = slurp(proc.getErrorStream());
-
-            return new ShellResult(stdout, stderr, exitCode);
+            return getShellResult(proc);
         }
         catch(Exception ex) {
             throw new RuntimeException("Failed to run command: " + cmdFormatted, ex);
@@ -63,14 +59,8 @@ public class Shell {
                                             "/bin/sh",
                                             "-c",
                                             cmdFormatted + " 2>&1 >" + nohup.getAbsolutePath() + " &" });
- 
-            // start result
-            final int exitCode = proc.waitFor();
-            final String stdout = slurp(proc.getInputStream());
-            final String stderr = slurp(proc.getErrorStream());
-            final ShellResult startResult = new ShellResult(stdout, stderr, exitCode);
-           
-            return new ShellBackgroundResult(startResult, nohup);
+
+            return new ShellBackgroundResult(getShellResult(proc), nohup);
         }
         catch(Exception ex) {
             throw new RuntimeException(
@@ -79,6 +69,7 @@ public class Shell {
                     + " 2>&1 >nohup.out &", ex);
         }
     }
+
 
     private static String formatCmd(final String... command) {
         return String.join(" ", Arrays.asList(command));
@@ -90,5 +81,15 @@ public class Shell {
                                                 is, StandardCharsets.UTF_8))) {
             return br.lines().collect(Collectors.joining("\n"));
         }
+    }
+    
+    private static ShellResult getShellResult(final Process proc) 
+    throws IOException, InterruptedException {
+        final int exitCode = proc.waitFor();
+
+        final String stdout = slurp(proc.getInputStream());
+        final String stderr = slurp(proc.getErrorStream());
+
+        return new ShellResult(stdout, stderr, exitCode);
     }
 }
