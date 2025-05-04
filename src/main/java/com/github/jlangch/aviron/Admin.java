@@ -50,7 +50,7 @@ import com.github.jlangch.aviron.util.Version;
 public class Admin {
 
     /**
-     * @return the Aviron version
+     * @return the Aviron version as {major}.{minor}.{patch} like "1.1.0".
      */
     public static String getAvironVersion() {
         return Version.VERSION;
