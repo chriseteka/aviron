@@ -52,14 +52,7 @@ public class TestAdminCpulimit {
         System.out.println("[activate cpulimit]");
         final ShellBackgroundResult bgResult = Admin.activateCpuLimit(50);
         Thread.sleep(5000);
-        if (bgResult.getStartResult().isZeroExitCode()) {
-            System.out.println("activated");
-            System.out.println(bgResult);
-        }
-        else {
-            System.out.println("error");
-            System.out.println(bgResult);
-        }
+        System.out.println(bgResult);
         System.out.println();
         System.out.println();
 
