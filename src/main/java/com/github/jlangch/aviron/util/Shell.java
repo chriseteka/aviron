@@ -13,24 +13,24 @@ public class Shell {
 
     public static ShellResult execCmd(final String... command) throws IOException {
         final String cmdFormatted = formatCmd(command);
-        
+
         try {
             final Process proc = Runtime.getRuntime().exec(command);
             int exitCode = proc.waitFor();
-            
+
             String stdout = slurp(proc.getInputStream());
             String stderr = slurp(proc.getErrorStream());
-                        
+
             return new ShellResult(stdout, stderr, exitCode);
         }
         catch(Exception ex) {
             throw new RuntimeException("Failed to run command: " + cmdFormatted, ex);
         }
     }
-  
+
     public static void execCmdBackground(final String... command) throws IOException {
         final String cmdFormatted = formatCmd(command);
-        
+
         try {
             Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", cmdFormatted + " &" });
         }
@@ -43,7 +43,7 @@ public class Shell {
     private static String formatCmd(final String... command) {
         return String.join(" ", Arrays.asList(command));
     }
-    
+
     private static String slurp(final InputStream is) throws IOException {
         try (BufferedReader br = new BufferedReader(
                                         new InputStreamReader(

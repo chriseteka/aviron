@@ -86,7 +86,7 @@ public class Admin {
                     "Client::getCpulimitPIDs is available for Linux and MacOS only!");
         }
     }
-    
+
     /**
      * Activates a CPU limit [0..LIMIT] on the <i>clamd</i> process
      * 
@@ -111,7 +111,7 @@ public class Admin {
                 throw new IllegalArgumentException(
                         "A limit value must not be negative!");
             }
-            
+
             try {
                 final String pid = getClamdPID();
                 if (pid == null) {
@@ -131,7 +131,7 @@ public class Admin {
                     "Client::activateCpuLimit is available for Linux and MacOS only!");
         }
     }
-    
+
     /**
      * Deactivates a CPU limit on the <i>clamd</i> process
      * 
@@ -147,9 +147,9 @@ public class Admin {
             if (pids.isEmpty()) {
                 throw new NotRunningException("No cpulimit processes running!");
             }
-            
+
             final String clamdPID = getClamdPID();
-            
+
             pids.forEach(pid -> {
                 try {
                     final ShellResult r = Shell.execCmd("kill", "-SIGINT", pid);
