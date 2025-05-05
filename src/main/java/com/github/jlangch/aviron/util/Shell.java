@@ -77,12 +77,10 @@ public class Shell {
         try {
             final File nohup = File.createTempFile("nohup-", ".out");
             nohup.deleteOnExit();
+            
+            final String cmd = cmdFormatted + " 2>&1 >" + nohup.getAbsolutePath() + " &";
 
-            final Process proc = Runtime.getRuntime().exec(
-                                    new String[] {
-                                            "/bin/sh",
-                                            "-c",
-                                            cmdFormatted + " 2>&1 >" + nohup.getAbsolutePath() + " &" });
+            final Process proc = Runtime.getRuntime().exec(new String[] {"/bin/sh", "-c", cmd});
 
             return new ShellBackgroundResult(getShellResult(proc), nohup);
         }
@@ -133,7 +131,7 @@ public class Shell {
     }
 
     public static void validateLinuxOrMacOSX(final String fnName) {
-         if (!(OS.isLinux() && OS.isMacOSX())) {
+         if (!(OS.isLinux() || OS.isMacOSX())) {
              throw new AvironException(fnName + " is available for Linux and MacOS only!");
          }
     }
