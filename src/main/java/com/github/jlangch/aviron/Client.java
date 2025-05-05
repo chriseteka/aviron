@@ -76,7 +76,7 @@ import com.github.jlangch.aviron.util.Lazy;
  * clamd --log=/tmp/clamd.log --pid=/tmp/clamd.pid --foreground
  * 
  * // background
- * nohup clamd --log=/tmp/clamd.log --pid=/tmp/clamd.pid &amp;
+ * clamd --log=/tmp/clamd.log --pid=/tmp/clamd.pid
  * </pre>
  * 
  * @see <a href="https://docs.clamav.net/manual/Usage.html">ClamAV Manual</a>

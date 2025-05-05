@@ -51,26 +51,8 @@ public class Shell {
         }
     }
 
-    public static ShellResult execCmdBackground(final String... command) throws IOException {
+    public static ShellBackgroundResult execCmdBackground(final String... command) throws IOException {
         validateLinuxOrMacOSX("Shell::execCmdBackground");
-
-        final String cmdFormatted = formatCmd(command);
-
-        try {
-            final Process proc = Runtime.getRuntime().exec(
-                                    new String[] { "/bin/sh", "-c", cmdFormatted + " &" });
-
-            return getShellResult(proc);
-        }
-        catch(Exception ex) {
-            throw new AvironException(
-                    "Failed to run background command: /bin/sh -c " + cmdFormatted  + " &", 
-                    ex);
-        }
-    }
-
-    public static ShellBackgroundResult execCmdBackgroundNohup(final String... command) throws IOException {
-        validateLinuxOrMacOSX("Shell::execCmdBackgroundNohup");
 
         final String cmdFormatted = formatCmd(command);
 
@@ -82,11 +64,36 @@ public class Shell {
 
             final Process proc = Runtime.getRuntime().exec(new String[] {"/bin/sh", "-c", cmd});
 
+
             return new ShellBackgroundResult(getShellResult(proc), nohup);
         }
         catch(Exception ex) {
             throw new AvironException(
-                    "Failed to run nohup background command: /bin/sh -c " 
+                    "Failed to run nohup command: /bin/sh -c " 
+                    + cmdFormatted 
+                    + " 2>&1 >nohup.out &", 
+                    ex);
+        }
+    }
+
+    public static ShellBackgroundResult execCmdBackgroundNohup(final String... command) throws IOException {
+        validateLinuxOrMacOSX("Shell::execCmdNohup");
+
+        final String cmdFormatted = formatCmd(command);
+
+        try {
+            final File nohup = File.createTempFile("nohup-", ".out");
+            nohup.deleteOnExit();
+            
+            final String cmd = "nohup " + cmdFormatted + " 2>&1 >" + nohup.getAbsolutePath() + " &";
+
+            final Process proc = Runtime.getRuntime().exec(new String[] {"/bin/sh", "-c", cmd});
+
+            return new ShellBackgroundResult(getShellResult(proc), nohup);
+        }
+        catch(Exception ex) {
+            throw new AvironException(
+                    "Failed to run nohup command: /bin/sh -c nohup " 
                     + cmdFormatted 
                     + " 2>&1 >nohup.out &", 
                     ex);

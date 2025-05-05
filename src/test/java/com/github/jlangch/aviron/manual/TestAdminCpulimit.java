@@ -22,7 +22,7 @@
  */
 package com.github.jlangch.aviron.manual;
 
-import com.github.jlangch.aviron.Admin;
+import com.github.jlangch.aviron.admin.Admin;
 import com.github.jlangch.aviron.util.ShellBackgroundResult;
 
 

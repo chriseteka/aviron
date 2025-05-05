@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron;
+package com.github.jlangch.aviron.admin;
 
 import java.io.IOException;
 import java.util.List;
@@ -101,6 +101,10 @@ public class Admin {
      * <p>
      * Note: This function is available for Linux and MacOS only!
      * 
+     * <p>
+     * Note: Still facing "Process found but you aren't allowed to control it"
+     *       problem on MacOS, even when run with sudo
+     * 
      * @param limit a percent value 0..LIMIT
      * @return the nohup file
      * 
@@ -121,7 +125,7 @@ public class Admin {
                 throw new NotRunningException("The clamd daemon is not running!");
             }
 
-            // run cpulimit as background process
+            // run cpulimit as nohup process
             return Shell.execCmdBackgroundNohup("cpulimit", "--limit=" + limit, "--pid=" + pid);
         }
         catch(IOException ex) {
