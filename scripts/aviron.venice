@@ -97,23 +97,6 @@
   (sleep 600)
   (throw (ex :EofException "exit")))
 
- 
-(defn publish [pgp-key sonatype-user sonatype-pwd]
-  (assert (some? pgp-key) "Please provide the PGP key ID (e.g. 0000AAAA)!")
-  (assert (some? sonatype-user) "Please provide the Sonatype user!")
-  (assert (some? sonatype-pwd) "Please provide the Sonatype password!")
-  (gradle-tasks "clean" 
-                "javadocjar"
-                "sources" 
-                "jar"
-                "publish"
-                "-Dorg.gradle.internal.publish.checksums.insecure=true"
-                "-Dorg.gradle.internal.http.socketTimeout=60000"
-                "-Dorg.gradle.internal.http.connectionTimeout=60000"
-                "-Psigning.gnupg.keyName=\"~{pgp-key}\""
-                "-PsonatypeUsername=\"~{sonatype-user}\""
-                "-PsonatypePassword=\"~{sonatype-pwd}\""))
-
 (defn gradle-tasks [& args]
   (apply gradlew/run* proj-home 
                       (partial printlnc :stdout)  
@@ -158,7 +141,7 @@
     b|build          build the Aviron project
     T|tests          run the Venice unit tests
     t|task t1 tN     run one or more Venice project Gradle tasks
-    p|publish k u p  publish artefacts, requires pgp-key, Sonatype user & pwd
+    B|bundle         bundle artefacts for publishing to Central Sonatype
     i|info           display the configuration
     h|!|help         display the help
     q|quit           quit the shell
@@ -192,7 +175,7 @@
     (nil? cmd)                    nil
     (match? cmd "b|build")        (gradle-tasks "clean" "jar")
     (match? cmd "T|tests")        (gradle-tasks "clean" "test")
-    (match? cmd "p|publish")      (publish (first args) (second args) (third args))
+    (match? cmd "B|bundle")       (gradle-tasks "bundle")
     (match? cmd "t|task")         (apply gradle-tasks args)
     (match? cmd "i|info")         (display-info)
     (match? cmd "h|!|help")       (help)
