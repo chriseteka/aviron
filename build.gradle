@@ -84,11 +84,7 @@
 
 plugins {
     id 'java'
-    id 'maven-publish'
-    id 'signing'
 }
-
-def group = 'com.github.jlangch'
 
 def version_regex = '[0-9]+[.][0-9]+[.][0-9]+(-SNAPSHOT)?'
 
@@ -150,75 +146,7 @@ jar {
     archiveFileName = "aviron-${project.version}.jar"
 }
 
-publishing {
-    publications {
-        avironPublication(MavenPublication) {
-            groupId = 'com.github.jlangch'
-            artifactId = 'aviron'
-            version = "${project.version}"
-
-            artifact sourcesJar
-            artifact javadocJar
-            artifact jar
-
-            versionMapping {
-                usage('java-api') {
-                    fromResolutionOf('runtimeClasspath')
-                }
-                usage('java-runtime') {
-                    fromResolutionResult()
-                }
-            }
-
-            pom {
-                name = 'Aviron'
-                description = 'ClamAV scanner.'
-                url = 'https://github.com/jlangch/aviron/'
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'jlangch'
-                        name = 'Juerg Lang'
-                        email = 'juerg.ch@ggaweb.ch'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git@github.com:jlangch/aviron.git'
-                    developerConnection = 'scm:git:git@github.com:jlangch/aviron.git'
-                    url = 'http://github.com:jlangch/aviron/tree/master'
-                    tag = 'HEAD'
-                }
-            }
-        }
-    }
-
-    repositories {
-        if(!version.endsWith('SNAPSHOT')) {
-            maven {
-                url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-
-                credentials {
-                    username sonatypeUsername
-                    password sonatypePassword
-                }
-            }
-        }
-    }
-}
-
-
-signing {
-    useGpgCmd()  // use the local GPG agent to sign the artefacts
-
-    sign publishing.publications.avironPublication
-}
-
-task bundle(type: Exec, dependsOn: [clean, shadowJar, sourcesJar, javadocJar]) {
+task bundle(type: Exec, dependsOn: [clean, jar, sourcesJar, javadocJar]) {
     // Tech info:         https://central.sonatype.org/publish/publish-portal-upload/
     //                    https://central.sonatype.org/publish/publish-portal-api/
     // Manual publish:    https://central.sonatype.com/publishing
@@ -248,7 +176,7 @@ task bundle(type: Exec, dependsOn: [clean, shadowJar, sourcesJar, javadocJar]) {
                   "; md5sum ${project.artifactId}-${project.version}-javadoc.jar  | cut -d' ' -f1 > ${project.artifactId}-${project.version}-javadoc.jar.md5" +
                   "; echo 'Bundling artifacts to JAR...'" +
                   "; mkdir -p staging/com/github/jlangch/${project.artifactId}/${project.version}" +
-                  "; cp venice-*.* staging/com/github/jlangch/${project.artifactId}/${project.version}" +
+                  "; cp ${project.artifactId}-*.* staging/com/github/jlangch/${project.artifactId}/${project.version}" +
                   "; (cd staging; jar -cMf ../bundle.jar *)" +
                   //"; jar -tvf bundle.jar" +
                   "; echo 'Bundling done.'" +
