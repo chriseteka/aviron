@@ -47,21 +47,11 @@
 //           {proj}/README.md    (chapter Getting the latest release)
 //
 //   [2] Publish to Maven
-//       - ./gradlew clean javadocjar sources jar publish
-//                   -Dorg.gradle.internal.publish.checksums.insecure=true
-//                   -Dorg.gradle.internal.http.socketTimeout=60000
-//                   -Dorg.gradle.internal.http.connectionTimeout=60000
-//                   --warning-mode all
-//                   -Psigning.gnupg.keyName=[gpg-user-key-id]
-//                   -PsonatypeUsername=[name]
-//                   -PsonatypePassword=[pw]
-//                   clean shadowJar publish
-//       - Log in to Sonatype OSSRH (https://oss.sonatype.org/)
-//       - Choose Staging Repositories
-//       - Find the release 'comgithubjlangch-*'
-//       - Verify the contents are ok
-//       - Click Close (wait for validation under the Activity tab to complete)
-//       - Click Release
+//       - ./gradlew bundle
+//       - Open https://central.sonatype.com/publishing and login
+//       - Choose deployment name: "com.github.jlangch:aviron:x.y.z"
+//       - Upload 'bundle.jar' (scroll down publish dialog)
+//       - Publish the artifact
 //
 //   [3] Draft a GitHub Venice release
 //       - Draft a new release in Git (https://github.com/jlangch/aviron/releases)
@@ -160,7 +150,6 @@ jar {
     archiveFileName = "aviron-${project.version}.jar"
 }
 
-
 publishing {
     publications {
         avironPublication(MavenPublication) {
@@ -227,6 +216,45 @@ signing {
     useGpgCmd()  // use the local GPG agent to sign the artefacts
 
     sign publishing.publications.avironPublication
+}
+
+task bundle(type: Exec, dependsOn: [clean, shadowJar, sourcesJar, javadocJar]) {
+    // Tech info:         https://central.sonatype.org/publish/publish-portal-upload/
+    //                    https://central.sonatype.org/publish/publish-portal-api/
+    // Manual publish:    https://central.sonatype.com/publishing
+    //                    deployment name "com.github.jlangch:aviron:x.y.z"
+    //                    scroll down to upload 'bundle.jar'
+    // Browse artifacts:  https://central.sonatype.com/search?namespace=com.github.jlangch
+    
+    workingDir 'build/libs'
+
+    commandLine "/bin/sh",
+                "-c",
+                "cat ../../pom-template.xml | sed 's/__VERSION__/${project.version}/g' > ./${project.artifactId}-${project.version}.pom" +
+                  "; echo 'Bundling ${project.artifactId} ${project.version}' for publishing to Sonatype" +
+                  "; echo 'Create ascii armored artifacts...'" +
+                  "; gpg -ab ${project.artifactId}-${project.version}.pom" +
+                  "; gpg -ab ${project.artifactId}-${project.version}.jar" +
+                  "; gpg -ab ${project.artifactId}-${project.version}-sources.jar" +
+                  "; gpg -ab ${project.artifactId}-${project.version}-javadoc.jar" +
+                  "; echo 'Computing SHA1 and MD5 checksums ...'" +
+                  "; sha1sum ${project.artifactId}-${project.version}.pom         | cut -d' ' -f1 > ${project.artifactId}-${project.version}.pom.sha1" +
+                  "; sha1sum ${project.artifactId}-${project.version}.jar         | cut -d' ' -f1 > ${project.artifactId}-${project.version}.jar.sha1" +
+                  "; sha1sum ${project.artifactId}-${project.version}-sources.jar | cut -d' ' -f1 > ${project.artifactId}-${project.version}-sources.jar.sha1" +
+                  "; sha1sum ${project.artifactId}-${project.version}-javadoc.jar | cut -d' ' -f1 > ${project.artifactId}-${project.version}-javadoc.jar.sha1" +
+                  "; md5sum ${project.artifactId}-${project.version}.pom          | cut -d' ' -f1 > ${project.artifactId}-${project.version}.pom.md5" +
+                  "; md5sum ${project.artifactId}-${project.version}.jar          | cut -d' ' -f1 > ${project.artifactId}-${project.version}.jar.md5" +
+                  "; md5sum ${project.artifactId}-${project.version}-sources.jar  | cut -d' ' -f1 > ${project.artifactId}-${project.version}-sources.jar.md5" +
+                  "; md5sum ${project.artifactId}-${project.version}-javadoc.jar  | cut -d' ' -f1 > ${project.artifactId}-${project.version}-javadoc.jar.md5" +
+                  "; echo 'Bundling artifacts to JAR...'" +
+                  "; mkdir -p staging/com/github/jlangch/${project.artifactId}/${project.version}" +
+                  "; cp venice-*.* staging/com/github/jlangch/${project.artifactId}/${project.version}" +
+                  "; (cd staging; jar -cMf ../bundle.jar *)" +
+                  //"; jar -tvf bundle.jar" +
+                  "; echo 'Bundling done.'" +
+                  "; echo " +
+                  "; echo 'Publish manually at : https://central.sonatype.com/publishing'" +
+                  "; echo 'with deployment name: ${project.groupId}:${project.artifactId}:${project.version}'"
 }
 
 testing {
