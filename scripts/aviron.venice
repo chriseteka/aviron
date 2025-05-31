@@ -97,6 +97,14 @@
   (sleep 600)
   (throw (ex :EofException "exit")))
 
+(defn publish [sonatype-user sonatype-pwd]
+  (assert (some? sonatype-user) "Please provide the Sonatype user!")
+  (assert (some? sonatype-pwd) "Please provide the Sonatype password!")
+  (gradle-tasks "sonatypePublish"
+                "-PsonatypeUsername=\"~{sonatype-user}\""
+                "-PsonatypePassword=\"~{sonatype-pwd}\""
+                "-PsonatypePublishType=\"AUTO\""))
+
 (defn gradle-tasks [& args]
   (apply gradlew/run* proj-home 
                       (partial printlnc :stdout)  
@@ -142,6 +150,7 @@
     T|tests          run the Venice unit tests
     t|task t1 tN     run one or more Venice project Gradle tasks
     B|bundle         bundle artefacts for publishing to Central Sonatype
+    p|publish u p    publish artefacts, requires Sonatype user and password
     i|info           display the configuration
     h|!|help         display the help
     q|quit           quit the shell
@@ -175,7 +184,8 @@
     (nil? cmd)                    nil
     (match? cmd "b|build")        (gradle-tasks "clean" "jar")
     (match? cmd "T|tests")        (gradle-tasks "clean" "test")
-    (match? cmd "B|bundle")       (gradle-tasks "bundle")
+    (match? cmd "B|bundle")       (gradle-tasks "sonatypeBundle")
+    (match? cmd "p|publish")      (publish (first args) (second args))
     (match? cmd "t|task")         (apply gradle-tasks args)
     (match? cmd "i|info")         (display-info)
     (match? cmd "h|!|help")       (help)

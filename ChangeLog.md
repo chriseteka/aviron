@@ -5,9 +5,11 @@ All notable changes to this project will be documented in this file.
 
 
 
-## [1.3.0] - 2025-06-xx
+## [1.2.1] - 2025-06-xx
 
-- ...
+- Changed the Maven publish process for optional auto deployment to Sonatype's 
+  new Central Maven repository without disclosing any credentials to 3rd parties.
+
 
 
 
