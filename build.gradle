@@ -242,6 +242,9 @@ task sonatypePublish(type: Exec, dependsOn: [sonatypeBundle]) {
     commandLine "/bin/sh",
                 "-c",
                 "echo 'Publishing...'" +
+                "; echo 'Name: ${project.groupId}:${project.artifactId}:${project.version}'" +
+                "; echo 'Type: ${sonatypePublishType}'" +
+                "; sleep 2" +
                 "; curl --request POST" +
                 "       --verbose" +
                 "       --header 'Authorization: Bearer ${sonatypeBearer}'" +
