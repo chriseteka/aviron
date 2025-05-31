@@ -97,13 +97,17 @@
   (sleep 600)
   (throw (ex :EofException "exit")))
 
-(defn publish [sonatype-user sonatype-pwd]
+(defn publish [sonatype-user sonatype-pwd sonatype-publish-type]
   (assert (some? sonatype-user) "Please provide the Sonatype user!")
   (assert (some? sonatype-pwd) "Please provide the Sonatype password!")
+  (assert (some? sonatype-publish-type) "Please provide the Sonatype publish type!")
+  (assert (contains? #{"AUTOMATIC" "USER_MANAGED"} sonatype-publish-type) 
+          "Please provide a valid Sonatype publish type!")
+  
   (gradle-tasks "sonatypePublish"
                 "-PsonatypeUsername=\"~{sonatype-user}\""
                 "-PsonatypePassword=\"~{sonatype-pwd}\""
-                "-PsonatypePublishType=\"AUTO\""))
+                "-PsonatypePublishType=\"~{sonatype-publish-type}\""))
 
 (defn gradle-tasks [& args]
   (apply gradlew/run* proj-home 
@@ -185,7 +189,7 @@
     (match? cmd "b|build")        (gradle-tasks "clean" "jar")
     (match? cmd "T|tests")        (gradle-tasks "clean" "test")
     (match? cmd "B|bundle")       (gradle-tasks "sonatypeBundle")
-    (match? cmd "p|publish")      (publish (first args) (second args))
+    (match? cmd "p|publish")      (publish (first args) (second args) "AUTOMATIC")
     (match? cmd "t|task")         (apply gradle-tasks args)
     (match? cmd "i|info")         (display-info)
     (match? cmd "h|!|help")       (help)
