@@ -197,7 +197,7 @@ model {
     }
 }
 
-task sonatypeBundle(type: Exec, dependsOn: [clean, jar, sourcesJar, javadocJar]) {
+task sonatypeBundle(type: Exec, dependsOn: [clean, jar, sourcesJar, javadocJar, generatePomFileForMavenCustomPublication]) {
     // Tech info:         https://central.sonatype.org/publish/publish-portal-upload/
     //                    https://central.sonatype.org/publish/publish-portal-api/
     // Manual publish:    https://central.sonatype.com/publishing
