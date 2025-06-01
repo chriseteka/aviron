@@ -164,7 +164,7 @@ publishing {
 
             pom {
                 name = 'Aviron'
-                description = 'ClamAV scanner'
+                description = 'A Java ClamAV scanner client'
                 url = 'https://github.com/jlangch/aviron/'
                 inceptionYear = '2025'
                 licenses {
