@@ -238,6 +238,9 @@ task sonatypeBundle(type: Exec, dependsOn: [clean, jar, sourcesJar, javadocJar, 
 }
 
 task sonatypePublish(type: Exec, dependsOn: [sonatypeBundle]) {
+    // Tech info:  https://central.sonatype.org/publish/publish-portal-api/
+    //             https://central.sonatype.com/api-doc
+
     workingDir "$buildDir/libs"
 
     commandLine "/bin/sh",
