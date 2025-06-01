@@ -210,7 +210,7 @@ task sonatypeBundle(type: Exec, dependsOn: [clean, jar, sourcesJar, javadocJar, 
     commandLine "/bin/sh",
                 "-c",
                 "echo 'Bundling ${project.artifactId} ${project.version}' for publishing to Sonatype" +
-                  "; echo 'Create ascii armored artifacts...'" +
+                  "; echo 'Create ASCII-armored artifacts...'" +
                   "; gpg -ab ${project.artifactId}-${project.version}.pom" +
                   "; gpg -ab ${project.artifactId}-${project.version}.jar" +
                   "; gpg -ab ${project.artifactId}-${project.version}-sources.jar" +
