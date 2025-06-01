@@ -250,7 +250,7 @@ task sonatypePublish(type: Exec, dependsOn: [sonatypeBundle]) {
 
     doFirst {
         // prevent publishing snapshot releases
-        if(version.endsWith('SNAPSHOT')) {
+        if(version.toLowerCase().endsWith('snapshot')) {
             throw new GradleException(
                         "Rejected publishing sonatype bundle. Version ${project.version} is NOT a release!")
         }
