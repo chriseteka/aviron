@@ -1,4 +1,4 @@
-[![](https://github.com/jlangch/aviron/blob/master/doc/maven-central.svg)](https://search.maven.org/search?q=a:%22aviron%22%20AND%20g:%22com.github.jlangch%22)
+[![](https://github.com/jlangch/aviron/blob/master/doc/maven-central.svg)](https://central.sonatype.com/artifact/com.github.jlangch/aviron)
 [![](https://github.com/jlangch/aviron/blob/master/doc/license.svg)](./LICENSE)
 ![Java Version](https://img.shields.io/badge/java-%3E%3D%201.8-success)
 
