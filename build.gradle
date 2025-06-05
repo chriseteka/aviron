@@ -250,6 +250,33 @@ task sonatypePublish(type: Exec, dependsOn: [sonatypeBundle]) {
     }
 }
 
+task updateReleaseVersion {
+    doLast {
+        if(version.endsWith('SNAPSHOT')) {
+            throw new GradleException(
+                    "Rejected updating release version. ${project.version} is not a release!")
+        }
+
+        println "Updating version ${project.version} -> 'maven-central.svg'"
+        ant.replaceregexp(
+                match:   "v${version_regex}",
+                replace: "v${project.version}",
+                flags:   'g'
+        ) {
+            fileset(dir: 'doc', includes: 'maven-central.svg')
+        }
+
+        println "Updating version ${project.version} -> 'README.md'"
+        ant.replaceregexp(
+                match:   "<version>${version_regex}",
+                replace: "<version>${project.version}",
+                flags:   'g'
+        ) {
+            fileset(dir: '.', includes: 'README.md')
+        }
+    }
+}
+
 testing {
     suites {
         // Configure the built-in test suite
