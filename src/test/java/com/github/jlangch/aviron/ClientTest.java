@@ -24,10 +24,19 @@ package com.github.jlangch.aviron;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
 class ClientTest {
 
     @Test void test() {
         // without clamd mock the client must be mainly manually tested
+    }
+
+    @Test void testCreate() {
+       final Client client = Client.builder()
+                                   .serverHostname("localhost")
+                                   .serverFileSeparator(FileSeparator.JVM_PLATFORM)
+                                   .build();
+       assertNotNull(client);
     }
 }
