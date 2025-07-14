@@ -54,10 +54,10 @@ import com.github.jlangch.aviron.util.Lazy;
  * <i>clamd</i> daemon.
  * 
  * <pre>
- * Client client = new Client.Builder()
- *                           .serverHostname("localhost")
- *                           .serverFileSeparator(FileSeparator.UNIX)
- *                           .build();
+ * Client client = Client.builder()
+ *                       .serverHostname("localhost")
+ *                       .serverFileSeparator(FileSeparator.UNIX)
+ *                       .build();
  *
  * System.out.println(client.version());
  * 
@@ -109,6 +109,16 @@ public class Client {
                             builder.serverFileSeparator,
                             builder.connectionTimeoutMillis,
                             builder.readTimeoutMillis);
+    }
+
+
+    /**
+     * Return a client builder
+     * 
+     * @return a builder
+     */
+    public static Builder builder() {
+        return new Builder();
     }
 
 

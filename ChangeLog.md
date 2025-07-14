@@ -5,9 +5,9 @@ All notable changes to this project will be documented in this file.
 
 
 
-## [1.3.0] - 2025-06-xx
+## [1.3.0] - 2025-07-15
 
-- ...
+- Added Client::builder to simplify building a new client
 
 
 
