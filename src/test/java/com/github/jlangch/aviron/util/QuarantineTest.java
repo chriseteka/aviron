@@ -23,6 +23,7 @@
 package com.github.jlangch.aviron.util;
 
 import static com.github.jlangch.aviron.QuarantineFileAction.COPY;
+import static com.github.jlangch.aviron.QuarantineFileAction.MOVE;
 import static com.github.jlangch.aviron.QuarantineFileAction.NONE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -254,6 +255,153 @@ class QuarantineTest {
             quarantine.handleQuarantineActions(result);
             
             assertEquals(2, tempFS.countScanFiles());
+            assertEquals(4, tempFS.countQuarantineFiles());
+            
+            final File quarantineFile1 = new File(tempFS.getQuarantineDir(), scanFile1.getName());
+            final File quarantineVirusFile1 = new File(tempFS.getQuarantineDir(), scanFile1.getName() + ".virus");
+            
+            final File quarantineFile2 = new File(tempFS.getQuarantineDir(), scanFile1.getName() + ".1");
+            final File quarantineVirusFile2 = new File(tempFS.getQuarantineDir(), scanFile1.getName() + ".1.virus");
+
+            assertTrue(quarantineFile1.isFile());
+            assertTrue(quarantineVirusFile1.isFile());
+
+            assertTrue(quarantineFile2.isFile());
+            assertTrue(quarantineVirusFile2.isFile());
+            
+            // analyze data file
+            assertEquals("TEST1", data(quarantineFile1));
+            assertEquals("TEST1", data(quarantineFile2));
+            
+            // analyze virus meta data file 1
+            final List<String> virusData1 = lines(quarantineVirusFile1);
+            assertEquals(3, virusData1.size());
+            assertEquals(scanFile1.getPath(), virusData1.get(0));
+            assertEquals("xxx", virusData1.get(1));
+            assertNotNull(LocalDateTime.parse(virusData1.get(2)));
+            
+            // analyze virus meta data file 2
+            final List<String> virusData2 = lines(quarantineVirusFile2);
+            assertEquals(3, virusData2.size());
+            assertEquals(scanFile1.getPath(), virusData2.get(0));
+            assertEquals("xxx", virusData2.get(1));
+            assertNotNull(LocalDateTime.parse(virusData2.get(2)));
+        }
+        finally {
+            tempFS.remove();
+        }
+    }
+
+    @Test 
+    void testQuarantineMove_1() {
+        final TempFS tempFS = new TempFS();
+        
+        try {
+            final File scanFile1 = tempFS.createScanFile("test1.data", "TEST1");
+ 
+            assertTrue(scanFile1.isFile());
+ 
+            final Quarantine quarantine = new Quarantine(MOVE, tempFS.getQuarantineDir(), null);
+            
+            final ScanResult result = ScanResult.ok();
+            
+            quarantine.handleQuarantineActions(result);
+            
+            assertEquals(1, tempFS.countScanFiles());
+            assertEquals(0, tempFS.countQuarantineFiles());
+        }
+        finally {
+            tempFS.remove();
+        }
+    }
+
+    @Test 
+    void testQuarantineMove_2a() {
+        final TempFS tempFS = new TempFS();
+        
+        try {
+        	final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
+
+            assertTrue(scanFile1.isFile());
+
+            final Quarantine quarantine = new Quarantine(MOVE, tempFS.getQuarantineDir(), null);
+            
+            final ScanResult result = ScanResult.virusFound(emptyVirusMap());
+            
+            quarantine.handleQuarantineActions(result);
+            
+            assertEquals(1, tempFS.countScanFiles());
+            assertEquals(0, tempFS.countQuarantineFiles());
+        }
+        finally {
+            tempFS.remove();
+        }
+    }
+
+    @Test 
+    void testQuarantineMove_2b() {
+        final TempFS tempFS = new TempFS();
+        
+        try {
+            final File scanFile1 = tempFS.createScanFile("test1.data", "TEST1");
+            final File scanFile2 = tempFS.createScanFile("test2.data", "TEST2");
+
+            assertTrue(scanFile1.isFile());
+            assertTrue(scanFile2.isFile());
+
+            final Quarantine quarantine = new Quarantine(MOVE, tempFS.getQuarantineDir(), null);
+            
+            final ScanResult result = ScanResult.virusFound(virusMap(scanFile1, "xxx"));
+            
+            quarantine.handleQuarantineActions(result);
+            
+            assertEquals(1, tempFS.countScanFiles());
+            assertEquals(2, tempFS.countQuarantineFiles());
+ 
+            final File quarantineFile = new File(tempFS.getQuarantineDir(), scanFile1.getName());
+            final File quarantineVirusFile = new File(tempFS.getQuarantineDir(), scanFile1.getName() + ".virus");
+
+            assertTrue(quarantineFile.isFile());
+            assertTrue(quarantineVirusFile.isFile());
+            
+            // analyze data file
+            assertEquals("TEST1", data(quarantineFile));
+            
+            // analyze virus meta data file
+            final List<String> virusData = lines(quarantineVirusFile);
+            assertEquals(3, virusData.size());
+            assertEquals(scanFile1.getPath(), virusData.get(0));
+            assertEquals("xxx", virusData.get(1));
+            assertNotNull(LocalDateTime.parse(virusData.get(2)));
+        }
+        finally {
+            tempFS.remove();
+        }
+    }
+
+    @Test 
+    void testQuarantineMove_2c() {
+        final TempFS tempFS = new TempFS();
+        
+        try {
+            final File scanFile1 = tempFS.createScanFile("test1.data", "TEST1");
+            final File scanFile2 = tempFS.createScanFile("test2.data", "TEST2");
+
+            assertTrue(scanFile1.isFile());
+            assertTrue(scanFile2.isFile());
+
+            final Quarantine quarantine = new Quarantine(MOVE, tempFS.getQuarantineDir(), null);
+            
+            final ScanResult result = ScanResult.virusFound(virusMap(scanFile1, "xxx"));
+            
+            quarantine.handleQuarantineActions(result);
+            
+            final File scanFile1a = tempFS.createScanFile("test1.data", "TEST1");
+            assertTrue(scanFile1a.isFile());
+
+            quarantine.handleQuarantineActions(result);
+            
+            assertEquals(1, tempFS.countScanFiles());
             assertEquals(4, tempFS.countQuarantineFiles());
             
             final File quarantineFile1 = new File(tempFS.getQuarantineDir(), scanFile1.getName());
