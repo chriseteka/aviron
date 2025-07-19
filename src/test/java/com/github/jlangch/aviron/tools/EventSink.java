@@ -32,7 +32,6 @@ import com.github.jlangch.aviron.QuarantineActionInfo;
 public class EventSink {
 
 	public EventSink() {
-		
 	}
 	
 	public void add(final QuarantineActionInfo event) {
