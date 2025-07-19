@@ -20,21 +20,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron;
+package com.github.jlangch.aviron.tools;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import com.github.jlangch.aviron.QuarantineActionInfo;
 
-public class QuarantineActionInfo {
 
-    public QuarantineActionInfo(
-            final File infectedFile,
-            final List<String> virusList,
-            final File quarantineFile,
-            final QuarantineFileAction action,
-            final QuarantineFileActionException ex
-    ) {
-    }
+public class EventSink {
 
+	public EventSink() {
+		
+	}
+	
+	public void add(final QuarantineActionInfo event) {
+		events.add(event);
+	}
+	
+	public void clear() {
+		events.clear();
+	}
+	
+	public int size() {
+		return events.size();
+	}
+	
+	public List<QuarantineActionInfo> events() {
+		return Collections.unmodifiableList(events);
+	}
+	
+	
+	private List<QuarantineActionInfo> events = new ArrayList<>();
 }

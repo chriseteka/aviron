@@ -43,6 +43,8 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import com.github.jlangch.aviron.commands.scan.ScanResult;
+import com.github.jlangch.aviron.tools.EventSink;
+import com.github.jlangch.aviron.tools.TempFS;
 
 
 class QuarantineTest {
@@ -79,7 +81,7 @@ class QuarantineTest {
     }
 
     @Test 
-    void testQuarantineNone_1() {
+    void testQuarantineNone_1a() {
         final TempFS tempFS = new TempFS();
         
         try {
@@ -102,7 +104,7 @@ class QuarantineTest {
     }
 
     @Test 
-    void testQuarantineNone_2a() {
+    void testQuarantineNone_1b() {
         final TempFS tempFS = new TempFS();
         
         try {
@@ -125,7 +127,7 @@ class QuarantineTest {
     }
 
     @Test 
-    void testQuarantineNone_2b() {
+    void testQuarantineNone_2() {
         final TempFS tempFS = new TempFS();
         
         try {
@@ -150,7 +152,34 @@ class QuarantineTest {
     }
 
     @Test 
-    void testQuarantineCopy_1() {
+    void testQuarantineListenerNone_1a() {
+        final TempFS tempFS = new TempFS();
+        
+        try {
+        	final EventSink events = new EventSink();
+        	
+        	final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
+
+            assertTrue(scanFile1.isFile());
+
+            final Quarantine quarantine = new Quarantine(NONE, tempFS.getQuarantineDir(), e -> events.add(e));
+            
+            final ScanResult result = ScanResult.ok();
+            
+            quarantine.handleQuarantineActions(result);
+            
+            assertEquals(1, tempFS.countScanFiles());
+            assertEquals(0, tempFS.countQuarantineFiles());
+            
+            assertEquals(0, events.size());
+        	}
+        finally {
+            tempFS.remove();
+        }
+    }
+
+    @Test 
+    void testQuarantineCopy_1a() {
         final TempFS tempFS = new TempFS();
         
         try {
@@ -173,7 +202,7 @@ class QuarantineTest {
     }
 
     @Test 
-    void testQuarantineCopy_2a() {
+    void testQuarantineCopy_1b() {
         final TempFS tempFS = new TempFS();
         
         try {
@@ -196,7 +225,7 @@ class QuarantineTest {
     }
 
     @Test 
-    void testQuarantineCopy_2b() {
+    void testQuarantineCopy_2a() {
         final TempFS tempFS = new TempFS();
         
         try {
@@ -237,7 +266,7 @@ class QuarantineTest {
     }
 
     @Test 
-    void testQuarantineCopy_2c() {
+    void testQuarantineCopy_2b() {
         final TempFS tempFS = new TempFS();
         
         try {
@@ -293,7 +322,7 @@ class QuarantineTest {
     }
 
     @Test 
-    void testQuarantineMove_1() {
+    void testQuarantineMove_1a() {
         final TempFS tempFS = new TempFS();
         
         try {
@@ -316,7 +345,7 @@ class QuarantineTest {
     }
 
     @Test 
-    void testQuarantineMove_2a() {
+    void testQuarantineMove_1b() {
         final TempFS tempFS = new TempFS();
         
         try {
@@ -339,7 +368,7 @@ class QuarantineTest {
     }
 
     @Test 
-    void testQuarantineMove_2b() {
+    void testQuarantineMove_2a() {
         final TempFS tempFS = new TempFS();
         
         try {
@@ -380,7 +409,7 @@ class QuarantineTest {
     }
 
     @Test 
-    void testQuarantineMove_2c() {
+    void testQuarantineMove_2b() {
         final TempFS tempFS = new TempFS();
         
         try {
