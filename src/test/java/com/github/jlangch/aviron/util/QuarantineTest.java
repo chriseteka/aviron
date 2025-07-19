@@ -28,6 +28,7 @@ import static com.github.jlangch.aviron.QuarantineFileAction.NONE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -42,6 +43,7 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
+import com.github.jlangch.aviron.QuarantineActionInfo;
 import com.github.jlangch.aviron.commands.scan.ScanResult;
 import com.github.jlangch.aviron.tools.EventSink;
 import com.github.jlangch.aviron.tools.TempFS;
@@ -322,6 +324,58 @@ class QuarantineTest {
     }
 
     @Test 
+    void testQuarantineListenerCopy_1() {
+        final TempFS tempFS = new TempFS();
+        
+        try {
+            final EventSink events = new EventSink();
+
+            final File scanFile1 = tempFS.createScanFile("test1.data", "TEST1");
+            final File scanFile2 = tempFS.createScanFile("test2.data", "TEST2");
+
+            assertTrue(scanFile1.isFile());
+            assertTrue(scanFile2.isFile());
+
+            final Quarantine quarantine = new Quarantine(COPY, tempFS.getQuarantineDir(), e -> events.add(e));
+            
+            final ScanResult result = ScanResult.virusFound(virusMap(scanFile1, "xxx"));
+            
+            quarantine.handleQuarantineActions(result);
+            
+            assertEquals(2, tempFS.countScanFiles());
+            assertEquals(2, tempFS.countQuarantineFiles());
+ 
+            final File quarantineFile = new File(tempFS.getQuarantineDir(), scanFile1.getName());
+            final File quarantineVirusFile = new File(tempFS.getQuarantineDir(), scanFile1.getName() + ".virus");
+
+            assertTrue(quarantineFile.isFile());
+            assertTrue(quarantineVirusFile.isFile());
+            
+            // analyze data file
+            assertEquals("TEST1", data(quarantineFile));
+            
+            // analyze virus meta data file
+            final List<String> virusData = lines(quarantineVirusFile);
+            assertEquals(3, virusData.size());
+            assertEquals(scanFile1.getPath(), virusData.get(0));
+            assertEquals("xxx", virusData.get(1));
+            assertNotNull(LocalDateTime.parse(virusData.get(2)));
+                        
+            assertEquals(1, events.size());
+            
+            final QuarantineActionInfo event = events.events().get(0);
+            assertEquals(COPY, event.getAction());
+            assertEquals(scanFile1, event.getInfectedFile());
+            assertEquals("xxx", event.getVirusList().get(0));
+            assertEquals(quarantineFile, event.getQuarantineFile());
+            assertNull(event.getException());
+        }
+        finally {
+            tempFS.remove();
+        }
+    }
+
+    @Test 
     void testQuarantineMove_1a() {
         final TempFS tempFS = new TempFS();
         
@@ -468,7 +522,58 @@ class QuarantineTest {
         }
     }
 
-    
+    @Test 
+    void testQuarantineListenerMove_1() {
+        final TempFS tempFS = new TempFS();
+        
+        try {
+            final EventSink events = new EventSink();
+
+            final File scanFile1 = tempFS.createScanFile("test1.data", "TEST1");
+            final File scanFile2 = tempFS.createScanFile("test2.data", "TEST2");
+
+            assertTrue(scanFile1.isFile());
+            assertTrue(scanFile2.isFile());
+
+            final Quarantine quarantine = new Quarantine(MOVE, tempFS.getQuarantineDir(), e -> events.add(e));
+            
+            final ScanResult result = ScanResult.virusFound(virusMap(scanFile1, "xxx"));
+            
+            quarantine.handleQuarantineActions(result);
+            
+            assertEquals(1, tempFS.countScanFiles());
+            assertEquals(2, tempFS.countQuarantineFiles());
+ 
+            final File quarantineFile = new File(tempFS.getQuarantineDir(), scanFile1.getName());
+            final File quarantineVirusFile = new File(tempFS.getQuarantineDir(), scanFile1.getName() + ".virus");
+
+            assertTrue(quarantineFile.isFile());
+            assertTrue(quarantineVirusFile.isFile());
+            
+            // analyze data file
+            assertEquals("TEST1", data(quarantineFile));
+            
+            // analyze virus meta data file
+            final List<String> virusData = lines(quarantineVirusFile);
+            assertEquals(3, virusData.size());
+            assertEquals(scanFile1.getPath(), virusData.get(0));
+            assertEquals("xxx", virusData.get(1));
+            assertNotNull(LocalDateTime.parse(virusData.get(2)));
+            
+            assertEquals(1, events.size());
+            
+            final QuarantineActionInfo event = events.events().get(0);
+            assertEquals(MOVE, event.getAction());
+            assertEquals(scanFile1, event.getInfectedFile());
+            assertEquals("xxx", event.getVirusList().get(0));
+            assertEquals(quarantineFile, event.getQuarantineFile());
+            assertNull(event.getException());
+        }
+        finally {
+            tempFS.remove();
+        }
+    }
+  
     
     private HashMap<String, List<String>> emptyVirusMap() {
         return new HashMap<String, List<String>>();
@@ -480,18 +585,6 @@ class QuarantineTest {
     ) {
         final HashMap<String, List<String>> map = new HashMap<>();
         map.put(file.getPath(), toList(virusSignature));
-        return map;
-    }
-
-    private HashMap<String, List<String>> virusMap(
-            final File file1, 
-            final String virusSignature1,
-            final File file2, 
-            final String virusSignature2
-    ) {
-        final HashMap<String, List<String>> map = new HashMap<>();
-        map.put(file1.getPath(), toList(virusSignature1));
-        map.put(file2.getPath(), toList(virusSignature2));
         return map;
     }
 

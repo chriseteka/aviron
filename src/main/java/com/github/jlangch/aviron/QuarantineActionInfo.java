@@ -37,36 +37,36 @@ public class QuarantineActionInfo {
             final QuarantineFileAction action,
             final QuarantineFileActionException ex
     ) {
-    	this.infectedFile = infectedFile;
-    	if (virusList != null) this.virusList.addAll(virusList);
-    	this.quarantineFile = quarantineFile;
-    	this.action = action;
-    	this.ex = ex;
+        this.infectedFile = infectedFile;
+        if (virusList != null) this.virusList.addAll(virusList);
+        this.quarantineFile = quarantineFile;
+        this.action = action;
+        this.ex = ex;
     }
    
     
     public File getInfectedFile() {
-		return infectedFile;
-	}
+        return infectedFile;
+    }
     
-	public List<String> getVirusList() {
-		return Collections.unmodifiableList(virusList);
-	}
-	
-	public File getQuarantineFile() {
-		return quarantineFile;
-	}
-	
-	public QuarantineFileAction getAction() {
-		return action;
-	}
-	
-	public QuarantineFileActionException getEx() {
-		return ex;
-	}
+    public List<String> getVirusList() {
+        return Collections.unmodifiableList(virusList);
+    }
+    
+    public File getQuarantineFile() {
+        return quarantineFile;
+    }
+    
+    public QuarantineFileAction getAction() {
+        return action;
+    }
+    
+    public QuarantineFileActionException getException() {
+        return ex;
+    }
 
 
-	private final File infectedFile;
+    private final File infectedFile;
     private final List<String> virusList = new ArrayList<>();
     private final File quarantineFile;
     private final QuarantineFileAction action;
