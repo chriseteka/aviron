@@ -43,24 +43,24 @@ public class QuarantineActionInfo {
         this.action = action;
         this.ex = ex;
     }
-   
-    
+
+
     public File getInfectedFile() {
         return infectedFile;
     }
-    
+
     public List<String> getVirusList() {
         return Collections.unmodifiableList(virusList);
     }
-    
+
     public File getQuarantineFile() {
         return quarantineFile;
     }
-    
+
     public QuarantineFileAction getAction() {
         return action;
     }
-    
+
     public QuarantineFileActionException getException() {
         return ex;
     }
