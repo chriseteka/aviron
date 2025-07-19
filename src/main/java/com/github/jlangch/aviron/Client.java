@@ -400,7 +400,7 @@ public class Client {
          * A quarantine file action for infected files. Defaults to 
          * <code>QuarantineFileAction.NONE</code> 
          *  
-         * @param quarantineFileAction a quarantine file action
+         * @param action a quarantine file action
          * @return this builder
          */
         public Builder quarantineFileAction(final QuarantineFileAction action) {
