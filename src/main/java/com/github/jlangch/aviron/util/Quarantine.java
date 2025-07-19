@@ -95,7 +95,7 @@ public class Quarantine {
                                 QuarantineFileAction.MOVE,
                                 null));
                 }
-                catch(RuntimeException e) { /* not interest in caller problems */ }
+                catch(RuntimeException e) { /* not interest in sink problems */ }
             }
             catch(Exception ex) {
                 try {
@@ -107,7 +107,7 @@ public class Quarantine {
                                     QuarantineFileAction.MOVE,
                                     new QuarantineFileActionException("", ex)));
                 }
-                catch(RuntimeException e) { /* not interest in caller problems */ }
+                catch(RuntimeException e) { /* not interest in sink problems */ }
             }
         }
 
@@ -130,7 +130,7 @@ public class Quarantine {
                                         QuarantineFileAction.COPY,
                                         null));
                     }
-                    catch(RuntimeException e) { /* not interest in caller problems */ }
+                    catch(RuntimeException e) { /* not interest in sink problems */ }
                 }
             }
             catch(Exception ex) {
@@ -143,7 +143,7 @@ public class Quarantine {
                                     QuarantineFileAction.COPY,
                                     new QuarantineFileActionException("", ex)));
                 }
-                catch(RuntimeException e) { /* not interest in caller problems */ }
+                catch(RuntimeException e) { /* not interest in sink problems */ }
             }
         }
     }
