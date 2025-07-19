@@ -22,9 +22,11 @@
  */
 package com.github.jlangch.aviron;
 
+import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.github.jlangch.aviron.commands.Command;
 import com.github.jlangch.aviron.commands.mgmt.Ping;
@@ -43,6 +45,7 @@ import com.github.jlangch.aviron.ex.UnknownCommandException;
 import com.github.jlangch.aviron.server.CommandRunDetails;
 import com.github.jlangch.aviron.server.ServerIO;
 import com.github.jlangch.aviron.util.Lazy;
+import com.github.jlangch.aviron.util.Quarantine;
 
 
 /**
@@ -102,6 +105,16 @@ public class Client {
         if (builder.readTimeoutMillis < 0) {
             throw new IllegalArgumentException("The read timeout must not be negative!");
         }
+        if (builder.quarantineDir != null) {
+            if (!builder.quarantineDir.isDirectory()) {
+                throw new IllegalArgumentException(
+                        "The quarantine directory «" + builder.quarantineDir + "» does not exist!");
+            }
+            if (!builder.quarantineDir.canWrite()) {
+                throw new IllegalArgumentException(
+                        "The quarantine directory «" + builder.quarantineDir + "» has not write permission!");
+            }
+        }
 
         this.server = new ServerIO(
                             builder.serverHostname,
@@ -109,6 +122,11 @@ public class Client {
                             builder.serverFileSeparator,
                             builder.connectionTimeoutMillis,
                             builder.readTimeoutMillis);
+        
+        this.quarantine = new Quarantine(
+                                builder.quarantineFileAction,
+                                builder.quarantineDir,
+                                builder.quarantineActionListener);
     }
 
 
@@ -179,7 +197,9 @@ public class Client {
             throw new IllegalArgumentException("An 'inputStream' must not be null!");
         }
 
-        return scan(inputStream, InStream.DEFAULT_CHUNK_SIZE);
+        final ScanResult result = scan(inputStream, InStream.DEFAULT_CHUNK_SIZE);
+        handleQuarantineAction(result);
+        return result;
     }
 
     /**
@@ -200,7 +220,9 @@ public class Client {
             throw new IllegalArgumentException("A 'chunkSize' must be greater than 0");
         }
 
-        return sendCommand(new InStream(inputStream, chunkSize));
+        final ScanResult result = sendCommand(new InStream(inputStream, chunkSize));
+        handleQuarantineAction(result);
+        return result;
     }
 
     /**
@@ -215,7 +237,9 @@ public class Client {
             throw new IllegalArgumentException("A 'path' must not be null!");
         }
 
-        return scan(path, false);
+        final ScanResult result = scan(path, false);
+        handleQuarantineAction(result);
+        return result;
     }
 
     /**
@@ -233,8 +257,11 @@ public class Client {
         }
 
         final String serverPath = server.toServerPath(path);
-        return continueScan ? sendCommand(new ContScan(serverPath))
-                            : sendCommand(new Scan(serverPath));
+        final ScanResult result = continueScan 
+                                    ? sendCommand(new ContScan(serverPath))
+                                    : sendCommand(new Scan(serverPath));
+        handleQuarantineAction(result);
+        return result;
     }
 
     /**
@@ -248,7 +275,9 @@ public class Client {
             throw new IllegalArgumentException("A 'path' must not be null!");
         }
 
-        return sendCommand(new MultiScan(server.toServerPath(path)));
+        final ScanResult result = sendCommand(new MultiScan(server.toServerPath(path)));
+        handleQuarantineAction(result);
+        return result;
     }
 
     /**
@@ -306,6 +335,20 @@ public class Client {
         }
     }
 
+    private void handleQuarantineAction(final ScanResult result) {
+        if (result.isOK()) {
+            return;
+        }
+
+        result.getVirusFound()
+              .entrySet()
+              .stream()
+              .forEach(e -> quarantine.runQuarantineAction(
+                                  new File(e.getKey()),
+                                  e.getValue()));
+    }
+
+
     public static class Builder {
         public Client build() {
             return new Client(this);
@@ -321,7 +364,7 @@ public class Client {
             this.serverHostname = hostname;
             return this;
         }
-        
+
         /** 
          * The ClamAV server port. Defaults to <code>3310</code> 
          *  
@@ -332,7 +375,7 @@ public class Client {
             this.serverPort = port;
             return this;
         }
-        
+
         /** 
          * The ClamAV server file separator. Defaults to <code>FileSeparator.JVM_PLATFORM</code> 
          *  
@@ -343,7 +386,7 @@ public class Client {
             this.serverFileSeparator = separator;
             return this;
         }
-        
+
         /** 
          * The connection timeout, 0 means indefinite. Defaults to <code>3'000ms</code> 
          *  
@@ -354,7 +397,7 @@ public class Client {
             this.connectionTimeoutMillis = timeoutMillis;
             return this;
         }
-        
+
         /** 
          * The read timeout, 0 means indefinite. Defaults to <code>20'000ms</code> 
          *  
@@ -366,11 +409,52 @@ public class Client {
             return this;
         }
 
+        /** 
+         * A quarantine file action for infected files. Defaults to 
+         * <code>QuarantineFileAction.NONE</code> 
+         *  
+         * @param quarantineFileAction a quarantine file action
+         * @return this builder
+         */
+        public Builder quarantineFileAction(final QuarantineFileAction action) {
+            this.quarantineFileAction = action == null ? QuarantineFileAction.NONE : action;
+            return this;
+        }
+
+        /** 
+         * A quarantine directory where the infected files are move/copied to 
+         * depending on the configured quarantine file action. Defaults to 
+         * <code>null</code>.
+         *  
+         * @param quarantineDir a quarantine directory
+         * @return this builder
+         */
+        public Builder quarantineDir(final File quarantineDir) {
+            this.quarantineDir = quarantineDir;
+            return this;
+        }
+
+        /** 
+         * A quarantine action listener, that receives all quarantine file action
+         * events. Defaults to <code>null</code>.
+         *
+         * @param listener a quarantine file action listener
+         * @return this builder
+         */
+        public Builder quarantineActionListener(final Consumer<QuarantineActionInfo> listener) {
+            this.quarantineActionListener = listener;
+            return this;
+        }
+
+
         private String serverHostname = ServerIO.LOCALHOST;
         private int serverPort = ServerIO.DEFAULT_SERVER_PORT;
         private FileSeparator serverFileSeparator = FileSeparator.JVM_PLATFORM;
         private int connectionTimeoutMillis = ServerIO.DEFAULT_CONNECTION_TIMEOUT;
         private int readTimeoutMillis = ServerIO.DEFAULT_READ_TIMEOUT;
+        private QuarantineFileAction quarantineFileAction = QuarantineFileAction.NONE;
+        private File quarantineDir = null;
+        private Consumer<QuarantineActionInfo> quarantineActionListener;
     }
 
 
@@ -378,6 +462,7 @@ public class Client {
     public static final int DEFAULT_SERVER_PORT = ServerIO.DEFAULT_SERVER_PORT;
     public static final FileSeparator DEFAULT_SERVER_PLATFORM = ServerIO.DEFAULT_SERVER_FILESEPARATOR;
 
+    private final Quarantine quarantine;
     private final ServerIO server;
     private final Lazy<List<String>> memoizedAvCommands = new Lazy<>(this::loadAvailableCommands);
 }
