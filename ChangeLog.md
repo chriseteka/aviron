@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 
 
 
+## [1.3.2] - 2025-07-xx
+
+- ...
+
+
+
 ## [1.3.1] - 2025-07-19
 
 - Added a quarantine handler that allows to move/copy infected files to a 
