@@ -27,9 +27,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import com.github.jlangch.aviron.QuarantineActionInfo;
 import com.github.jlangch.aviron.QuarantineFileAction;
@@ -79,7 +81,7 @@ public class Quarantine {
             try {
                 Files.move(
                         file.toPath(), 
-                        quarantineDir.toPath(), 
+                        destFile.toPath(), 
                         StandardCopyOption.ATOMIC_MOVE);
 
                 makeQuarantineInfoFile(destInfoFile, file, virusList);
@@ -111,9 +113,9 @@ public class Quarantine {
 
         else if (quarantineFileAction == QuarantineFileAction.COPY) {
             try {
-                Files.move(
+                Files.copy(
                         file.toPath(), 
-                        quarantineDir.toPath(), 
+                        destFile.toPath(), 
                         StandardCopyOption.COPY_ATTRIBUTES);
 
                 makeQuarantineInfoFile(destInfoFile, file, virusList);
@@ -177,6 +179,9 @@ public class Quarantine {
             final List<String> virusList
     ) {
         final List<String> data = new ArrayList<>();
+        data.add(infectedFile.getPath());
+        data.add(virusList.stream().collect(Collectors.joining(",")));
+        data.add(LocalDateTime.now().toString());
         
         try {
             Files.write(

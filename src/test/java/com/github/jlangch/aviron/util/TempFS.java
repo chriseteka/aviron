@@ -49,12 +49,12 @@ public class TempFS {
         return quarantineDir.list().length;
     }
     
-    public File createScanFile(final String name) {
-        return createFile(scanDir, name);
+    public File createScanFile(final String name, final String data) {
+        return createFile(scanDir, name, data);
     }
 
-    public File createQuarantineFile(final String name) {
-        return createFile(quarantineDir, name);
+    public File createQuarantineFile(final String name, final String data) {
+        return createFile(quarantineDir, name, data);
     }
 
     public File getRoot() {
@@ -82,10 +82,10 @@ public class TempFS {
     }
 
 
-    private File createFile(final File dir, final String name) {
+    private File createFile(final File dir, final String name, final String data) {
         final File file = new File(dir, name);
         try {
-            Files.write(file.toPath(), toBytes("TEST"));
+            Files.write(file.toPath(), toBytes(data));
             return file;
         }
         catch(IOException ex) {
