@@ -66,8 +66,8 @@ class QuarantineTest {
     void testTempFS_files() throws IOException {
         final TempFS tempFS = new TempFS();
 
-    	final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
-    	final File quarantineFile1 = tempFS.createQuarantineFile("test.data", "TEST");
+        final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
+        final File quarantineFile1 = tempFS.createQuarantineFile("test.data", "TEST");
 
         assertTrue(scanFile1.isFile());
         assertTrue(quarantineFile1.isFile());
@@ -85,7 +85,7 @@ class QuarantineTest {
         final TempFS tempFS = new TempFS();
         
         try {
-        	final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
+            final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
 
             assertTrue(scanFile1.isFile());
 
@@ -108,7 +108,7 @@ class QuarantineTest {
         final TempFS tempFS = new TempFS();
         
         try {
-        	final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
+            final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
 
             assertTrue(scanFile1.isFile());
 
@@ -156,9 +156,9 @@ class QuarantineTest {
         final TempFS tempFS = new TempFS();
         
         try {
-        	final EventSink events = new EventSink();
-        	
-        	final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
+            final EventSink events = new EventSink();
+            
+            final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
 
             assertTrue(scanFile1.isFile());
 
@@ -172,7 +172,7 @@ class QuarantineTest {
             assertEquals(0, tempFS.countQuarantineFiles());
             
             assertEquals(0, events.size());
-        	}
+            }
         finally {
             tempFS.remove();
         }
@@ -206,7 +206,7 @@ class QuarantineTest {
         final TempFS tempFS = new TempFS();
         
         try {
-        	final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
+            final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
 
             assertTrue(scanFile1.isFile());
 
@@ -349,7 +349,7 @@ class QuarantineTest {
         final TempFS tempFS = new TempFS();
         
         try {
-        	final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
+            final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
 
             assertTrue(scanFile1.isFile());
 
@@ -502,22 +502,22 @@ class QuarantineTest {
     }
 
     private String data(final File file) {
-    	try {
-    		return new String(Files.readAllBytes(file.toPath()), Charset.defaultCharset());
-    	}
-    	catch(IOException ex) {
-    		throw new RuntimeException("Failed to read file", ex);
-    	}
+        try {
+            return new String(Files.readAllBytes(file.toPath()), Charset.defaultCharset());
+        }
+        catch(IOException ex) {
+            throw new RuntimeException("Failed to read file", ex);
+        }
     }
 
     private List<String> lines(final File file) {
-    	try {
-    		return Files.lines(file.toPath())
-    					.collect(Collectors.toList());
-    	}
-    	catch(IOException ex) {
-    		throw new RuntimeException("Failed to read file", ex);
-    	}
+        try {
+            return Files.lines(file.toPath())
+                        .collect(Collectors.toList());
+        }
+        catch(IOException ex) {
+            throw new RuntimeException("Failed to read file", ex);
+        }
     }
     
 }

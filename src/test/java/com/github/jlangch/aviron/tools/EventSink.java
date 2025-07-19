@@ -31,25 +31,25 @@ import com.github.jlangch.aviron.QuarantineActionInfo;
 
 public class EventSink {
 
-	public EventSink() {
-	}
-	
-	public void add(final QuarantineActionInfo event) {
-		events.add(event);
-	}
-	
-	public void clear() {
-		events.clear();
-	}
-	
-	public int size() {
-		return events.size();
-	}
-	
-	public List<QuarantineActionInfo> events() {
-		return Collections.unmodifiableList(events);
-	}
-	
-	
-	private List<QuarantineActionInfo> events = new ArrayList<>();
+    public EventSink() {
+    }
+
+    public void add(final QuarantineActionInfo event) {
+        events.add(event);
+    }
+
+    public void clear() {
+        events.clear();
+    }
+
+    public int size() {
+        return events.size();
+    }
+
+    public List<QuarantineActionInfo> events() {
+        return Collections.unmodifiableList(events);
+    }
+
+
+    private List<QuarantineActionInfo> events = new ArrayList<>();
 }
