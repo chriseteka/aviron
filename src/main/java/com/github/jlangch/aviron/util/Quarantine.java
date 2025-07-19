@@ -34,6 +34,7 @@ import java.util.function.Consumer;
 import com.github.jlangch.aviron.QuarantineActionInfo;
 import com.github.jlangch.aviron.QuarantineFileAction;
 import com.github.jlangch.aviron.QuarantineFileActionException;
+import com.github.jlangch.aviron.commands.scan.ScanResult;
 
 
 public class Quarantine {
@@ -48,8 +49,20 @@ public class Quarantine {
         this.listener = listener;
     }
     
+    public void handleQuarantineActions(final ScanResult result) {
+        if (result.isOK()) {
+            return;
+        }
 
-    public void runQuarantineAction(final File file, final List<String> virusList) {
+        result.getVirusFound()
+              .entrySet()
+              .stream()
+              .forEach(e -> runQuarantineAction(
+                                  new File(e.getKey()),
+                                  e.getValue()));
+    }
+
+    private void runQuarantineAction(final File file, final List<String> virusList) {
         if (!file.isFile()) {
             return;
         }

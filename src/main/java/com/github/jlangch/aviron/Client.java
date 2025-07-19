@@ -198,7 +198,7 @@ public class Client {
         }
 
         final ScanResult result = scan(inputStream, InStream.DEFAULT_CHUNK_SIZE);
-        handleQuarantineAction(result);
+        quarantine.handleQuarantineActions(result);
         return result;
     }
 
@@ -221,7 +221,7 @@ public class Client {
         }
 
         final ScanResult result = sendCommand(new InStream(inputStream, chunkSize));
-        handleQuarantineAction(result);
+        quarantine.handleQuarantineActions(result);
         return result;
     }
 
@@ -238,7 +238,7 @@ public class Client {
         }
 
         final ScanResult result = scan(path, false);
-        handleQuarantineAction(result);
+        quarantine.handleQuarantineActions(result);
         return result;
     }
 
@@ -260,7 +260,7 @@ public class Client {
         final ScanResult result = continueScan 
                                     ? sendCommand(new ContScan(serverPath))
                                     : sendCommand(new Scan(serverPath));
-        handleQuarantineAction(result);
+        quarantine.handleQuarantineActions(result);
         return result;
     }
 
@@ -276,7 +276,7 @@ public class Client {
         }
 
         final ScanResult result = sendCommand(new MultiScan(server.toServerPath(path)));
-        handleQuarantineAction(result);
+        quarantine.handleQuarantineActions(result);
         return result;
     }
 
@@ -333,19 +333,6 @@ public class Client {
                     String.format("Failed to send command: %s", command.getCommandString()),
                     ex);
         }
-    }
-
-    private void handleQuarantineAction(final ScanResult result) {
-        if (result.isOK()) {
-            return;
-        }
-
-        result.getVirusFound()
-              .entrySet()
-              .stream()
-              .forEach(e -> quarantine.runQuarantineAction(
-                                  new File(e.getKey()),
-                                  e.getValue()));
     }
 
 
