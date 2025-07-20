@@ -67,12 +67,16 @@ public class Quarantine {
     }
 
     public static Map<String,String> parseQuarantineInfoFile(final File infoFile) {
+        if (infoFile == null) {
+            throw new IllegalArgumentException("An 'infoFile' must not be null!");
+        }
+
         try {
             final List<String> lines = Files.lines(infoFile.toPath())
                                             .collect(Collectors.toList());
-    
+ 
             final Map<String,String> data = new HashMap<>();
-            
+
             for(String line : lines) {
                 final int pos = line.indexOf('=');
                 if (pos > 0) {
@@ -87,7 +91,7 @@ public class Quarantine {
                     }
                 }
             }
-            
+
             return data;
         }
         catch(Exception ex) {
@@ -105,7 +109,7 @@ public class Quarantine {
         if (!file.canRead()) {
             return;
         }
-        
+
         // note: listener is not called when these 2 actions fail!
         final File destFile = makeUniqueQuarantineFileName(file);
         final File destInfoFile = makeUniqueQuarantineInfoFileName(destFile);
@@ -215,7 +219,7 @@ public class Quarantine {
         data.add(KEY_INFECTED_FILE + "=" + infectedFile.getPath());
         data.add(KEY_VIRUS_LIST + "=" + virusList.stream().collect(Collectors.joining(",")));
         data.add(KEY_CREATED_AT + "=" + LocalDateTime.now().toString());
-        
+
         try {
             Files.write(
                 infoFile.toPath(), 
