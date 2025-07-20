@@ -60,6 +60,8 @@ public class Admin {
      * Returns the <i>clamd</i> PID or <code>null</code> if <i>clamd</i> daemon 
      * is not running.
      * 
+     * <p>Runs the shell command <code>pgrep clamd</code> to get the pid
+     * 
      * <p>
      * Note: This function is available for Linux and MacOS only!
      * 
