@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import com.github.jlangch.aviron.QuarantineActionInfo;
+import com.github.jlangch.aviron.QuarantineEvent;
 import com.github.jlangch.aviron.QuarantineFileAction;
 import com.github.jlangch.aviron.QuarantineFileActionException;
 import com.github.jlangch.aviron.commands.scan.ScanResult;
@@ -44,7 +44,7 @@ public class Quarantine {
     public Quarantine(
            final QuarantineFileAction quarantineFileAction,
            final File quarantineDir,
-           final Consumer<QuarantineActionInfo> listener
+           final Consumer<QuarantineEvent> listener
     ) {
         this.quarantineFileAction = quarantineFileAction;
         this.quarantineDir = quarantineDir;
@@ -88,7 +88,7 @@ public class Quarantine {
 
                 try {
                     listener.accept(
-                        new QuarantineActionInfo(
+                        new QuarantineEvent(
                                 file,
                                 virusList,
                                 destFile,
@@ -100,7 +100,7 @@ public class Quarantine {
             catch(Exception ex) {
                 try {
                     listener.accept(
-                            new QuarantineActionInfo(
+                            new QuarantineEvent(
                                     file,
                                     virusList,
                                     destFile,
@@ -123,7 +123,7 @@ public class Quarantine {
                 if (listener != null) {
                     try {
                         listener.accept(
-                                new QuarantineActionInfo(
+                                new QuarantineEvent(
                                         file,
                                         virusList,
                                         destFile,
@@ -136,7 +136,7 @@ public class Quarantine {
             catch(Exception ex) {
                 try {
                     listener.accept(
-                            new QuarantineActionInfo(
+                            new QuarantineEvent(
                                     file,
                                     virusList,
                                     destFile,
@@ -200,5 +200,5 @@ public class Quarantine {
 
     private final QuarantineFileAction quarantineFileAction;
     private final File quarantineDir;
-    final Consumer<QuarantineActionInfo> listener;
+    final Consumer<QuarantineEvent> listener;
 }

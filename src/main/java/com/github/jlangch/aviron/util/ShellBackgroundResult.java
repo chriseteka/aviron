@@ -39,12 +39,12 @@ public class ShellBackgroundResult {
         this.startResult = startResult;
         this.nohupFile = nohupFile;
     }
-    
-    
+
+
     public ShellResult getStartResult() {
         return startResult;
     }
-    
+
     public File getNohupFile() {
         return nohupFile;
     }

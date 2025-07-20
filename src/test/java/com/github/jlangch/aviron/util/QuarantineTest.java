@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.jlangch.aviron.QuarantineActionInfo;
+import com.github.jlangch.aviron.QuarantineEvent;
 import com.github.jlangch.aviron.commands.scan.ScanResult;
 import com.github.jlangch.aviron.tools.EventSink;
 import com.github.jlangch.aviron.tools.TempFS;
@@ -164,7 +164,7 @@ class QuarantineTest {
 
             assertTrue(scanFile1.isFile());
 
-            final Quarantine quarantine = new Quarantine(NONE, tempFS.getQuarantineDir(), e -> events.add(e));
+            final Quarantine quarantine = new Quarantine(NONE, tempFS.getQuarantineDir(), e -> events.process(e));
             
             final ScanResult result = ScanResult.ok();
             
@@ -336,7 +336,7 @@ class QuarantineTest {
             assertTrue(scanFile1.isFile());
             assertTrue(scanFile2.isFile());
 
-            final Quarantine quarantine = new Quarantine(COPY, tempFS.getQuarantineDir(), e -> events.add(e));
+            final Quarantine quarantine = new Quarantine(COPY, tempFS.getQuarantineDir(), e -> events.process(e));
             
             final ScanResult result = ScanResult.virusFound(virusMap(scanFile1, "xxx"));
             
@@ -363,7 +363,7 @@ class QuarantineTest {
                         
             assertEquals(1, events.size());
             
-            final QuarantineActionInfo event = events.events().get(0);
+            final QuarantineEvent event = events.events().get(0);
             assertEquals(COPY, event.getAction());
             assertEquals(scanFile1, event.getInfectedFile());
             assertEquals("xxx", event.getVirusList().get(0));
@@ -535,7 +535,7 @@ class QuarantineTest {
             assertTrue(scanFile1.isFile());
             assertTrue(scanFile2.isFile());
 
-            final Quarantine quarantine = new Quarantine(MOVE, tempFS.getQuarantineDir(), e -> events.add(e));
+            final Quarantine quarantine = new Quarantine(MOVE, tempFS.getQuarantineDir(), e -> events.process(e));
             
             final ScanResult result = ScanResult.virusFound(virusMap(scanFile1, "xxx"));
             
@@ -562,7 +562,7 @@ class QuarantineTest {
             
             assertEquals(1, events.size());
             
-            final QuarantineActionInfo event = events.events().get(0);
+            final QuarantineEvent event = events.events().get(0);
             assertEquals(MOVE, event.getAction());
             assertEquals(scanFile1, event.getInfectedFile());
             assertEquals("xxx", event.getVirusList().get(0));

@@ -43,11 +43,6 @@ public class TestAdmin {
         System.out.println();
         System.out.println();
 
-        System.out.println("[cpulimit PIDs]");
-        System.out.println(Admin.getCpulimitPIDs());
-        System.out.println();
-        System.out.println();
-
         System.out.println("[kill clamd]");
         if (Admin.getClamdPID() != null) {
             Admin.killClamd();

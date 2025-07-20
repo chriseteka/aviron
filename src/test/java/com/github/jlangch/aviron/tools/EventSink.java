@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.github.jlangch.aviron.QuarantineActionInfo;
+import com.github.jlangch.aviron.QuarantineEvent;
 
 
 public class EventSink {
@@ -34,7 +34,7 @@ public class EventSink {
     public EventSink() {
     }
 
-    public void add(final QuarantineActionInfo event) {
+    public void process(final QuarantineEvent event) {
         events.add(event);
     }
 
@@ -46,10 +46,10 @@ public class EventSink {
         return events.size();
     }
 
-    public List<QuarantineActionInfo> events() {
+    public List<QuarantineEvent> events() {
         return Collections.unmodifiableList(events);
     }
 
 
-    private List<QuarantineActionInfo> events = new ArrayList<>();
+    private List<QuarantineEvent> events = new ArrayList<>();
 }

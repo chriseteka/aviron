@@ -27,7 +27,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,7 +41,7 @@ import com.github.jlangch.aviron.ex.AvironException;
 public class Shell {
 
     public static ShellResult execCmd(final String... command) throws IOException {
-        final String cmdFormatted = formatCmd(command);
+        final String cmdFormatted = String.join(" ", Arrays.asList(command));
 
         try {
             final Process proc = Runtime.getRuntime().exec(command);
@@ -54,24 +56,25 @@ public class Shell {
     public static ShellBackgroundResult execCmdBackground(final String... command) throws IOException {
         validateLinuxOrMacOSX("Shell::execCmdBackground");
 
-        final String cmdFormatted = formatCmd(command);
+        final String cmdFormatted = String.join(" ", Arrays.asList(command));
 
         try {
-            final File nohup = File.createTempFile("nohup-", ".out");
-            nohup.deleteOnExit();
-            
-            final String cmd = cmdFormatted + " 2>&1 >" + nohup.getAbsolutePath() + " &";
+            final String cmd = cmdFormatted + " &";
 
             final Process proc = Runtime.getRuntime().exec(new String[] {"/bin/sh", "-c", cmd});
-
-
-            return new ShellBackgroundResult(getShellResult(proc), nohup);
+ 
+            if (proc.isAlive()) {
+                // process is running in background
+                return new ShellBackgroundResult(new ShellResult(null, null, 0), null);
+            }
+            else {
+                // process died at starting up
+                return new ShellBackgroundResult(new ShellResult(null, null, proc.exitValue()), null);
+            }
         }
         catch(Exception ex) {
             throw new AvironException(
-                    "Failed to run nohup command: /bin/sh -c " 
-                    + cmdFormatted 
-                    + " 2>&1 >nohup.out &", 
+                    "Failed to run command: /bin/sh -c \"" + cmdFormatted + "/", 
                     ex);
         }
     }
@@ -79,23 +82,28 @@ public class Shell {
     public static ShellBackgroundResult execCmdBackgroundNohup(final String... command) throws IOException {
         validateLinuxOrMacOSX("Shell::execCmdNohup");
 
-        final String cmdFormatted = formatCmd(command);
+        final String cmdFormatted = String.join(" ", Arrays.asList(command));
 
         try {
             final File nohup = File.createTempFile("nohup-", ".out");
             nohup.deleteOnExit();
-            
-            final String cmd = "nohup " + cmdFormatted + " 2>&1 >" + nohup.getAbsolutePath() + " &";
+
+            final String cmd = "nohup " + cmdFormatted + " </dev/null &>" + nohup.getAbsolutePath() + " &";
 
             final Process proc = Runtime.getRuntime().exec(new String[] {"/bin/sh", "-c", cmd});
 
-            return new ShellBackgroundResult(getShellResult(proc), nohup);
+            if (proc.isAlive()) {
+                // process is running in background
+                return new ShellBackgroundResult(new ShellResult(null, null, 0), nohup);
+            }
+            else {
+                // process died at starting up -> see nohup file
+                return new ShellBackgroundResult(new ShellResult(slurp(nohup), null, proc.exitValue()), nohup);
+            }
         }
         catch(Exception ex) {
             throw new AvironException(
-                    "Failed to run nohup command: /bin/sh -c nohup " 
-                    + cmdFormatted 
-                    + " 2>&1 >nohup.out &", 
+                    "Failed to run command: /bin/sh -c \"" + cmdFormatted + "/", 
                     ex);
         }
     }
@@ -143,10 +151,6 @@ public class Shell {
          }
     }
 
-    private static String formatCmd(final String... command) {
-        return String.join(" ", Arrays.asList(command));
-    }
-
     private static String slurp(final InputStream is) throws IOException {
         try (BufferedReader br = new BufferedReader(
                                         new InputStreamReader(
@@ -154,7 +158,16 @@ public class Shell {
             return br.lines().collect(Collectors.joining("\n"));
         }
     }
-    
+ 
+    private static String slurp(final File f) throws IOException {
+        try {
+            return new String(Files.readAllBytes(f.toPath()), Charset.defaultCharset());
+        }
+        catch(Exception ex) {
+            return "»»» Error reading data from file: " + f.getPath();
+        }
+    }
+
     private static ShellResult getShellResult(final Process proc) 
     throws IOException, InterruptedException {
         final int exitCode = proc.waitFor();

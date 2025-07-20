@@ -28,9 +28,9 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class QuarantineActionInfo {
+public class QuarantineEvent {
 
-    public QuarantineActionInfo(
+    public QuarantineEvent(
             final File infectedFile,
             final List<String> virusList,
             final File quarantineFile,

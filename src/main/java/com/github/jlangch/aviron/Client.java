@@ -428,7 +428,7 @@ public class Client {
          * @param listener a quarantine file action listener
          * @return this builder
          */
-        public Builder quarantineActionListener(final Consumer<QuarantineActionInfo> listener) {
+        public Builder quarantineActionListener(final Consumer<QuarantineEvent> listener) {
             this.quarantineActionListener = listener;
             return this;
         }
@@ -441,7 +441,7 @@ public class Client {
         private int readTimeoutMillis = ServerIO.DEFAULT_READ_TIMEOUT;
         private QuarantineFileAction quarantineFileAction = QuarantineFileAction.NONE;
         private File quarantineDir = null;
-        private Consumer<QuarantineActionInfo> quarantineActionListener;
+        private Consumer<QuarantineEvent> quarantineActionListener;
     }
 
 

@@ -50,7 +50,7 @@ public class TestAdminCpulimit {
         System.out.println();
 
         System.out.println("[activate cpulimit]");
-        final ShellBackgroundResult bgResult = Admin.activateCpuLimit(50);
+        final ShellBackgroundResult bgResult = Admin.activateClamdCpuLimit(50);
         Thread.sleep(5000);
         System.out.println(bgResult);
         System.out.println();

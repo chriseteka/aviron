@@ -29,7 +29,9 @@ import com.github.jlangch.aviron.ex.AvironException;
 import com.github.jlangch.aviron.ex.NotRunningException;
 import com.github.jlangch.aviron.util.Shell;
 import com.github.jlangch.aviron.util.ShellBackgroundResult;
+import com.github.jlangch.aviron.util.ShellResult;
 import com.github.jlangch.aviron.util.Signal;
+import com.github.jlangch.aviron.util.StringUtils;
 import com.github.jlangch.aviron.util.Version;
 
 
@@ -94,24 +96,25 @@ public class Admin {
      *  <li>on a <i>Intel</i> single core with 2 hyperthreads LIMIT is 200%</li>
      * </ul>
      * 
+     * <p>Runs: <code>/bin/sh -c "nohup cpulimit -p {pid} -l 50 </dev/null &>/dev/null &"</code>
+     * 
      * <p>
      * Note: If the <i>clamd</i> process terminates the controlling <i>cpulimit</i>
      *       process will terminate automatically as well.
      * 
      * <p>
-     * Note: This function is available for Linux and MacOS only!
-     * 
-     * <p>
      * Note: Still facing "Process found but you aren't allowed to control it"
      *       problem on MacOS, even when run with sudo
      * 
-     * @param limit a percent value 0..LIMIT
-     * @return the nohup file
+     * <p>
+     * Note: This function is available for Linux and MacOS only!
      * 
-     * @see Admin#deactivateCpuLimit() deactivateCpuLimit
-     * @see Admin#getNrOfCpus() getNrOfCpus
+     * @param limit a percent value 0..LIMIT
+     * @return the shell background result
+     * 
+     * @see Admin#deactivateClamdCpuLimit() deactivateClamdCpuLimit
      */
-    public static ShellBackgroundResult activateCpuLimit(final int limit) {
+    public static ShellBackgroundResult activateClamdCpuLimit(final int limit) {
         Shell.validateLinuxOrMacOSX("Admin::activateCpuLimit");
 
         if (limit < 0) {
@@ -125,6 +128,8 @@ public class Admin {
                 throw new NotRunningException("The clamd daemon is not running!");
             }
 
+            // /bin/sh -c "nohup /usr/bin/cpulimit -p 1234 -l 50 </dev/null &>/dev/null &"
+            
             // run cpulimit as nohup process
             return Shell.execCmdBackgroundNohup("cpulimit", "--limit=" + limit, "--pid=" + pid);
         }
@@ -135,33 +140,36 @@ public class Admin {
     }
 
     /**
-     * Deactivates a CPU limit on the <i>clamd</i> process
+     * Deactivates the CPU limit on the <i>clamd</i> process
      * 
-     * <p>
-     * Sends a <b>SIGINT</b> to the controlling <i>cpulimit</i> process
+     * <p>Runs: <code>pkill -f cpulimit.*{pid}</code>
      * 
-     * <p>
-     * Note: This function is available for Linux and MacOS only!
+     * <p>Note: This function is available for Linux and MacOS only!
      * 
-     * @see Admin#activateCpuLimit(int) activateCpuLimit
+     * @see Admin#activateClamdCpuLimit(int) activateClamdCpuLimit
      */
-    public static void deactivateCpuLimit() {
-        Shell.validateLinuxOrMacOSX("Admin::deactivateCpuLimit");
+    public static void deactivateClamdCpuLimit() {
+        Shell.validateLinuxOrMacOSX("Admin::deactivateClamdCpuLimit");
 
-        final List<String> pids = getCpulimitPIDs();
-        if (pids.isEmpty()) {
-            throw new NotRunningException("No cpulimit processes running!");
+        final String clamdPID = getClamdPID();
+        if (StringUtils.isBlank(clamdPID)) {
+            throw new NotRunningException("Clamd is not running!");
         }
-
-        pids.forEach(pid -> {
-            try {
-                Shell.kill(Signal.SIGINT, pid);
-            }
-            catch(Exception ex) {
+        
+        try {
+            final ShellResult r = Shell.execCmd("pkill", "-f", "cpulimit.*" + clamdPID);
+            if (!r.isZeroExitCode()) {
                 throw new AvironException(
-                        "Failed to deactivate CPU limit on the clamd process", ex);
+                        "Failed to deactivate CPU limit on clamd process (" + clamdPID + ").\n"
+                        + "\nExit code: " + r.getExitCode()
+                        + "\nError msg: " + r.getStderr());
             }
-        });
+        }
+        catch(IOException ex) {
+            throw new AvironException(
+                    "Failed to deactivate CPU limit on the clamd process" + clamdPID, 
+                    ex);
+        }
     }
 
     /**
@@ -173,7 +181,10 @@ public class Admin {
     public static void killClamd() {
         Shell.validateLinuxOrMacOSX("Admin::killClamd");
 
-        Shell.kill(Signal.SIGINT, getClamdPID());
+        final String clamdPID = getClamdPID();
+        if (!StringUtils.isBlank(clamdPID)) {
+            Shell.kill(Signal.SIGTERM, getClamdPID());
+        }
     }
 
     /**

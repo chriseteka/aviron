@@ -3,7 +3,9 @@
 
 ## Installation
 
-[Install ClamAV](https://www.liquidweb.com/blog/install-clamav/)
+[Install ClamAV on MacOS](https://www.liquidweb.com/blog/install-clamav/)
+
+[Install ClamAV on AlmaLinux](https://truehost.com/support/knowledge-base/how-to-install-clamav-for-malware-scanning-on-linux/)
 
 
 
