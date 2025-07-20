@@ -22,7 +22,10 @@
  */
 package com.github.jlangch.aviron.admin;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.List;
 
 import com.github.jlangch.aviron.ex.AvironException;
@@ -72,6 +75,30 @@ public class Admin {
 
         final List<String> pids = Shell.pgrep("clamd");
         return pids.isEmpty() ? null : pids.get(0);
+    }
+
+    /**
+     * Loads the <i>clamd</i> PID from a file.
+     * 
+     * @return the PID
+     */
+    public static String loadClamdPID(final File pidFile) {
+        if (pidFile == null) {
+            throw new IllegalArgumentException("A pid file must not be null!");
+        }
+
+        try {
+            final String s = Files
+                                .lines(pidFile.toPath(), Charset.defaultCharset())
+                                .map(l -> l.trim())
+                                .findFirst()
+                                .orElse(null);
+
+            return s;
+        }
+        catch(Exception ex) {
+            throw new RuntimeException("", ex);
+        }
     }
 
     /**
