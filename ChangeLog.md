@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 
 
 
+## [1.3.3] - 2025-07-xx
+
+- ...
+
+
+
 ## [1.3.2] - 2025-07-20
 
 - Improved admin functions to control the clamd cpu limit
