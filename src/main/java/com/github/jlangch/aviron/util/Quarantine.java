@@ -29,7 +29,9 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -62,6 +64,37 @@ public class Quarantine {
               .forEach(e -> runQuarantineAction(
                                   new File(e.getKey()),
                                   e.getValue()));
+    }
+
+    public static Map<String,String> parseQuarantineInfoFile(final File infoFile) {
+        try {
+            final List<String> lines = Files.lines(infoFile.toPath())
+                                            .collect(Collectors.toList());
+    
+            final Map<String,String> data = new HashMap<>();
+            
+            for(String line : lines) {
+                final int pos = line.indexOf('=');
+                if (pos > 0) {
+                    final String key = line.substring(0, pos);
+                    final String value = line.substring(pos+1);
+                    
+                    if (key.equals(KEY_INFECTED_FILE)
+                        || key.equals(KEY_VIRUS_LIST)
+                        || key.equals(KEY_CREATED_AT)
+                    ) {
+                        data.put(key, value);
+                    }
+                }
+            }
+            
+            return data;
+        }
+        catch(Exception ex) {
+            throw new QuarantineFileActionException(
+                    "Failed to parser virus info file " + "«" + infoFile + "». ",
+                    ex);
+        }
     }
 
     private void runQuarantineAction(final File file, final List<String> virusList) {
@@ -179,9 +212,9 @@ public class Quarantine {
             final List<String> virusList
     ) {
         final List<String> data = new ArrayList<>();
-        data.add(infectedFile.getPath());
-        data.add(virusList.stream().collect(Collectors.joining(",")));
-        data.add(LocalDateTime.now().toString());
+        data.add(KEY_INFECTED_FILE + "=" + infectedFile.getPath());
+        data.add(KEY_VIRUS_LIST + "=" + virusList.stream().collect(Collectors.joining(",")));
+        data.add(KEY_CREATED_AT + "=" + LocalDateTime.now().toString());
         
         try {
             Files.write(
@@ -197,6 +230,10 @@ public class Quarantine {
         }
     }
 
+
+    public static String KEY_INFECTED_FILE =  "infected-file";
+    public static String KEY_VIRUS_LIST    =  "virus-list";
+    public static String KEY_CREATED_AT    =  "created-at";
 
     private final QuarantineFileAction quarantineFileAction;
     private final File quarantineDir;
