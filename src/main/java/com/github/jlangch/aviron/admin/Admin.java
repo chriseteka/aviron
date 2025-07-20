@@ -109,13 +109,21 @@ public class Admin {
      * <p>
      * Note: This function is available for Linux and MacOS only!
      * 
+     * @param clamdPID a clamd pid
      * @param limit a percent value 0..LIMIT
      * @return the shell background result
      * 
      * @see Admin#deactivateClamdCpuLimit() deactivateClamdCpuLimit
      */
-    public static ShellBackgroundResult activateClamdCpuLimit(final int limit) {
+    public static ShellBackgroundResult activateClamdCpuLimit(
+            final String clamdPID, 
+            final int limit
+    ) {
         Shell.validateLinuxOrMacOSX("Admin::activateClamdCpuLimit");
+
+        if (StringUtils.isBlank(clamdPID)) {
+            throw new IllegalArgumentException("No Clamd PID!");
+        }
 
         if (limit < 0) {
             throw new IllegalArgumentException(
@@ -123,15 +131,10 @@ public class Admin {
         }
 
         try {
-            final String pid = getClamdPID();
-            if (pid == null) {
-                throw new NotRunningException("The clamd daemon is not running!");
-            }
-
             // /bin/sh -c "nohup /usr/bin/cpulimit -p 1234 -l 50 </dev/null &>/dev/null &"
             
             // run cpulimit as nohup process
-            return Shell.execCmdBackgroundNohup("cpulimit", "--limit=" + limit, "--pid=" + pid);
+            return Shell.execCmdBackgroundNohup("cpulimit", "--limit=" + limit, "--pid=" + clamdPID);
         }
         catch(IOException ex) {
             throw new AvironException(
@@ -146,14 +149,15 @@ public class Admin {
      * 
      * <p>Note: This function is available for Linux and MacOS only!
      * 
+     * @param clamdPID a clamd pid
+     * 
      * @see Admin#activateClamdCpuLimit(int) activateClamdCpuLimit
      */
-    public static void deactivateClamdCpuLimit() {
+    public static void deactivateClamdCpuLimit(final String clamdPID) {
         Shell.validateLinuxOrMacOSX("Admin::deactivateClamdCpuLimit");
 
-        final String clamdPID = getClamdPID();
         if (StringUtils.isBlank(clamdPID)) {
-            throw new NotRunningException("Clamd is not running!");
+            throw new NotRunningException("No Clamd PID!");
         }
         
         try {

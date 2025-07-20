@@ -126,7 +126,7 @@ public class Client {
         this.quarantine = new Quarantine(
                                 builder.quarantineFileAction,
                                 builder.quarantineDir,
-                                builder.quarantineActionListener);
+                                builder.quarantineEventListener);
     }
 
 
@@ -422,14 +422,14 @@ public class Client {
         }
 
         /** 
-         * A quarantine action listener, that receives all quarantine file action
+         * A quarantine event listener, that receives all quarantine file action
          * events. Defaults to <code>null</code>.
          *
-         * @param listener a quarantine file action listener
+         * @param listener a quarantine event listener
          * @return this builder
          */
-        public Builder quarantineActionListener(final Consumer<QuarantineEvent> listener) {
-            this.quarantineActionListener = listener;
+        public Builder quarantineEventListener(final Consumer<QuarantineEvent> listener) {
+            this.quarantineEventListener = listener;
             return this;
         }
 
@@ -441,7 +441,7 @@ public class Client {
         private int readTimeoutMillis = ServerIO.DEFAULT_READ_TIMEOUT;
         private QuarantineFileAction quarantineFileAction = QuarantineFileAction.NONE;
         private File quarantineDir = null;
-        private Consumer<QuarantineEvent> quarantineActionListener;
+        private Consumer<QuarantineEvent> quarantineEventListener;
     }
 
 
