@@ -82,7 +82,7 @@ public class Quarantine {
                 if (pos > 0) {
                     final String key = line.substring(0, pos);
                     final String value = line.substring(pos+1);
-                    
+
                     if (key.equals(KEY_INFECTED_FILE)
                         || key.equals(KEY_VIRUS_LIST)
                         || key.equals(KEY_CREATED_AT)
