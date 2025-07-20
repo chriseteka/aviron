@@ -80,6 +80,7 @@ public class Admin {
     /**
      * Loads the <i>clamd</i> PID from a file.
      * 
+     * @param pidFile the pid file
      * @return the PID
      */
     public static String loadClamdPID(final File pidFile) {
@@ -125,7 +126,7 @@ public class Admin {
      *  <li>on a <i>Intel</i> single core with 2 hyperthreads LIMIT is 200%</li>
      * </ul>
      * 
-     * <p>Runs: <code>/bin/sh -c "nohup cpulimit -p {pid} -l 50 </dev/null &>/dev/null &"</code>
+     * <p>Runs: <code>/bin/sh -c "nohup cpulimit -p {pid} -l 50 &lt;/dev/null &amp;&gt;/dev/null &amp;"</code>
      * 
      * <p>
      * Note: If the <i>clamd</i> process terminates the controlling <i>cpulimit</i>
@@ -142,7 +143,7 @@ public class Admin {
      * @param limit a percent value 0..LIMIT
      * @return the shell background result
      * 
-     * @see Admin#deactivateClamdCpuLimit() deactivateClamdCpuLimit
+     * @see Admin#deactivateClamdCpuLimit(String) deactivateClamdCpuLimit
      */
     public static ShellBackgroundResult activateClamdCpuLimit(
             final String clamdPID, 
@@ -180,7 +181,7 @@ public class Admin {
      * 
      * @param clamdPID a clamd pid
      * 
-     * @see Admin#activateClamdCpuLimit(int) activateClamdCpuLimit
+     * @see Admin#activateClamdCpuLimit(String,int) activateClamdCpuLimit
      */
     public static void deactivateClamdCpuLimit(final String clamdPID) {
         Shell.validateLinuxOrMacOSX("Admin::deactivateClamdCpuLimit");
