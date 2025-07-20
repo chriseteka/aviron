@@ -115,7 +115,7 @@ public class Admin {
      * @see Admin#deactivateClamdCpuLimit() deactivateClamdCpuLimit
      */
     public static ShellBackgroundResult activateClamdCpuLimit(final int limit) {
-        Shell.validateLinuxOrMacOSX("Admin::activateCpuLimit");
+        Shell.validateLinuxOrMacOSX("Admin::activateClamdCpuLimit");
 
         if (limit < 0) {
             throw new IllegalArgumentException(
