@@ -85,6 +85,7 @@ public class Quarantine {
 
                     if (key.equals(KEY_INFECTED_FILE)
                         || key.equals(KEY_VIRUS_LIST)
+                        || key.equals(KEY_QUARANTINE_ACTION)
                         || key.equals(KEY_CREATED_AT)
                     ) {
                         data.put(key, value);
@@ -121,7 +122,7 @@ public class Quarantine {
                         destFile.toPath(), 
                         StandardCopyOption.ATOMIC_MOVE);
 
-                makeQuarantineInfoFile(destInfoFile, file, virusList);
+                makeQuarantineInfoFile(destInfoFile, file, virusList, QuarantineFileAction.MOVE);
 
                 try {
                     listener.accept(
@@ -155,7 +156,7 @@ public class Quarantine {
                         destFile.toPath(), 
                         StandardCopyOption.COPY_ATTRIBUTES);
 
-                makeQuarantineInfoFile(destInfoFile, file, virusList);
+                makeQuarantineInfoFile(destInfoFile, file, virusList, QuarantineFileAction.COPY);
 
                 if (listener != null) {
                     try {
@@ -213,11 +214,13 @@ public class Quarantine {
     private void makeQuarantineInfoFile(
             final File infoFile,
             final File infectedFile,
-            final List<String> virusList
+            final List<String> virusList,
+            final QuarantineFileAction action
     ) {
         final List<String> data = new ArrayList<>();
         data.add(KEY_INFECTED_FILE + "=" + infectedFile.getPath());
         data.add(KEY_VIRUS_LIST + "=" + virusList.stream().collect(Collectors.joining(",")));
+        data.add(KEY_QUARANTINE_ACTION + "=" + action.name());      
         data.add(KEY_CREATED_AT + "=" + LocalDateTime.now().toString());
 
         try {
@@ -235,9 +238,10 @@ public class Quarantine {
     }
 
 
-    public static String KEY_INFECTED_FILE =  "infected-file";
-    public static String KEY_VIRUS_LIST    =  "virus-list";
-    public static String KEY_CREATED_AT    =  "created-at";
+    public static String KEY_INFECTED_FILE     =  "infected-file";
+    public static String KEY_VIRUS_LIST        =  "virus-list";
+    public static String KEY_QUARANTINE_ACTION =  "quarantine-action";
+    public static String KEY_CREATED_AT        =  "created-at";
 
     private final QuarantineFileAction quarantineFileAction;
     private final File quarantineDir;

@@ -257,9 +257,10 @@ class QuarantineTest {
             
             // analyze virus meta data file
             final Map<String,String> virusData = Quarantine.parseQuarantineInfoFile(quarantineVirusFile);
-            assertEquals(3, virusData.size());
+            assertEquals(4, virusData.size());
             assertEquals(scanFile1.getPath(), virusData.get(Quarantine.KEY_INFECTED_FILE));
             assertEquals("xxx", virusData.get(Quarantine.KEY_VIRUS_LIST));
+            assertEquals("COPY", virusData.get(Quarantine.KEY_QUARANTINE_ACTION));
             assertNotNull(LocalDateTime.parse(virusData.get(Quarantine.KEY_CREATED_AT)));
         }
         finally {
@@ -306,16 +307,18 @@ class QuarantineTest {
             
             // analyze virus meta data file 1
             final Map<String,String> virusData1 = Quarantine.parseQuarantineInfoFile(quarantineVirusFile1);
-            assertEquals(3, virusData1.size());
+            assertEquals(4, virusData1.size());
             assertEquals(scanFile1.getPath(), virusData1.get(Quarantine.KEY_INFECTED_FILE));
             assertEquals("xxx", virusData1.get(Quarantine.KEY_VIRUS_LIST));
+            assertEquals("COPY", virusData1.get(Quarantine.KEY_QUARANTINE_ACTION));
             assertNotNull(LocalDateTime.parse(virusData1.get(Quarantine.KEY_CREATED_AT)));
             
             // analyze virus meta data file 2
             final Map<String,String> virusData2 = Quarantine.parseQuarantineInfoFile(quarantineVirusFile2);
-            assertEquals(3, virusData2.size());
+            assertEquals(4, virusData2.size());
             assertEquals(scanFile1.getPath(), virusData2.get(Quarantine.KEY_INFECTED_FILE));
             assertEquals("xxx", virusData2.get(Quarantine.KEY_VIRUS_LIST));
+            assertEquals("COPY", virusData2.get(Quarantine.KEY_QUARANTINE_ACTION));
             assertNotNull(LocalDateTime.parse(virusData2.get(Quarantine.KEY_CREATED_AT)));
         }
         finally {
@@ -356,9 +359,10 @@ class QuarantineTest {
             
             // analyze virus meta data file
             final Map<String,String> virusData = Quarantine.parseQuarantineInfoFile(quarantineVirusFile);
-            assertEquals(3, virusData.size());
+            assertEquals(4, virusData.size());
             assertEquals(scanFile1.getPath(), virusData.get(Quarantine.KEY_INFECTED_FILE));
             assertEquals("xxx", virusData.get(Quarantine.KEY_VIRUS_LIST));
+            assertEquals("COPY", virusData.get(Quarantine.KEY_QUARANTINE_ACTION));
             assertNotNull(LocalDateTime.parse(virusData.get(Quarantine.KEY_CREATED_AT)));
                         
             assertEquals(1, events.size());
@@ -452,9 +456,10 @@ class QuarantineTest {
             
             // analyze virus meta data file
             final Map<String,String> virusData = Quarantine.parseQuarantineInfoFile(quarantineVirusFile);
-            assertEquals(3, virusData.size());
+            assertEquals(4, virusData.size());
             assertEquals(scanFile1.getPath(), virusData.get(Quarantine.KEY_INFECTED_FILE));
             assertEquals("xxx", virusData.get(Quarantine.KEY_VIRUS_LIST));
+            assertEquals("MOVE", virusData.get(Quarantine.KEY_QUARANTINE_ACTION));
             assertNotNull(LocalDateTime.parse(virusData.get(Quarantine.KEY_CREATED_AT)));
         }
         finally {
@@ -505,16 +510,18 @@ class QuarantineTest {
             
             // analyze virus meta data file 1
             final Map<String,String> virusData1 = Quarantine.parseQuarantineInfoFile(quarantineVirusFile1);
-            assertEquals(3, virusData1.size());
+            assertEquals(4, virusData1.size());
             assertEquals(scanFile1.getPath(), virusData1.get(Quarantine.KEY_INFECTED_FILE));
             assertEquals("xxx", virusData1.get(Quarantine.KEY_VIRUS_LIST));
+            assertEquals("MOVE", virusData1.get(Quarantine.KEY_QUARANTINE_ACTION));
             assertNotNull(LocalDateTime.parse(virusData1.get(Quarantine.KEY_CREATED_AT)));
             
             // analyze virus meta data file 2
             final Map<String,String> virusData2 = Quarantine.parseQuarantineInfoFile(quarantineVirusFile2);
-            assertEquals(3, virusData2.size());
+            assertEquals(4, virusData2.size());
             assertEquals(scanFile1.getPath(), virusData2.get(Quarantine.KEY_INFECTED_FILE));
             assertEquals("xxx", virusData2.get(Quarantine.KEY_VIRUS_LIST));
+            assertEquals("MOVE", virusData2.get(Quarantine.KEY_QUARANTINE_ACTION));
             assertNotNull(LocalDateTime.parse(virusData2.get(Quarantine.KEY_CREATED_AT)));
         }
         finally {
@@ -555,9 +562,10 @@ class QuarantineTest {
             
             // analyze virus meta data file
             final Map<String,String> virusData = Quarantine.parseQuarantineInfoFile(quarantineVirusFile);
-            assertEquals(3, virusData.size());
+            assertEquals(4, virusData.size());
             assertEquals(scanFile1.getPath(), virusData.get(Quarantine.KEY_INFECTED_FILE));
             assertEquals("xxx", virusData.get(Quarantine.KEY_VIRUS_LIST));
+            assertEquals("MOVE", virusData.get(Quarantine.KEY_QUARANTINE_ACTION));
             assertNotNull(LocalDateTime.parse(virusData.get(Quarantine.KEY_CREATED_AT)));
             
             assertEquals(1, events.size());
