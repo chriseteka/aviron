@@ -73,18 +73,26 @@ public class ShellResult {
         sb.append("Exit code: " + exitCode);
         
         if (out == null) {
-            sb.append("\n[stdout]  empty\n");
+            sb.append(System.lineSeparator());
+            sb.append("[stdout]  empty");
+            sb.append(System.lineSeparator());
         }
         else {
-            sb.append("\n[stdout]\n");
+            sb.append(System.lineSeparator());
+            sb.append("[stdout]");
+            sb.append(System.lineSeparator());
             sb.append(out);
         }
 
         if (err == null) {
-            sb.append("\n[stderr]  empty\n");
+            sb.append(System.lineSeparator());
+            sb.append("[stderr]  empty");
+            sb.append(System.lineSeparator());
         }
         else {
-            sb.append("\n[stderr]\n");
+            sb.append(System.lineSeparator());
+            sb.append("[stderr]");
+            sb.append(System.lineSeparator());
             sb.append(err);
         }
 

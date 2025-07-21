@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 public class ScanResult {
@@ -75,13 +76,27 @@ public class ScanResult {
         }
     }
 
-
     @Override
     public String toString() {
-        return isOK()
-                ? "ScanResult.OK"
-                : String.format("ScanResult.VirusFound{foundViruses=%s}", foundViruses);
-    }
+        final StringBuilder sb = new StringBuilder();
+        
+        if (isOK()) {
+            sb.append("ScanResult: OK");
+        }
+        else {
+            sb.append("ScanResult: Virus found");
+            for(Map.Entry<String, List<String>> e : foundViruses.entrySet()) {
+                sb.append(System.lineSeparator());
+                sb.append("File: ");
+                sb.append(e.getKey());
+                sb.append(System.lineSeparator());
+                sb.append("Virus Signatures: ");
+                sb.append(e.getValue().stream().collect(Collectors.joining(", ")));
+            }
+        }
+        
+        return sb.toString();
+     }
 
 
     private final Map<String, List<String>> foundViruses = new HashMap<>();

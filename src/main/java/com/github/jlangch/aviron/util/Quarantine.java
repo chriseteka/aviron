@@ -56,15 +56,15 @@ public class Quarantine {
  
     
     public QuarantineFileAction getQuarantineFileAction() {
-    	return quarantineFileAction;
+        return quarantineFileAction;
     }
  
     public File getQuarantineDir() {
-    	return quarantineDir;
+        return quarantineDir;
     }
  
     public boolean hasListener() {
-    	return listenerSupplied;
+        return listenerSupplied;
     }
  
     

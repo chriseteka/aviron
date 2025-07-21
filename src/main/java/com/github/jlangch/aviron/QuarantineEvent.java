@@ -26,6 +26,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.github.jlangch.aviron.ex.QuarantineFileActionException;
 
@@ -71,7 +72,31 @@ public class QuarantineEvent {
         return ex != null;
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
 
+        sb.append("Infected File: ");
+        sb.append(infectedFile);
+        sb.append(System.lineSeparator());
+        sb.append("Virus Signatures: ");
+        sb.append(virusList.stream().collect(Collectors.joining(", ")));
+        sb.append(System.lineSeparator());
+        sb.append("Quarantine File: ");
+        sb.append(quarantineFile);
+        sb.append(System.lineSeparator());
+        sb.append("Quarantine Action: ");
+        sb.append(action);
+        sb.append(System.lineSeparator());
+        if (ex != null) {
+            sb.append("Quarantine Exception: ");
+            sb.append(ex.getMessage());
+        }
+
+        return sb.toString();
+    }
+
+    
     private final File infectedFile;
     private final List<String> virusList = new ArrayList<>();
     private final File quarantineFile;

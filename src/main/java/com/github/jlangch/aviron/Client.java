@@ -27,7 +27,9 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import com.github.jlangch.aviron.commands.Command;
 import com.github.jlangch.aviron.commands.mgmt.Ping;
@@ -322,19 +324,48 @@ public class Client {
      */
     public void printConfig(final PrintStream stream) {
         final PrintStream ps = stream == null ? System.out : stream;
-        
-        ps.println("serverHostname: " + server.getHostname());
-        ps.println("serverPort: " + server.getPort());
-        ps.println("serverFileSeparator: " + server.getFileSeparator());
-        ps.println("connectionTimeoutMillis: " + server.getConnectionTimeoutMillis());
-        ps.println("readTimeoutMillis: " + server.getReadTimeoutMillis());
-
-        ps.println("quarantineFileAction: " + quarantine.getQuarantineFileAction());
-        ps.println("quarantineDir: " + formatConfig(quarantine.getQuarantineDir()));
-        ps.println("quarantineListener: " + formatConfig(quarantine.hasListener()));
+        ps.print(toString());
     }
-    
-    
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append("serverHostname: ");
+        sb.append(server.getHostname());
+        sb.append(System.lineSeparator());
+
+        sb.append("serverPort: ");
+        sb.append(server.getPort());
+        sb.append(System.lineSeparator());
+
+        sb.append("serverFileSeparator: ");
+        sb.append(server.getFileSeparator());
+        sb.append(System.lineSeparator());
+
+        sb.append("connectionTimeoutMillis: ");
+        sb.append(server.getConnectionTimeoutMillis());
+        sb.append(System.lineSeparator());
+
+        sb.append("readTimeoutMillis: ");
+        sb.append(server.getReadTimeoutMillis());
+        sb.append(System.lineSeparator());
+
+        sb.append("quarantineFileAction: ");
+        sb.append(quarantine.getQuarantineFileAction());
+        sb.append(System.lineSeparator());
+
+        sb.append("quarantineDir: ");
+        sb.append(formatConfig(quarantine.getQuarantineDir()));
+        sb.append(System.lineSeparator());
+
+        sb.append("quarantineListener: ");
+        sb.append(formatConfig(quarantine.hasListener()));
+        sb.append(System.lineSeparator());
+
+        return sb.toString();
+     }
+
 
     private String formatConfig(final File f) {
         return f != null ? f.getPath() : "-";
