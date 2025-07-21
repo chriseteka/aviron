@@ -74,7 +74,7 @@ public class Scan {
 ### Extended example with quarantine support:
 
 Infected files are move/copied implicitly to a quarantine directory. Whether
-an infected is moved or copied can be controlled by the *quarantineFileAction*
+an infected file is moved or copied can be controlled by the *quarantineFileAction*
 configuration parameter.
 
 ```java
