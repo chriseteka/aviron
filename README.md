@@ -71,6 +71,57 @@ public class Scan {
 }
 ```
 
+Java example with quarantine:
+
+```java
+import java.io.*;
+import java.nio.file.*;
+
+import com.github.jlangch.aviron.Client;
+import com.github.jlangch.aviron.QuarantineFileAction;
+import com.github.jlangch.aviron.QuarantineEvent;
+import com.github.jlangch.aviron.FileSeparator;
+
+public class Scan {
+    public static void main(String[] args) throws Exception {
+        final String baseDir = "/data/files/";
+        final String quarantineDir = "/data/quarantine/";
+
+        // Note: The file separator depends on the server's type (Unix, Windows)
+        //       clamd is running on!
+        final Client client = new Client.Builder()
+                                        .serverHostname("localhost")
+                                        .serverFileSeparator(FileSeparator.UNIX)
+                                        .quarantineFileAction(QuarantineFileAction.MOVE)
+                                        .quarantineDir(quarantineDir)
+                                        .quarantineEventListener(this::listener)
+                                        .build();
+
+        System.out.println("Reachable: " + client.isReachable());
+
+        // scan single file
+        System.out.println(client.scan(Paths.get(baseDir, "document.pdf")));
+
+        // scan dir (recursive)
+        System.out.println(client.scan(Paths.get(baseDir), true));
+
+        // scan streamed data
+        try (InputStream is = new FileInputStream(new File(baseDir, "document.pdf"))) {
+            System.out.println(client.scan(is));
+        }
+    }
+    
+    private void listener(final QuarantineEvent event) {
+        if (event.getException() != null) {
+      	   System.out.println("Error " + event.getException().getMessage());
+        }
+        else {
+            System.out.println("File " + event.getInfectedFile() + " move to quarantine");
+        }
+    }
+}
+```
+
 
 ## Getting the latest release
 
