@@ -35,7 +35,7 @@ clamd --foreground
 ```
 
 
-### Java example:
+### Simple scanning example:
 
 ```java
 import java.io.*;
@@ -71,7 +71,7 @@ public class Scan {
 }
 ```
 
-### Java example with quarantine support:
+### Extended example with quarantine support:
 
 Infected files are move/copied implicitly to a quarantine directory. Whether
 an infected is moved or copied can be controlled by the *quarantineFileAction*
