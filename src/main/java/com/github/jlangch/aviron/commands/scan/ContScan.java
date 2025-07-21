@@ -25,6 +25,7 @@ package com.github.jlangch.aviron.commands.scan;
 import com.github.jlangch.aviron.commands.CommandDef;
 import com.github.jlangch.aviron.commands.CommandFormat;
 
+
 /**
  * Scan file or directory (recursively) with archive support enabled and don't 
  * stop the scanning when a virus is found.

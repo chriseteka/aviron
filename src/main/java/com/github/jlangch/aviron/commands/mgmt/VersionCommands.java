@@ -31,7 +31,6 @@ import com.github.jlangch.aviron.commands.CommandFormat;
 import com.github.jlangch.aviron.ex.InvalidResponseException;
 
 
-
 /**
  * Print program and database versions, followed by "| COMMANDS:" and a 
  * space-delimited list of supported commands. Clamd &lt;0.95 will recognize 
