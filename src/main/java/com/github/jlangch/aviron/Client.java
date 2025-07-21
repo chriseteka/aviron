@@ -27,9 +27,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import com.github.jlangch.aviron.commands.Command;
 import com.github.jlangch.aviron.commands.mgmt.Ping;
@@ -324,7 +322,7 @@ public class Client {
      */
     public void printConfig(final PrintStream stream) {
         final PrintStream ps = stream == null ? System.out : stream;
-        ps.print(toString());
+        ps.println(toString());
     }
 
     @Override
@@ -361,7 +359,6 @@ public class Client {
 
         sb.append("quarantineListener: ");
         sb.append(formatConfig(quarantine.hasListener()));
-        sb.append(System.lineSeparator());
 
         return sb.toString();
      }
