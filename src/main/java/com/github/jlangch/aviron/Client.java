@@ -335,11 +335,11 @@ public class Client {
     
 
     private String formatConfig(final File f) {
-    	return f == null ? "-" : f.getPath();
+    	return f != null ? f.getPath() : "-";
     }
 
     private String formatConfig(final boolean b) {
-    	return b ? "yes" : "no";
+    	return b ? "supplied" : "-";
     }
     
     private List<String> loadAvailableCommands() {
