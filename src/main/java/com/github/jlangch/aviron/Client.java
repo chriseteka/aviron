@@ -198,9 +198,8 @@ public class Client {
             throw new IllegalArgumentException("An 'inputStream' must not be null!");
         }
 
-        final ScanResult result = scan(inputStream, InStream.DEFAULT_CHUNK_SIZE);
-        quarantine.handleQuarantineActions(result);
-        return result;
+        // there is no quarantine action for streamed data
+        return scan(inputStream, InStream.DEFAULT_CHUNK_SIZE);
     }
 
     /**
@@ -221,9 +220,8 @@ public class Client {
             throw new IllegalArgumentException("A 'chunkSize' must be greater than 0");
         }
 
-        final ScanResult result = sendCommand(new InStream(inputStream, chunkSize));
-        quarantine.handleQuarantineActions(result);
-        return result;
+        // there is no quarantine action for streamed data
+        return sendCommand(new InStream(inputStream, chunkSize));
     }
 
     /**
@@ -319,29 +317,29 @@ public class Client {
      * @param stream  the print stream. If <code>null</code> prints to stdout.
      */
     public void printConfig(final PrintStream stream) {
-    	final PrintStream ps = stream == null ? System.out : stream;
-    	
-    	ps.println("serverHostname: " + server.getHostname());
-    	ps.println("serverPort: " + server.getPort());
-    	ps.println("serverFileSeparator: " + server.getFileSeparator());
-    	ps.println("connectionTimeoutMillis: " + server.getConnectionTimeoutMillis());
-    	ps.println("readTimeoutMillis: " + server.getReadTimeoutMillis());
+        final PrintStream ps = stream == null ? System.out : stream;
+        
+        ps.println("serverHostname: " + server.getHostname());
+        ps.println("serverPort: " + server.getPort());
+        ps.println("serverFileSeparator: " + server.getFileSeparator());
+        ps.println("connectionTimeoutMillis: " + server.getConnectionTimeoutMillis());
+        ps.println("readTimeoutMillis: " + server.getReadTimeoutMillis());
 
-    	ps.println("quarantineFileAction: " + quarantine.getQuarantineFileAction());
-    	ps.println("quarantineDir: " + formatConfig(quarantine.getQuarantineDir()));
-    	ps.println("quarantineListener: " + formatConfig(quarantine.hasListener()));
+        ps.println("quarantineFileAction: " + quarantine.getQuarantineFileAction());
+        ps.println("quarantineDir: " + formatConfig(quarantine.getQuarantineDir()));
+        ps.println("quarantineListener: " + formatConfig(quarantine.hasListener()));
     }
     
     
 
     private String formatConfig(final File f) {
-    	return f != null ? f.getPath() : "-";
+        return f != null ? f.getPath() : "-";
     }
 
     private String formatConfig(final boolean b) {
-    	return b ? "supplied" : "-";
+        return b ? "supplied" : "-";
     }
-    
+
     private List<String> loadAvailableCommands() {
         return new VersionCommands().send(server);
     }
