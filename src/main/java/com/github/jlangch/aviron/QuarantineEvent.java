@@ -65,6 +65,10 @@ public class QuarantineEvent {
         return ex;
     }
 
+    public boolean hasException() {
+        return ex != null;
+    }
+
 
     private final File infectedFile;
     private final List<String> virusList = new ArrayList<>();
