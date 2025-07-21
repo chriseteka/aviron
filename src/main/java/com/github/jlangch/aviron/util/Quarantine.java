@@ -57,7 +57,7 @@ public class Quarantine {
         if (quarantineFileAction == QuarantineFileAction.NONE) {
             return;
         }
-        
+
         if (result.isOK()) {
             return;
         }

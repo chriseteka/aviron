@@ -24,6 +24,10 @@ package com.github.jlangch.aviron;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
 import org.junit.jupiter.api.Test;
 
 
@@ -33,11 +37,30 @@ class ClientTest {
         // without clamd mock the client must be mainly manually tested
     }
 
-    @Test void testCreate() {
-       final Client client = Client.builder()
-                                   .serverHostname("localhost")
-                                   .serverFileSeparator(FileSeparator.JVM_PLATFORM)
-                                   .build();
-       assertNotNull(client);
+    @Test void testCreate1() {
+        final Client client = Client.builder()
+                                    .serverHostname("localhost")
+                                    .serverFileSeparator(FileSeparator.JVM_PLATFORM)
+                                    .build();
+        assertNotNull(client);
+    }
+
+    @Test void testCreate2() throws IOException {
+        final File quanrantineDir = Files.createTempDirectory("quarantine_").toFile();
+        quanrantineDir.deleteOnExit();
+        
+        final Client client = Client.builder()
+                                    .serverHostname("localhost")
+                                    .serverFileSeparator(FileSeparator.JVM_PLATFORM)
+                                    .quarantineDir(quanrantineDir)
+                                    .quarantineFileAction(QuarantineFileAction.NONE)
+                                    .quarantineEventListener(this::listener)
+                                    .build();
+        assertNotNull(client);
+    }
+
+
+    private void listener(final QuarantineEvent event) {
+        
     }
 }
