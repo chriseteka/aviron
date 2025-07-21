@@ -126,76 +126,52 @@ public class Quarantine {
         }
 
         synchronized (this) {
-            // note: listener is not called when these 2 actions fail!
-            final File destFile = makeUniqueQuarantineFileName(file);
-            final File destInfoFile = makeUniqueQuarantineInfoFileName(destFile);
+            File destFile = null;
+            File destInfoFile = null;
 
-            if (quarantineFileAction == QuarantineFileAction.MOVE) {
-                try {
+            try {
+                destFile = makeUniqueQuarantineFileName(file);
+                destInfoFile = makeUniqueQuarantineInfoFileName(destFile);
+
+                if (quarantineFileAction == QuarantineFileAction.MOVE) {
                     Files.move(
                             file.toPath(), 
                             destFile.toPath(), 
                             StandardCopyOption.ATOMIC_MOVE);
-
-                    makeQuarantineInfoFile(destInfoFile, file, virusList, QuarantineFileAction.MOVE);
-
-                    try {
-                        listener.accept(
-                            new QuarantineEvent(
-                                    file,
-                                    virusList,
-                                    destFile,
-                                    QuarantineFileAction.MOVE,
-                                    null));
-                    }
-                    catch(RuntimeException e) { /* not interest in sink problems */ }
                 }
-                catch(Exception ex) {
-                    try {
-                        listener.accept(
-                                new QuarantineEvent(
-                                        file,
-                                        virusList,
-                                        destFile,
-                                        QuarantineFileAction.MOVE,
-                                        new QuarantineFileActionException("", ex)));
-                    }
-                    catch(RuntimeException e) { /* not interest in sink problems */ }
-                }
-            }
-
-            else if (quarantineFileAction == QuarantineFileAction.COPY) {
-                try {
+                else if (quarantineFileAction == QuarantineFileAction.COPY) {
                     Files.copy(
                             file.toPath(), 
                             destFile.toPath(), 
                             StandardCopyOption.COPY_ATTRIBUTES);
-
-                    makeQuarantineInfoFile(destInfoFile, file, virusList, QuarantineFileAction.COPY);
-
-                    try {
-                        listener.accept(
-                                new QuarantineEvent(
-                                        file,
-                                        virusList,
-                                        destFile,
-                                        QuarantineFileAction.COPY,
-                                        null));
-                    }
-                    catch(RuntimeException e) { /* not interest in sink problems */ }
                 }
-                catch(Exception ex) {
-                    try {
-                        listener.accept(
-                                new QuarantineEvent(
-                                        file,
-                                        virusList,
-                                        destFile,
-                                        QuarantineFileAction.COPY,
-                                        new QuarantineFileActionException("", ex)));
-                    }
-                    catch(RuntimeException e) { /* not interest in sink problems */ }
+
+                makeQuarantineInfoFile(destInfoFile, file, virusList, quarantineFileAction);
+
+                try {
+                    listener.accept(
+                        new QuarantineEvent(
+                                file,
+                                virusList,
+                                destFile,
+                                quarantineFileAction,
+                                null));
                 }
+                catch(RuntimeException e) { /* not interested in sink problems */ }
+            }
+            catch(Exception ex) {
+                try {
+                    listener.accept(
+                            new QuarantineEvent(
+                                    file,
+                                    virusList,
+                                    destFile,
+                                    quarantineFileAction,
+                                    new QuarantineFileActionException(
+                                            "Failed to process quarantine action", 
+                                            ex)));
+                }
+                catch(RuntimeException e) { /* not interested in sink problems */ }
             }
         }
     }
