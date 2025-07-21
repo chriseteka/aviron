@@ -54,6 +54,10 @@ public class Quarantine {
     }
     
     public void handleQuarantineActions(final ScanResult result) {
+        if (quarantineFileAction == QuarantineFileAction.NONE) {
+        	return;
+        }
+        
         if (result.isOK()) {
             return;
         }
