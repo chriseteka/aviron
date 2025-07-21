@@ -51,7 +51,22 @@ public class Quarantine {
         this.quarantineFileAction = quarantineFileAction;
         this.quarantineDir = quarantineDir;
         this.listener = listener == null ? (e) -> {} : listener;
+        this.listenerSupplied = listener != null;
     }
+ 
+    
+    public QuarantineFileAction getQuarantineFileAction() {
+    	return quarantineFileAction;
+    }
+ 
+    public File getQuarantineDir() {
+    	return quarantineDir;
+    }
+ 
+    public boolean hasListener() {
+    	return listenerSupplied;
+    }
+ 
     
     public void handleQuarantineActions(final ScanResult result) {
         if (quarantineFileAction == QuarantineFileAction.NONE
@@ -245,4 +260,5 @@ public class Quarantine {
     private final QuarantineFileAction quarantineFileAction;
     private final File quarantineDir;
     private final Consumer<QuarantineEvent> listener;
+    private final boolean listenerSupplied;
 }

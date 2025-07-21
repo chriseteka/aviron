@@ -24,6 +24,7 @@ package com.github.jlangch.aviron;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
@@ -312,7 +313,35 @@ public class Client {
         return server.getLastCommandRunDetails();
     }
 
+    /**
+     * Print the client configuration in human readable form to a <code>PrintStream</code>
+     * 
+     * @param stream  the print stream. If <code>null</code> prints to stdout.
+     */
+    public void printConfig(final PrintStream stream) {
+    	final PrintStream ps = stream == null ? System.out : stream;
+    	
+    	ps.println("serverHostname: " + server.getHostname());
+    	ps.println("serverPort: " + server.getPort());
+    	ps.println("serverFileSeparator: " + server.getFileSeparator());
+    	ps.println("connectionTimeoutMillis: " + server.getConnectionTimeoutMillis());
+    	ps.println("readTimeoutMillis: " + server.getReadTimeoutMillis());
 
+    	ps.println("quarantineFileAction: " + quarantine.getQuarantineFileAction());
+    	ps.println("quarantineDir: " + formatConfig(quarantine.getQuarantineDir()));
+    	ps.println("quarantineListener: " + formatConfig(quarantine.hasListener()));
+    }
+    
+    
+
+    private String formatConfig(final File f) {
+    	return f == null ? "-" : f.getPath();
+    }
+
+    private String formatConfig(final boolean b) {
+    	return b ? "yes" : "no";
+    }
+    
     private List<String> loadAvailableCommands() {
         return new VersionCommands().send(server);
     }

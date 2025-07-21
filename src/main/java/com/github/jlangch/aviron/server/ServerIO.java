@@ -70,6 +70,27 @@ public class ServerIO {
         this.readTimeout = readTimeoutMillis;
     }
 
+    
+    public String getHostname() {
+        return server.getHostName();
+    }
+
+    public int getPort() {
+        return server.getPort();
+    }
+
+    public FileSeparator getFileSeparator() {
+        return serverFileSeparator;
+    }
+
+    public int getConnectionTimeoutMillis() {
+        return connectionTimeout;
+    }
+
+    public int getReadTimeoutMillis() {
+        return readTimeout;
+    }
+
 
     public String toServerPath(final Path path) {
         return serverFileSeparator.toServerPath(path);
