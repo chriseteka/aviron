@@ -5,9 +5,10 @@ All notable changes to this project will be documented in this file.
 
 
 
-## [1.3.3] - 2025-07-xx
+## [1.3.3] - 2025-07-21
 
-- ...
+- Added Client::printConfig to print a client's configuration.
+- Fixed a possible race condition
 
 
 
