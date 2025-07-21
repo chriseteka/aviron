@@ -55,7 +55,7 @@ public class Quarantine {
     
     public void handleQuarantineActions(final ScanResult result) {
         if (quarantineFileAction == QuarantineFileAction.NONE) {
-        	return;
+            return;
         }
         
         if (result.isOK()) {
@@ -115,54 +115,68 @@ public class Quarantine {
             return;
         }
 
-        // note: listener is not called when these 2 actions fail!
-        final File destFile = makeUniqueQuarantineFileName(file);
-        final File destInfoFile = makeUniqueQuarantineInfoFileName(destFile);
+        synchronized (this) {
+            // note: listener is not called when these 2 actions fail!
+            final File destFile = makeUniqueQuarantineFileName(file);
+            final File destInfoFile = makeUniqueQuarantineInfoFileName(destFile);
 
-        if (quarantineFileAction == QuarantineFileAction.MOVE) {
-            try {
-                Files.move(
-                        file.toPath(), 
-                        destFile.toPath(), 
-                        StandardCopyOption.ATOMIC_MOVE);
-
-                makeQuarantineInfoFile(destInfoFile, file, virusList, QuarantineFileAction.MOVE);
-
+            if (quarantineFileAction == QuarantineFileAction.MOVE) {
                 try {
-                    listener.accept(
-                        new QuarantineEvent(
-                                file,
-                                virusList,
-                                destFile,
-                                QuarantineFileAction.MOVE,
-                                null));
-                }
-                catch(RuntimeException e) { /* not interest in sink problems */ }
-            }
-            catch(Exception ex) {
-                try {
-                    listener.accept(
+                    Files.move(
+                            file.toPath(), 
+                            destFile.toPath(), 
+                            StandardCopyOption.ATOMIC_MOVE);
+
+                    makeQuarantineInfoFile(destInfoFile, file, virusList, QuarantineFileAction.MOVE);
+
+                    try {
+                        listener.accept(
                             new QuarantineEvent(
                                     file,
                                     virusList,
                                     destFile,
                                     QuarantineFileAction.MOVE,
-                                    new QuarantineFileActionException("", ex)));
+                                    null));
+                    }
+                    catch(RuntimeException e) { /* not interest in sink problems */ }
                 }
-                catch(RuntimeException e) { /* not interest in sink problems */ }
+                catch(Exception ex) {
+                    try {
+                        listener.accept(
+                                new QuarantineEvent(
+                                        file,
+                                        virusList,
+                                        destFile,
+                                        QuarantineFileAction.MOVE,
+                                        new QuarantineFileActionException("", ex)));
+                    }
+                    catch(RuntimeException e) { /* not interest in sink problems */ }
+                }
             }
-        }
 
-        else if (quarantineFileAction == QuarantineFileAction.COPY) {
-            try {
-                Files.copy(
-                        file.toPath(), 
-                        destFile.toPath(), 
-                        StandardCopyOption.COPY_ATTRIBUTES);
+            else if (quarantineFileAction == QuarantineFileAction.COPY) {
+                try {
+                    Files.copy(
+                            file.toPath(), 
+                            destFile.toPath(), 
+                            StandardCopyOption.COPY_ATTRIBUTES);
 
-                makeQuarantineInfoFile(destInfoFile, file, virusList, QuarantineFileAction.COPY);
+                    makeQuarantineInfoFile(destInfoFile, file, virusList, QuarantineFileAction.COPY);
 
-                if (listener != null) {
+                    if (listener != null) {
+                        try {
+                            listener.accept(
+                                    new QuarantineEvent(
+                                            file,
+                                            virusList,
+                                            destFile,
+                                            QuarantineFileAction.COPY,
+                                            null));
+                        }
+                        catch(RuntimeException e) { /* not interest in sink problems */ }
+                    }
+                }
+                catch(Exception ex) {
                     try {
                         listener.accept(
                                 new QuarantineEvent(
@@ -170,26 +184,14 @@ public class Quarantine {
                                         virusList,
                                         destFile,
                                         QuarantineFileAction.COPY,
-                                        null));
+                                        new QuarantineFileActionException("", ex)));
                     }
                     catch(RuntimeException e) { /* not interest in sink problems */ }
                 }
             }
-            catch(Exception ex) {
-                try {
-                    listener.accept(
-                            new QuarantineEvent(
-                                    file,
-                                    virusList,
-                                    destFile,
-                                    QuarantineFileAction.COPY,
-                                    new QuarantineFileActionException("", ex)));
-                }
-                catch(RuntimeException e) { /* not interest in sink problems */ }
-            }
         }
     }
- 
+
     private File makeUniqueQuarantineFileName(final File file) {
         final String name = file.getName();
 
