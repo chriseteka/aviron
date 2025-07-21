@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.github.jlangch.aviron.ex.QuarantineFileActionException;
+
 
 public class QuarantineEvent {
 
