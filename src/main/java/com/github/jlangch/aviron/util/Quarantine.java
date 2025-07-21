@@ -50,22 +50,21 @@ public class Quarantine {
     ) {
         this.quarantineFileAction = quarantineFileAction;
         this.quarantineDir = quarantineDir;
-        this.listener = listener;
+        this.listener = listener == null ? (e) -> {} : listener;
     }
     
     public void handleQuarantineActions(final ScanResult result) {
-        if (quarantineFileAction == QuarantineFileAction.NONE) {
-            return;
-        }
-
-        if (result.isOK()) {
+        if (quarantineFileAction == QuarantineFileAction.NONE
+            || result == null
+            || result.isOK()
+        ) {
             return;
         }
 
         result.getVirusFound()
               .entrySet()
               .stream()
-              .forEach(e -> runQuarantineAction(
+              .forEach(e -> processQuarantineAction(
                                   new File(e.getKey()),
                                   e.getValue()));
     }
@@ -106,12 +105,8 @@ public class Quarantine {
         }
     }
 
-    private void runQuarantineAction(final File file, final List<String> virusList) {
-        if (!file.isFile()) {
-            return;
-        }
-
-        if (!file.canRead()) {
+    private void processQuarantineAction(final File file, final List<String> virusList) {
+        if (!file.isFile() || !file.canRead()) {
             return;
         }
 
@@ -163,18 +158,16 @@ public class Quarantine {
 
                     makeQuarantineInfoFile(destInfoFile, file, virusList, QuarantineFileAction.COPY);
 
-                    if (listener != null) {
-                        try {
-                            listener.accept(
-                                    new QuarantineEvent(
-                                            file,
-                                            virusList,
-                                            destFile,
-                                            QuarantineFileAction.COPY,
-                                            null));
-                        }
-                        catch(RuntimeException e) { /* not interest in sink problems */ }
+                    try {
+                        listener.accept(
+                                new QuarantineEvent(
+                                        file,
+                                        virusList,
+                                        destFile,
+                                        QuarantineFileAction.COPY,
+                                        null));
                     }
+                    catch(RuntimeException e) { /* not interest in sink problems */ }
                 }
                 catch(Exception ex) {
                     try {
@@ -251,5 +244,5 @@ public class Quarantine {
 
     private final QuarantineFileAction quarantineFileAction;
     private final File quarantineDir;
-    final Consumer<QuarantineEvent> listener;
+    private final Consumer<QuarantineEvent> listener;
 }
