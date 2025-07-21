@@ -28,7 +28,7 @@ TCPSocket 3310
 TCPAddr localhost
 ```
 
-Start **clamd** as foreground process for easy testing (in production **clamd** is run as a **systemd** service):
+Start **clamd** as foreground process for easy testing (on Linux production systems **clamd** is run as a **systemd** service):
 
 ```sh
 clamd --foreground
