@@ -188,7 +188,9 @@ public class Client {
      * Scans a file's data passed in the stream. Uses the default chunk size of
      * 2048 bytes.
      * 
-     * Note: The input stream must be closed by the caller!
+     * <p>Note 1: The input stream must be closed by the caller!
+     * 
+     * <p>Note 2: There is no quarantine action for streamed data
      * 
      * @param inputStream the file data to scan
      * @return the scan result
@@ -205,7 +207,9 @@ public class Client {
     /**
      * Scans a file's data passed in the stream.
      * 
-     * Note: The input stream must be closed by the caller!
+     * <p>Note 1: The input stream must be closed by the caller!
+     * 
+     * <p>Note 2: There is no quarantine action for streamed data
      * 
      * @param inputStream the file data to scan
      * @param chunkSize the chunk size to use when reading data chunks from 
