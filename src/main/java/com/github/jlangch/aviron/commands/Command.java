@@ -25,6 +25,7 @@ package com.github.jlangch.aviron.commands;
 import com.github.jlangch.aviron.ex.UnknownCommandException;
 import com.github.jlangch.aviron.server.ServerIO;
 
+
 public abstract class Command<T> {
 
     public abstract CommandDef getCommandDef();
