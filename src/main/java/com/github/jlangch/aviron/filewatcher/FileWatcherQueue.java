@@ -107,7 +107,7 @@ public class FileWatcherQueue implements Closeable {
         if (isClosed()) {
             throw new FileWatcherException("The FileWatcher queue is closed!");
         }
-        
+
         final List<File> files = pop(1, false);
         return files.isEmpty() ? null : files.get(0);
     }
@@ -116,7 +116,7 @@ public class FileWatcherQueue implements Closeable {
         if (isClosed()) {
             throw new FileWatcherException("The FileWatcher queue is closed!");
         }
-        
+
         return pop(n, false);
     }
 
@@ -124,7 +124,7 @@ public class FileWatcherQueue implements Closeable {
         if (isClosed()) {
             throw new FileWatcherException("The FileWatcher queue is closed!");
         }
-        
+
         synchronized(queue) {
             final List<File> files = new ArrayList<>(n);
             for(int ii=0; ii<n && !queue.isEmpty(); ii++) {
@@ -139,6 +139,10 @@ public class FileWatcherQueue implements Closeable {
     }
 
     public void load() {
+        if (isClosed()) {
+            throw new FileWatcherException("The FileWatcher queue is closed!");
+        }
+
         if (walFile == null) {
             return;
         }
@@ -183,8 +187,13 @@ public class FileWatcherQueue implements Closeable {
     }
 
     public void save() {
-        if (isClosed()) return;
-        if (walFile == null) return;
+        if (isClosed()) {
+            throw new FileWatcherException("The FileWatcher queue is closed!");
+        }
+
+        if (walFile == null) {
+            return;
+        }
 
         synchronized(queue) {
             try (FileWriter fw = new FileWriter(walFile, false)) {
