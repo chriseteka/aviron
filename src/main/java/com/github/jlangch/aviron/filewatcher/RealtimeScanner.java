@@ -22,23 +22,45 @@
  */
 package com.github.jlangch.aviron.filewatcher;
 
-import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 import com.github.jlangch.aviron.Client;
+import com.github.jlangch.aviron.events.FileWatchErrorEvent;
+import com.github.jlangch.aviron.events.FileWatchEvent;
+import com.github.jlangch.aviron.events.FileWatchRegisterEvent;
+import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
 
 
 public class RealtimeScanner {
 
     public RealtimeScanner(
+            final Client client,
+            final Path fileWatcherWAL,
+            final Path dir,
+            final Predicate<FileWatchEvent> scannable
+     ) {
+         this(client, fileWatcherWAL, dir, null, scannable);
+     }
+
+    public RealtimeScanner(
            final Client client,
-           final File fileWatcherWAL,
-           final Path dir
+           final Path fileWatcherWAL,
+           final Path mainDir,
+           final List<Path> secondaryDirs,
+           final Predicate<FileWatchEvent> scannable
     ) {
         this.client = client;
         this.fileWatcherWAL = fileWatcherWAL;
-        this.dir = dir;
+        this.mainDir = mainDir;
+        if (secondaryDirs != null) {
+            this.secondaryDirs.addAll(secondaryDirs);
+        }
+        this.scannable = scannable;
     }
 
 
@@ -46,27 +68,84 @@ public class RealtimeScanner {
         return running.get();
     }
 
-    public void start() {
+    public synchronized void start() {
         if (running.compareAndSet(false, true)) {
             // start realtime scanner
 
+            try {
+                fileWatcherQueue.set(FileWatcherQueue.create(fileWatcherWAL.toFile()));
+
+                watcher.set(new FileWatcher(
+                                    mainDir,
+                                    this::fileWatchEventListener,
+                                    this::registerEventListener,
+                                    this::errorEventListener,
+                                    this::terminationEventListener));
+            }
+            catch(Exception ex) {
+                running.set(false);
+                throw ex;
+            }
+
+            watcher.get().register(secondaryDirs);
         }
     }
 
-    public void stop() {
+    public synchronized void stop() {
         if (running.compareAndSet(true, false)) {
-            // stop realtime scanner
+            // close WAL file
+            try {
+                final FileWatcherQueue queue = fileWatcherQueue.get();
+                if (queue != null) {
+                    queue.close();
+                }
+            }
+            catch(Exception ex) { /* best effort */ }
 
+            // stop realtime scanner
+            final FileWatcher fw = watcher.get();
+            if (fw != null && fw.isRunning()) {
+               fw.close();
+            }
         }
     }
 
-    public void clearWAL() {
+    public synchronized void clearWAL() {
+        final FileWatcherQueue queue = fileWatcherQueue.get();
+        if (queue != null) {
+            queue.clear();
+            queue.clearWalFile();
+        }
+    }
+
+    
+    private void fileWatchEventListener(final FileWatchEvent event) {
+        if (scannable == null || scannable.test(event)) {
+           client.scan(event.getPath());
+        }
+    }
+    
+    private void registerEventListener(final FileWatchRegisterEvent event) {
+        
+    }
+
+    private void errorEventListener(final FileWatchErrorEvent event) {
+        
+    }
+
+    private void terminationEventListener(final FileWatchTerminationEvent event) {
+        
     }
 
 
     private static final AtomicBoolean running = new AtomicBoolean(false);
 
     private final Client client;
-    private final File fileWatcherWAL;
-    private final Path dir;
+    private final Path fileWatcherWAL;
+    private final Path mainDir;
+    private final List<Path> secondaryDirs = new ArrayList<>();
+    private final Predicate<FileWatchEvent> scannable;
+
+    private AtomicReference<FileWatcher> watcher = new AtomicReference<>();
+    private AtomicReference<FileWatcherQueue> fileWatcherQueue = new AtomicReference<>();
 }

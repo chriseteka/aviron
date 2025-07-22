@@ -58,8 +58,8 @@ public class FileWatcher implements Closeable {
             final Consumer<FileWatchRegisterEvent> registerListener,
             final Consumer<FileWatchErrorEvent> errorListener,
             final Consumer<FileWatchTerminationEvent> terminationListener
-    ) throws IOException {
-        this.ws = dir.getFileSystem().newWatchService();
+    ) {
+        this.ws = createWatchService(dir);
         this.eventListener = eventListener;
         this.registerListener = registerListener;
         this.errorListener = errorListener;
@@ -70,7 +70,7 @@ public class FileWatcher implements Closeable {
         start(dir);
     }
 
-    public void register(final Path dir) throws IOException {
+    public void register(final Path dir) {
         if (!dir.toFile().exists()) {
             throw new FileWatcherException("Folder " + dir + " does not exist");
         }
@@ -81,7 +81,7 @@ public class FileWatcher implements Closeable {
         register(ws, keys, dir, false);
     }
 
-    public void register(final List<Path> dirs) throws IOException {
+    public void register(final List<Path> dirs) {
         dirs.forEach(d -> register(ws, keys, d, false));
     }
 
@@ -89,10 +89,37 @@ public class FileWatcher implements Closeable {
         return keys.values().stream().sorted().collect(Collectors.toList());
     }
 
+    public boolean isRunning() {
+        return !closed.get();
+    }
+    
     @Override
-    public void close() throws IOException {
+    public void close() {
         closed.set(true);
-        ws.close();
+        try {
+            ws.close();
+        } catch(Exception ex) {
+            throw new FileWatcherException("Failed to close WatchService!", ex);
+        }
+    }
+
+    private WatchService createWatchService(final Path mainDir) {
+        if (!mainDir.toFile().exists()) {
+            throw new FileWatcherException(
+                    "Failed to start WatchService! The main folder " + mainDir + " does not exist");
+        }
+        if (!mainDir.toFile().isDirectory()) {
+            throw new FileWatcherException(
+                    "Failed to start WatchService The main folder " + mainDir + " is not a directory");
+        }
+
+        try {
+            return mainDir.getFileSystem().newWatchService();
+        }
+        catch(Exception ex) {
+            throw new FileWatcherException(
+                    "Failed to start WatchService! Folder " + mainDir + ".", ex);
+        }
     }
 
     private void start(final Path dir) {
