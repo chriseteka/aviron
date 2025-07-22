@@ -48,6 +48,10 @@ public class StringUtils {
         return s == null ? true : s.trim().isEmpty();
     }
 
+    public static boolean isNotBlank(final String s) {
+        return !isBlank(s);
+    }
+
     /**
      * Splits a text into lines
      * 
