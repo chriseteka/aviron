@@ -81,6 +81,10 @@ public class FileWatcher implements Closeable {
         register(ws, keys, dir, false);
     }
 
+    public void register(final List<Path> dirs) throws IOException {
+        dirs.forEach(d -> register(ws, keys, d, false));
+    }
+
     public List<Path> getRegisteredPaths() {
         return keys.values().stream().sorted().collect(Collectors.toList());
     }
