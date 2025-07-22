@@ -55,6 +55,9 @@ public class RealtimeScanner {
         }
     }
 
+    public void clearWAL() {
+    }
+
 
     private static final AtomicBoolean running = new AtomicBoolean(false);
 
