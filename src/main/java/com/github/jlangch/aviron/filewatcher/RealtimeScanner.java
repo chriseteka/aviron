@@ -63,7 +63,8 @@ public class RealtimeScanner {
             throw new IllegalArgumentException("A 'mainDir' must not be null!");
         }
         if (!Files.isDirectory(mainDir)) {
-            throw new IllegalArgumentException("The realtime scanner 'mainDir' is not an existing directory!");
+            throw new IllegalArgumentException(
+                    "The realtime scanner 'mainDir' is not an existing directory!");
         }
 
         this.client = client;
@@ -108,7 +109,7 @@ public class RealtimeScanner {
                     try {
                         final FileWatcherQueue queue = fileWatcherQueue.get();
                         if (queue != null) {
-                            for(int ii=0; ii<300; ii++) {
+                            for(int ii=0; ii<BATCH_SIZE && running.get(); ii++) {
                                 final File file = queue.pop();
                                 if (file.isFile()) {
                                     final Path path = file.toPath();
@@ -121,12 +122,18 @@ public class RealtimeScanner {
                             }
                             
                             if (queue.isEmpty()) {
-                                sleep(sleepTimeOnIdle);  // min 1s
+                                for(int ii=0; ii<sleepTimeOnIdle && running.get(); ii++) {
+                                    sleep(1);
+                                }
                             }
+                        }
+                        else {
+                        	sleep(2);
                         }
                     }
                     catch(Exception ex) {
-                        // skip
+                    	// prevent thread spinning in fatal error conditions
+                    	sleep(2);
                     }
                 }
             };
@@ -135,7 +142,6 @@ public class RealtimeScanner {
             thread.setDaemon(true);
             thread.setName("aviron-rtscan-" + threadCounter.getAndIncrement());
             thread.start();
-
         }
     }
 
@@ -172,7 +178,7 @@ public class RealtimeScanner {
             fileWatcherQueue.get().push(event.getPath().toFile());
         }
     }
-    
+
     private void registerEventListener(final FileWatchRegisterEvent event) {
         
     }
@@ -194,14 +200,14 @@ public class RealtimeScanner {
             return false;
         }
     }
-    
+
     private void sleep(int seconds) {
         try { 
             Thread.sleep(seconds * 1000L); 
         } 
         catch(Exception ex) { }
     }
-    
+
     private void safeRun(final Runnable r) {
         try {
             r.run();
@@ -209,6 +215,8 @@ public class RealtimeScanner {
         catch(Exception e) { }
     }
 
+
+    private static final int BATCH_SIZE = 300;
 
     private static final AtomicLong threadCounter = new AtomicLong(1L);
 
