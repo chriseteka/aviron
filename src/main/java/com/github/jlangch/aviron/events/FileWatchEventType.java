@@ -25,12 +25,13 @@ package com.github.jlangch.aviron.events;
 
 public enum FileWatchEventType {
 
-    CREATED,
+    CREATED,   // file created
 
-    DELETED,
+    MODIFIED,  // file modified
 
-    MODIFIED,
+    DELETED,   // file deleted
 
-    OVERFLOW;
+    OVERFLOW;  // a special event to indicate that events may have been 
+	           // lost or discarded.
 
 }
