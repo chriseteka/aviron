@@ -37,7 +37,6 @@ import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.commands.scan.ScanResult;
 import com.github.jlangch.aviron.events.FileWatchErrorEvent;
 import com.github.jlangch.aviron.events.FileWatchEvent;
-import com.github.jlangch.aviron.events.FileWatchEventType;
 import com.github.jlangch.aviron.events.FileWatchRegisterEvent;
 import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.events.RealtimeScanEvent;
