@@ -22,45 +22,59 @@
  */
 package com.github.jlangch.aviron.filewatcher;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import com.github.jlangch.aviron.Client;
+import com.github.jlangch.aviron.commands.scan.ScanResult;
 import com.github.jlangch.aviron.events.FileWatchErrorEvent;
 import com.github.jlangch.aviron.events.FileWatchEvent;
 import com.github.jlangch.aviron.events.FileWatchRegisterEvent;
 import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
+import com.github.jlangch.aviron.events.RealtimeScanEvent;
 
 
 public class RealtimeScanner {
-
-    public RealtimeScanner(
-            final Client client,
-            final Path fileWatcherWAL,
-            final Path dir,
-            final Predicate<FileWatchEvent> scannable
-     ) {
-         this(client, fileWatcherWAL, dir, null, scannable);
-     }
 
     public RealtimeScanner(
            final Client client,
            final Path fileWatcherWAL,
            final Path mainDir,
            final List<Path> secondaryDirs,
-           final Predicate<FileWatchEvent> scannable
+           final Predicate<FileWatchEvent> scanChecker,
+           final Consumer<RealtimeScanEvent> scanListener,
+           final int sleepTimeOnIdle
     ) {
+        if (client == null) {
+            throw new IllegalArgumentException("A 'client' must not be null!");
+        }
+        if (fileWatcherWAL == null) {
+            throw new IllegalArgumentException("A 'fileWatcherWAL' must not be null!");
+        }
+        if (mainDir == null) {
+            throw new IllegalArgumentException("A 'mainDir' must not be null!");
+        }
+        if (!Files.isDirectory(mainDir)) {
+            throw new IllegalArgumentException("The realtime scanner 'mainDir' is not an existing directory!");
+        }
+
         this.client = client;
         this.fileWatcherWAL = fileWatcherWAL;
         this.mainDir = mainDir;
         if (secondaryDirs != null) {
             this.secondaryDirs.addAll(secondaryDirs);
         }
-        this.scannable = scannable;
+        this.scanChecker = scanChecker;
+        this.scanListener = scanListener;
+        this.sleepTimeOnIdle = Math.max(1, sleepTimeOnIdle);
     }
 
 
@@ -88,6 +102,40 @@ public class RealtimeScanner {
             }
 
             watcher.get().register(secondaryDirs);
+            
+            final Runnable runnable = () -> {
+                while (running.get()) {
+                    try {
+                        final FileWatcherQueue queue = fileWatcherQueue.get();
+                        if (queue != null) {
+                            for(int ii=0; ii<300; ii++) {
+                                final File file = queue.pop();
+                                if (file.isFile()) {
+                                    final Path path = file.toPath();
+                                    final ScanResult result = client.scan(path);
+                                    if (scanListener != null) {
+                                        safeRun(() -> scanListener.accept(
+                                                        new RealtimeScanEvent(path, result)));
+                                    }
+                                }
+                            }
+                            
+                            if (queue.isEmpty()) {
+                                sleep(sleepTimeOnIdle);  // min 1s
+                            }
+                        }
+                    }
+                    catch(Exception ex) {
+                        // skip
+                    }
+                }
+            };
+
+            final Thread thread = new Thread(runnable);
+            thread.setDaemon(true);
+            thread.setName("aviron-rtscan-" + threadCounter.getAndIncrement());
+            thread.start();
+
         }
     }
 
@@ -119,9 +167,9 @@ public class RealtimeScanner {
     }
 
     
-    private void fileWatchEventListener(final FileWatchEvent event) {
-        if (scannable == null || scannable.test(event)) {
-           client.scan(event.getPath());
+    private void fileWatchEventListener(final FileWatchEvent event) {      
+        if (canScan(event)) {
+            fileWatcherQueue.get().push(event.getPath().toFile());
         }
     }
     
@@ -138,13 +186,41 @@ public class RealtimeScanner {
     }
 
 
+    private boolean canScan(final FileWatchEvent event) {
+        try {
+            return scanChecker == null || scanChecker.test(event);
+        }
+        catch(Exception ex) {
+            return false;
+        }
+    }
+    
+    private void sleep(int seconds) {
+        try { 
+            Thread.sleep(seconds * 1000L); 
+        } 
+        catch(Exception ex) { }
+    }
+    
+    private void safeRun(final Runnable r) {
+        try {
+            r.run();
+        }
+        catch(Exception e) { }
+    }
+
+
+    private static final AtomicLong threadCounter = new AtomicLong(1L);
+
     private static final AtomicBoolean running = new AtomicBoolean(false);
 
     private final Client client;
     private final Path fileWatcherWAL;
     private final Path mainDir;
     private final List<Path> secondaryDirs = new ArrayList<>();
-    private final Predicate<FileWatchEvent> scannable;
+    private final Predicate<FileWatchEvent> scanChecker;
+    private final Consumer<RealtimeScanEvent> scanListener;
+    private final int sleepTimeOnIdle;
 
     private AtomicReference<FileWatcher> watcher = new AtomicReference<>();
     private AtomicReference<FileWatcherQueue> fileWatcherQueue = new AtomicReference<>();
