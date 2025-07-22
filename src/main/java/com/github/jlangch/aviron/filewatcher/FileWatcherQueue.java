@@ -31,7 +31,7 @@ import java.util.List;
 public class FileWatcherQueue {
 
     public FileWatcherQueue(final int maxSize) {
-        this.maxSize = maxSize;
+        this.maxSize = Math.max(10, maxSize);  // minimum 10
     }
 
     public int size() {
