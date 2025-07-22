@@ -66,7 +66,7 @@ public class FileWatcher implements Closeable {
         this.terminationListener = terminationListener;
 
         register(dir);
-        
+
         start(dir);
     }
 
@@ -87,7 +87,7 @@ public class FileWatcher implements Closeable {
 
     @Override
     public void close() throws IOException {
-    	closed.set(true);
+        closed.set(true);
         ws.close();
     }
 
