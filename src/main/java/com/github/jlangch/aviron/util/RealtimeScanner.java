@@ -41,13 +41,18 @@ public class RealtimeScanner {
         this.dir = dir;
     }
 
+
+    public boolean isRunning() {
+        return running.get();
+    }
+
     public void start() {
         if (running.compareAndSet(false, true)) {
             // start realtime scanner
 
         }
     }
-    
+
     public void stop() {
         if (running.compareAndSet(true, false)) {
             // stop realtime scanner
