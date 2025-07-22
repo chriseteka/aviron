@@ -49,7 +49,7 @@ public class RealtimeScanner {
            final Path fileWatcherWAL,
            final Path mainDir,
            final List<Path> secondaryDirs,
-           final Predicate<FileWatchEvent> scanChecker,
+           final Predicate<FileWatchEvent> scanApprover,
            final Consumer<RealtimeScanEvent> scanListener,
            final int sleepTimeOnIdle
     ) {
@@ -73,7 +73,7 @@ public class RealtimeScanner {
         if (secondaryDirs != null) {
             this.secondaryDirs.addAll(secondaryDirs);
         }
-        this.scanChecker = scanChecker;
+        this.scanApprover = scanApprover;
         this.scanListener = scanListener;
         this.sleepTimeOnIdle = Math.max(1, sleepTimeOnIdle);
     }
@@ -194,7 +194,7 @@ public class RealtimeScanner {
 
     private boolean canScan(final FileWatchEvent event) {
         try {
-            return scanChecker == null || scanChecker.test(event);
+            return scanApprover == null || scanApprover.test(event);
         }
         catch(Exception ex) {
             return false;
@@ -226,7 +226,7 @@ public class RealtimeScanner {
     private final Path fileWatcherWAL;
     private final Path mainDir;
     private final List<Path> secondaryDirs = new ArrayList<>();
-    private final Predicate<FileWatchEvent> scanChecker;
+    private final Predicate<FileWatchEvent> scanApprover;
     private final Consumer<RealtimeScanEvent> scanListener;
     private final int sleepTimeOnIdle;
 
