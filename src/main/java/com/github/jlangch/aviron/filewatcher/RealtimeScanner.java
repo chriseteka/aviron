@@ -37,6 +37,7 @@ import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.commands.scan.ScanResult;
 import com.github.jlangch.aviron.events.FileWatchErrorEvent;
 import com.github.jlangch.aviron.events.FileWatchEvent;
+import com.github.jlangch.aviron.events.FileWatchEventType;
 import com.github.jlangch.aviron.events.FileWatchRegisterEvent;
 import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.events.RealtimeScanEvent;
@@ -174,7 +175,7 @@ public class RealtimeScanner {
 
     
     private void fileWatchEventListener(final FileWatchEvent event) {      
-        if (canScan(event)) {
+        if (isApprovedScan(event)) {
             fileWatcherQueue.get().push(event.getPath().toFile());
         }
     }
@@ -192,9 +193,24 @@ public class RealtimeScanner {
     }
 
 
-    private boolean canScan(final FileWatchEvent event) {
+    private boolean isApprovedScan(final FileWatchEvent event) {
         try {
-            return scanApprover == null || scanApprover.test(event);
+            switch(event.getType()) {
+                case CREATED:
+                    return scanApprover == null || scanApprover.test(event);
+
+                case MODIFIED:
+                    return scanApprover == null || scanApprover.test(event);
+
+                case DELETED:
+                    return false;
+
+                case OVERFLOW:
+                    return false;
+
+                default:
+                    return false;
+            }
         }
         catch(Exception ex) {
             return false;
