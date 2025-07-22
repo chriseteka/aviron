@@ -25,7 +25,7 @@ package com.github.jlangch.aviron.events;
 import java.nio.file.Path;
 
 
-public class FileWatchEvent {
+public class FileWatchEvent implements Event {
     
     public FileWatchEvent(final Path path, final FileWatchEventType type) {
         this.path = path;

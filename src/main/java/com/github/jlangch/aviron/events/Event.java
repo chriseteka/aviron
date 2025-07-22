@@ -22,20 +22,7 @@
  */
 package com.github.jlangch.aviron.events;
 
-import java.nio.file.Path;
 
+public interface Event {
 
-public class FileWatchRegisterEvent implements Event {
-
-    public FileWatchRegisterEvent(final Path path) {
-        this.path = path;
-    }
-
-
-    public Path getPath() {
-        return path;
-    }
-
-
-    private final Path path;
 }

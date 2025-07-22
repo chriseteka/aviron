@@ -25,7 +25,7 @@ package com.github.jlangch.aviron.events;
 import java.nio.file.Path;
 
 
-public class FileWatchTerminationEvent {
+public class FileWatchTerminationEvent implements Event {
 
     public FileWatchTerminationEvent(final Path path) {
         this.path = path;

@@ -25,7 +25,7 @@ package com.github.jlangch.aviron.events;
 import java.nio.file.Path;
 
 
-public class FileWatchErrorEvent {
+public class FileWatchErrorEvent implements Event {
 
     public FileWatchErrorEvent(final Path path, final Exception ex) {
         this.path = path;

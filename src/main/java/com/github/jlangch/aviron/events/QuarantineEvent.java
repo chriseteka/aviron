@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import com.github.jlangch.aviron.ex.QuarantineFileActionException;
 
 
-public class QuarantineEvent {
+public class QuarantineEvent implements Event {
 
     public QuarantineEvent(
             final File infectedFile,
