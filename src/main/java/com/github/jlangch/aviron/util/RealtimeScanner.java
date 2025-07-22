@@ -30,7 +30,7 @@ import com.github.jlangch.aviron.Client;
 
 
 public class RealtimeScanner {
-    
+
     public RealtimeScanner(
            final Client client,
            final File fileWatcherWAL,
