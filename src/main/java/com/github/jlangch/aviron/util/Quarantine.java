@@ -35,9 +35,9 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import com.github.jlangch.aviron.QuarantineEvent;
-import com.github.jlangch.aviron.QuarantineFileAction;
 import com.github.jlangch.aviron.commands.scan.ScanResult;
+import com.github.jlangch.aviron.events.QuarantineEvent;
+import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.ex.QuarantineFileActionException;
 
 

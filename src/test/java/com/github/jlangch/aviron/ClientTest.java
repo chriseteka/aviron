@@ -30,6 +30,9 @@ import java.nio.file.Files;
 
 import org.junit.jupiter.api.Test;
 
+import com.github.jlangch.aviron.events.QuarantineEvent;
+import com.github.jlangch.aviron.events.QuarantineFileAction;
+
 
 class ClientTest {
 

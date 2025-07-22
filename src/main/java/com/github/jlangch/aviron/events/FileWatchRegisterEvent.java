@@ -20,16 +20,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.filewatcher.event;
+package com.github.jlangch.aviron.events;
 
 import java.nio.file.Path;
 
 
-public class FileWatchErrorEvent {
+public class FileWatchRegisterEvent {
 
-    public FileWatchErrorEvent(final Path path, final Exception ex) {
+    public FileWatchRegisterEvent(final Path path) {
         this.path = path;
-        this.ex = ex;
     }
 
 
@@ -37,11 +36,6 @@ public class FileWatchErrorEvent {
         return path;
     }
 
-    public Exception getException() {
-        return ex;
-    }
-
 
     private final Path path;
-    private final Exception ex;
 }

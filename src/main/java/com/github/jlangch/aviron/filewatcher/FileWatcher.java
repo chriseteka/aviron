@@ -42,12 +42,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import com.github.jlangch.aviron.events.FileWatchErrorEvent;
+import com.github.jlangch.aviron.events.FileWatchEvent;
+import com.github.jlangch.aviron.events.FileWatchEventType;
+import com.github.jlangch.aviron.events.FileWatchRegisterEvent;
+import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.ex.FileWatcherException;
-import com.github.jlangch.aviron.filewatcher.event.FileWatchErrorEvent;
-import com.github.jlangch.aviron.filewatcher.event.FileWatchEvent;
-import com.github.jlangch.aviron.filewatcher.event.FileWatchEventType;
-import com.github.jlangch.aviron.filewatcher.event.FileWatchRegisterEvent;
-import com.github.jlangch.aviron.filewatcher.event.FileWatchTerminationEvent;
 
 
 public class FileWatcher implements Closeable {

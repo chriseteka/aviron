@@ -20,23 +20,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.filewatcher.event;
-
-import java.nio.file.Path;
+package com.github.jlangch.aviron.events;
 
 
-public class FileWatchTerminationEvent {
+public enum QuarantineFileAction {
 
-    public FileWatchTerminationEvent(final Path path) {
-        this.path = path;
-    }
-
-
-    public Path getPath() {
-        return path;
-    }
-
-
-
-    private final Path path;
+    NONE,    // do nothing with infected files
+    
+    MOVE,    // move infected files to quarantine directory
+    
+    COPY;    // copy infected files to quarantine directory
+	
 }

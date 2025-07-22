@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.github.jlangch.aviron.QuarantineEvent;
+import com.github.jlangch.aviron.events.QuarantineEvent;
 
 
 public class EventSink {

@@ -22,9 +22,9 @@
  */
 package com.github.jlangch.aviron.util;
 
-import static com.github.jlangch.aviron.QuarantineFileAction.COPY;
-import static com.github.jlangch.aviron.QuarantineFileAction.MOVE;
-import static com.github.jlangch.aviron.QuarantineFileAction.NONE;
+import static com.github.jlangch.aviron.events.QuarantineFileAction.COPY;
+import static com.github.jlangch.aviron.events.QuarantineFileAction.MOVE;
+import static com.github.jlangch.aviron.events.QuarantineFileAction.NONE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -43,8 +43,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.jlangch.aviron.QuarantineEvent;
 import com.github.jlangch.aviron.commands.scan.ScanResult;
+import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.tools.EventSink;
 import com.github.jlangch.aviron.tools.TempFS;
 

@@ -41,6 +41,8 @@ import com.github.jlangch.aviron.commands.scan.InStream;
 import com.github.jlangch.aviron.commands.scan.MultiScan;
 import com.github.jlangch.aviron.commands.scan.Scan;
 import com.github.jlangch.aviron.commands.scan.ScanResult;
+import com.github.jlangch.aviron.events.QuarantineEvent;
+import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.ex.AvironException;
 import com.github.jlangch.aviron.ex.UnknownCommandException;
 import com.github.jlangch.aviron.server.CommandRunDetails;
