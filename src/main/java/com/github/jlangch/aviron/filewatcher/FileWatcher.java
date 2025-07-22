@@ -37,6 +37,7 @@ import java.nio.file.WatchService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -54,18 +55,45 @@ public class FileWatcher implements Closeable {
     public FileWatcher(
             final Path dir,
             final Consumer<FileWatchEvent> eventListener,
+            final Consumer<FileWatchRegisterEvent> registerListener,
             final Consumer<FileWatchErrorEvent> errorListener,
-            final Consumer<FileWatchTerminationEvent> terminationListener,
-            final Consumer<FileWatchRegisterEvent> registerListener
+            final Consumer<FileWatchTerminationEvent> terminationListener
     ) throws IOException {
         this.ws = dir.getFileSystem().newWatchService();
-        this.errorListener = errorListener;
+        this.eventListener = eventListener;
         this.registerListener = registerListener;
+        this.errorListener = errorListener;
+        this.terminationListener = terminationListener;
 
         register(dir);
+        
+        start(dir);
+    }
 
+    public void register(final Path dir) throws IOException {
+        if (!dir.toFile().exists()) {
+            throw new FileWatcherException("Folder " + dir + " does not exist");
+        }
+        if (!dir.toFile().isDirectory()) {
+            throw new FileWatcherException("Folder " + dir + " is not a directory");
+        }
+
+        register(ws, keys, dir, false);
+    }
+
+    public List<Path> getRegisteredPaths() {
+        return keys.values().stream().sorted().collect(Collectors.toList());
+    }
+
+    @Override
+    public void close() throws IOException {
+    	closed.set(true);
+        ws.close();
+    }
+
+    private void start(final Path dir) {
         final Runnable runnable = () -> {
-            while (true) {
+            while (!closed.get()) {
                 try {
                     final WatchKey key = ws.take();
                     if (key == null) {
@@ -110,8 +138,10 @@ public class FileWatcher implements Closeable {
                 }
             }
 
-            try { ws.close(); } catch(Exception e) {}
-
+            if (!closed.get()) {
+                try { ws.close(); } catch(Exception e) {}
+            }
+            
             if (terminationListener != null) {
                 safeRun(() -> terminationListener.accept(new FileWatchTerminationEvent(dir)));
             }
@@ -122,27 +152,6 @@ public class FileWatcher implements Closeable {
         thread.setName("aviron-filewatcher-" + threadCounter.getAndIncrement());
         thread.start();
     }
-
-    public void register(final Path dir) throws IOException {
-        if (!dir.toFile().exists()) {
-            throw new FileWatcherException("Folder " + dir + " does not exist");
-        }
-        if (!dir.toFile().isDirectory()) {
-            throw new FileWatcherException("Folder " + dir + " is not a directory");
-        }
-
-        register(ws, keys, dir, false);
-    }
-
-    public List<Path> getRegisteredPaths() {
-        return keys.values().stream().sorted().collect(Collectors.toList());
-    }
-
-    @Override
-    public void close() throws IOException {
-        ws.close();
-    }
-
     
     private FileWatchEventType convertEvent(final WatchEvent.Kind<?> kind) {
         if (kind == null) {
@@ -194,8 +203,12 @@ public class FileWatcher implements Closeable {
 
     private static final AtomicLong threadCounter = new AtomicLong(1L);
 
+    private static final AtomicBoolean closed = new AtomicBoolean(false);
+
     private final WatchService ws;
     private final Map<WatchKey,Path> keys = new HashMap<>();
-    private final Consumer<FileWatchErrorEvent> errorListener;
+    private final Consumer<FileWatchEvent> eventListener;
     private final Consumer<FileWatchRegisterEvent> registerListener;
+    private final Consumer<FileWatchErrorEvent> errorListener;
+    private final Consumer<FileWatchTerminationEvent> terminationListener;
 }
