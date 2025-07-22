@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.github.jlangch.aviron.ex.FileWatcherException;
 import com.github.jlangch.aviron.util.StringUtils;
@@ -58,18 +59,30 @@ public class FileWatcherQueue implements Closeable {
     }
 
     public int size() {
+        if (isClosed()) {
+            throw new FileWatcherException("The FileWatcher queue is closed!");
+        }
+
         synchronized(queue) {
             return queue.size();
         }
     }
 
     public boolean isEmpty() {
+        if (isClosed()) {
+            throw new FileWatcherException("The FileWatcher queue is closed!");
+        }
+
         synchronized(queue) {
             return queue.isEmpty();
         }
     }
 
     public void clear() {
+        if (isClosed()) {
+            throw new FileWatcherException("The FileWatcher queue is closed!");
+        }
+
         synchronized(queue) {
             addToWalFile(WalAction.CLEAR, new File("/"));
             queue.clear();
@@ -77,6 +90,10 @@ public class FileWatcherQueue implements Closeable {
     }
 
     public void push(final File file) {
+        if (isClosed()) {
+            throw new FileWatcherException("The FileWatcher queue is closed!");
+        }
+
         if (file != null) {
             synchronized(queue) {
                 addToWalFile(WalAction.PUSH, file);
@@ -87,15 +104,27 @@ public class FileWatcherQueue implements Closeable {
     }
 
     public File pop() {
+        if (isClosed()) {
+            throw new FileWatcherException("The FileWatcher queue is closed!");
+        }
+        
         final List<File> files = pop(1, false);
         return files.isEmpty() ? null : files.get(0);
     }
 
     public List<File> pop(final int n) {
+        if (isClosed()) {
+            throw new FileWatcherException("The FileWatcher queue is closed!");
+        }
+        
         return pop(n, false);
     }
 
     public List<File> pop(final int n, final boolean skipMissingFiles) {
+        if (isClosed()) {
+            throw new FileWatcherException("The FileWatcher queue is closed!");
+        }
+        
         synchronized(queue) {
             final List<File> files = new ArrayList<>(n);
             for(int ii=0; ii<n && !queue.isEmpty(); ii++) {
@@ -147,15 +176,15 @@ public class FileWatcherQueue implements Closeable {
                   });
             }
             catch(Exception ex) {
-                throw new FileWatcherException("Failed to read file watcher WAL file!", ex);
+                throw new FileWatcherException(
+                        "Failed to read file FileWatcher queue WAL file!", ex);
             }
         }
     }
 
     public void save() {
-        if (walFile == null) {
-            return;
-        }
+        if (isClosed()) return;
+        if (walFile == null) return;
 
         synchronized(queue) {
             try (FileWriter fw = new FileWriter(walFile, false)) {
@@ -164,22 +193,28 @@ public class FileWatcherQueue implements Closeable {
                         fw.write(walEntry(WalAction.PUSH, f));
                     }
                     catch(IOException ex) {
-                        throw new RuntimeException(
-                                "Failed to write FileWatcher WAL entry",
+                        throw new FileWatcherException(
+                                "Failed to write FileWatcher queue WAL entry",
                                 ex);
                     }});
             }
             catch(IOException ex) {
-                throw new RuntimeException(
-                        "Failed to save FileWatcher WAL entries",
+                throw new FileWatcherException(
+                        "Failed to save FileWatcher queue WAL entries",
                         ex);
             }
         }
     }
 
+    public boolean isClosed() {
+        return closed.get();
+    }
+
     @Override
     public void close() {
-        save();
+        if (closed.compareAndSet(false, true)) {
+            save();
+        }
     }
 
     public File getWalFile() {
@@ -208,8 +243,8 @@ public class FileWatcherQueue implements Closeable {
                     load();
                 }
                 catch(Exception ex) {
-                    throw new RuntimeException(
-                            "Failed to initially load the FileWatcherQueue from the WAL file",
+                    throw new FileWatcherException(
+                            "Failed to initially load the FileWatcher queue from the WAL file",
                             ex);
                 }
             }
@@ -218,8 +253,8 @@ public class FileWatcherQueue implements Closeable {
                     new FileWriter(walFile, false).close();
                 }
                 catch(IOException ex) {
-                    throw new RuntimeException(
-                            "Failed to initialize FileWatcher WAL file",
+                    throw new FileWatcherException(
+                            "Failed to initialize FileWatcher queue WAL file",
                             ex);
                 }
             }
@@ -232,8 +267,8 @@ public class FileWatcherQueue implements Closeable {
                 new FileWriter(walFile, false).close();
             }
             catch(IOException ex) {
-                throw new RuntimeException(
-                        "Failed to initialize FileWatcher WAL file",
+                throw new FileWatcherException(
+                        "Failed to initialize FileWatcher queue WAL file",
                         ex);
             }
         }
@@ -248,7 +283,8 @@ public class FileWatcherQueue implements Closeable {
             fw.write(walEntry(action, file));
         }
         catch(IOException ex) {
-            throw new RuntimeException("Failed to write FileWatcher WAL entry", ex);
+            throw new FileWatcherException(
+                    "Failed to write FileWatcher queue WAL entry", ex);
         }
     }
 
@@ -256,6 +292,8 @@ public class FileWatcherQueue implements Closeable {
         return action.name() + "|" + file.getAbsolutePath() + "\n";
     }
 
+
+    private final AtomicBoolean closed = new AtomicBoolean(false);
 
     private static enum WalAction { CLEAR, PUSH, POP };
 

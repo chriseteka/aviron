@@ -233,7 +233,7 @@ public class FileWatcher implements Closeable {
 
     private static final AtomicLong threadCounter = new AtomicLong(1L);
 
-    private static final AtomicBoolean closed = new AtomicBoolean(false);
+    private final AtomicBoolean closed = new AtomicBoolean(false);
 
     private final WatchService ws;
     private final Map<WatchKey,Path> keys = new HashMap<>();

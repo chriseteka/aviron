@@ -109,7 +109,7 @@ public class RealtimeScanner {
                     try {
                         final FileWatcherQueue queue = fileWatcherQueue.get();
                         if (queue != null) {
-                            for(int ii=0; ii<BATCH_SIZE && running.get(); ii++) {
+                            for(int ii=0; ii<BATCH_SIZE && running.get() && !queue.isClosed(); ii++) {
                                 final File file = queue.pop();
                                 if (file.isFile()) {
                                     final Path path = file.toPath();
@@ -128,12 +128,12 @@ public class RealtimeScanner {
                             }
                         }
                         else {
-                        	sleep(2);
+                            sleep(2);
                         }
                     }
                     catch(Exception ex) {
-                    	// prevent thread spinning in fatal error conditions
-                    	sleep(2);
+                        // prevent thread spinning in fatal error conditions
+                        sleep(2);
                     }
                 }
             };
@@ -220,7 +220,7 @@ public class RealtimeScanner {
 
     private static final AtomicLong threadCounter = new AtomicLong(1L);
 
-    private static final AtomicBoolean running = new AtomicBoolean(false);
+    private final AtomicBoolean running = new AtomicBoolean(false);
 
     private final Client client;
     private final Path fileWatcherWAL;
