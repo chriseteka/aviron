@@ -31,7 +31,7 @@ import java.util.List;
 public class FileWatcherQueue {
 
     public FileWatcherQueue(final int maxSize) {
-        this.maxSize = Math.max(10, maxSize);  // minimum 10
+        this.maxSize = Math.max(MIN_SIZE, maxSize);
     }
 
     public int size() {
@@ -52,6 +52,14 @@ public class FileWatcherQueue {
         }
     }
 
+    public void remove(final File file) {
+        if (file != null) {
+            synchronized(queue) {
+                queue.removeIf(it -> it.equals(file));
+            }
+        }
+    }
+
     public void push(final File file) {
         if (file != null) {
             synchronized(queue) {
@@ -59,7 +67,7 @@ public class FileWatcherQueue {
                 
                 // limit the size
                 while(queue.size() >= maxSize) {
-                	queue.removeFirst();
+                    queue.removeFirst();
                 }
                 
                 queue.add(file);
@@ -69,37 +77,22 @@ public class FileWatcherQueue {
 
     public File pop() {
         synchronized(queue) {
-            while(!queue.isEmpty()) {
-                final File file = queue.removeFirst();
-                
-                // only return files that still exist
-                if (file.exists()) {
-                    return file;
-                }
-            }
+            return queue.isEmpty() ? null : queue.removeFirst();
         }
-        
-        // the queue is empty
-        return null;
     }
 
     public List<File> pop(final int n) {
         synchronized(queue) {
             final List<File> files = new ArrayList<>(n);
-
-            while(files.size() < n && !queue.isEmpty()) {
-                final File file = queue.removeFirst();
-                
-                // only return files that still exist
-                if (file.exists()) {
-                    files.add(file);
-                }
+            for(int ii=0; ii<n  && !queue.isEmpty(); ii++) {
+                files.add(queue.removeFirst());
             }
-            
             return files;
         }
     }
 
+    
+    public static int MIN_SIZE = 5;
 
     private final int maxSize;
     private final LinkedList<File> queue = new LinkedList<>();

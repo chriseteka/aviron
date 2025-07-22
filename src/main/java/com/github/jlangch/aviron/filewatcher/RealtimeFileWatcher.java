@@ -103,9 +103,29 @@ public class RealtimeFileWatcher {
     }
 
 
-    private void fileWatchEventListener(final FileWatchEvent event) {      
-        if (isApprovedScan(event)) {
-            fileWatcherQueue.get().push(event.getPath().toFile());
+    private void fileWatchEventListener(final FileWatchEvent event) {
+        final FileWatcherQueue queue = fileWatcherQueue.get();
+
+        switch(event.getType()) {
+            case CREATED:
+            case MODIFIED:
+                try {
+                    if (scanApprover == null || scanApprover.test(event)) {
+                        queue.push(event.getPath().toFile());
+                    }
+                }
+                catch(Exception ex) { }
+                break;
+
+            case DELETED:
+                queue.remove(event.getPath().toFile());
+                break;
+
+            case OVERFLOW:
+                break;
+
+            default:
+                break;
         }
     }
 
@@ -119,31 +139,6 @@ public class RealtimeFileWatcher {
 
     private void terminationEventListener(final FileWatchTerminationEvent event) {
         
-    }
-
-
-    private boolean isApprovedScan(final FileWatchEvent event) {
-        try {
-            switch(event.getType()) {
-                case CREATED:
-                    return scanApprover == null || scanApprover.test(event);
-
-                case MODIFIED:
-                    return scanApprover == null || scanApprover.test(event);
-
-                case DELETED:
-                    return false;
-
-                case OVERFLOW:
-                    return false;
-
-                default:
-                    return false;
-            }
-        }
-        catch(Exception ex) {
-            return false;
-        }
     }
 
 
