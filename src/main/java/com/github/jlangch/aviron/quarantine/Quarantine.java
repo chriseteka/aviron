@@ -110,23 +110,23 @@ public class Quarantine {
         
         if (StringUtils.isBlank(filename)) {
             throw new IllegalArgumentException(
-            		"The field 'quarantineFileName' in the 'file' must not be empty!");
+                    "The field 'quarantineFileName' in the 'file' must not be empty!");
         }
 
-    	final File qFile = new File(quarantineDir, filename);
-    	final File qInfoFile = new File(quarantineDir, filename + ".virus");
-    	
-    	final boolean qFileDeleted = qFile.delete();  	
-    	final boolean qInfoFileDeleted = qInfoFile.delete();
-    	
-    	if (!qFileDeleted && !qInfoFileDeleted) {
+        final File qFile = new File(quarantineDir, filename);
+        final File qInfoFile = new File(quarantineDir, filename + ".virus");
+
+        final boolean qFileDeleted = qFile.delete();      
+        final boolean qInfoFileDeleted = qInfoFile.delete();
+
+        if (!qFileDeleted && !qInfoFileDeleted) {
             throw new QuarantineException(
-            		"The quarantine file «" + filename + "» could not be deleted");
-    	}
-    	else if (!qFileDeleted || !qInfoFileDeleted) {
+                    "The quarantine file «" + filename + "» could not be deleted");
+        }
+        else if (!qFileDeleted || !qInfoFileDeleted) {
             throw new QuarantineException(
-            		"The quarantine file «" + filename + "» could not be completely deleted");
-    	}
+                    "The quarantine file «" + filename + "» could not be completely deleted");
+        }
     }
 
     private void processQuarantineAction(final File file, final List<String> virusList) {
