@@ -7,13 +7,15 @@ All notable changes to this project will be documented in this file.
 
 ## [1.4.0] - 2025-07-xx
 
-- Added realtime file scanner (work in progress)
+- Added method Client::isQuarantineActive()
+- Added method Client::listQuarantineFiles()
+- Reorganized quarantine code
 
 
 
 ## [1.3.3] - 2025-07-21
 
-- Added Client::printConfig to print a client's configuration.
+- Added method Client::printConfig() to print a client's configuration.
 - Fixed a possible race condition
 
 
@@ -33,7 +35,7 @@ All notable changes to this project will be documented in this file.
 
 ## [1.3.0] - 2025-07-15
 
-- Added Client::builder to simplify building a new client
+- Added method Client::builder() to simplify building a new client
 
 
 
