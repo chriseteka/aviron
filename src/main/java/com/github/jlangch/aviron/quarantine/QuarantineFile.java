@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.util;
+package com.github.jlangch.aviron.quarantine;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.github.jlangch.aviron.events.QuarantineFileAction;
+import com.github.jlangch.aviron.util.StringUtils;
 
 
 public class QuarantineFile {

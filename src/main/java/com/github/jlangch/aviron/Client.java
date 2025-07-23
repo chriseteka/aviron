@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -45,10 +46,11 @@ import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.ex.AvironException;
 import com.github.jlangch.aviron.ex.UnknownCommandException;
+import com.github.jlangch.aviron.quarantine.Quarantine;
+import com.github.jlangch.aviron.quarantine.QuarantineFile;
 import com.github.jlangch.aviron.server.CommandRunDetails;
 import com.github.jlangch.aviron.server.ServerIO;
 import com.github.jlangch.aviron.util.Lazy;
-import com.github.jlangch.aviron.util.Quarantine;
 
 
 /**
@@ -115,7 +117,13 @@ public class Client {
             }
             if (!builder.quarantineDir.canWrite()) {
                 throw new IllegalArgumentException(
-                        "The quarantine directory «" + builder.quarantineDir + "» has not write permission!");
+                        "The quarantine directory «" + builder.quarantineDir + "» has no write permission!");
+            }
+        }
+        if (builder.quarantineFileAction != QuarantineFileAction.NONE) {
+            if (builder.quarantineDir == null) {
+                throw new IllegalArgumentException(
+                        "A quarantine directory is required if the QuarantineFileAction is not NONE!");
             }
         }
 
@@ -315,6 +323,26 @@ public class Client {
      */
     public CommandRunDetails getLastCommandRunDetails() {
         return server.getLastCommandRunDetails();
+    }
+
+    /**
+     * Checks whether the quarantine is active
+     * 
+     * @return <code>true</code> if quarantine is active else <code>false</code>
+     */
+    public boolean isQuarantineActive() {
+        return quarantine.isActive();
+    }
+
+    /**
+     * Returns a list of the quarantine files.
+     * 
+     * @return a list of the quarantined files
+     */
+    public List<QuarantineFile> listQuarantineFiles() {
+        return quarantine.isActive() 
+                ? quarantine.listQuarantineFiles()
+                : new ArrayList<>();
     }
 
     /**

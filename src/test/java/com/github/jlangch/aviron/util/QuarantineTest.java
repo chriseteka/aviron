@@ -43,6 +43,8 @@ import org.junit.jupiter.api.Test;
 
 import com.github.jlangch.aviron.commands.scan.ScanResult;
 import com.github.jlangch.aviron.events.QuarantineEvent;
+import com.github.jlangch.aviron.quarantine.Quarantine;
+import com.github.jlangch.aviron.quarantine.QuarantineFile;
 import com.github.jlangch.aviron.tools.EventSink;
 import com.github.jlangch.aviron.tools.TempFS;
 

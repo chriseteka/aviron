@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.util;
+package com.github.jlangch.aviron.quarantine;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,21 +51,25 @@ public class Quarantine {
         this.listener = listener == null ? (e) -> {} : listener;
         this.listenerSupplied = listener != null;
     }
- 
-    
+
+
+    public boolean isActive() {
+        return quarantineFileAction != QuarantineFileAction.NONE;
+    }
+
     public QuarantineFileAction getQuarantineFileAction() {
         return quarantineFileAction;
     }
- 
+
     public File getQuarantineDir() {
         return quarantineDir;
     }
- 
+
     public boolean hasListener() {
         return listenerSupplied;
     }
- 
-    
+
+
     public void handleQuarantineActions(final ScanResult result) {
         if (quarantineFileAction == QuarantineFileAction.NONE
             || result == null

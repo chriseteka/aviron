@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 
 import com.github.jlangch.aviron.events.QuarantineFileAction;
+import com.github.jlangch.aviron.quarantine.QuarantineFile;
 
 
 class QuarantineFileTest {
