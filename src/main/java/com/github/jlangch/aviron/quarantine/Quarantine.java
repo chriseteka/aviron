@@ -91,8 +91,10 @@ public class Quarantine {
     public List<QuarantineFile> listQuarantineFiles() {
         try {
             return Files.list(quarantineDir.toPath())
-                        .filter(p -> !p.endsWith(".virus"))
-                        .map(p -> QuarantineFile.from(p.toFile()))
+                        .map(p -> p.toFile().getPath())
+                        .filter(f -> !f.endsWith(".virus"))
+                        .map(f -> new File(f + ".virus"))
+                        .map(f -> QuarantineFile.from(f))
                         .collect(Collectors.toList());
         }
         catch(Exception ex) {
