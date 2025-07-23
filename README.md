@@ -120,7 +120,7 @@ public class Scan {
       	   System.out.println("Error " + event.getException().getMessage());
         }
         else {
-            System.out.println("File " + event.getInfectedFile() + " move to quarantine");
+            System.out.println("File " + event.getInfectedFile() + " moved to quarantine");
         }
     }
 }
