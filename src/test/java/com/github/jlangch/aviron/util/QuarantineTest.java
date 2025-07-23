@@ -283,26 +283,19 @@ class QuarantineTest {
             final ScanResult result = ScanResult.virusFound(virusMap(scanFile1, "xxx"));
             
             quarantine.handleQuarantineActions(result);
-            quarantine.handleQuarantineActions(result);
+            quarantine.handleQuarantineActions(result);  // rescan same with COPY -> no quarantine
             
             assertEquals(2, tempFS.countScanFiles());
-            assertEquals(4, tempFS.countQuarantineFiles());
+            assertEquals(2, tempFS.countQuarantineFiles());
             
             final File quarantineFile1 = new File(tempFS.getQuarantineDir(), scanFile1.getName());
             final File quarantineVirusFile1 = new File(tempFS.getQuarantineDir(), scanFile1.getName() + ".virus");
-            
-            final File quarantineFile2 = new File(tempFS.getQuarantineDir(), scanFile1.getName() + ".1");
-            final File quarantineVirusFile2 = new File(tempFS.getQuarantineDir(), scanFile1.getName() + ".1.virus");
 
             assertTrue(quarantineFile1.isFile());
             assertTrue(quarantineVirusFile1.isFile());
 
-            assertTrue(quarantineFile2.isFile());
-            assertTrue(quarantineVirusFile2.isFile());
-            
             // analyze data file
             assertEquals("TEST1", data(quarantineFile1));
-            assertEquals("TEST1", data(quarantineFile2));
             
             // analyze virus meta data file 1
             final QuarantineFile qf1 = QuarantineFile.from(quarantineVirusFile1);
@@ -310,13 +303,6 @@ class QuarantineTest {
             assertEquals("xxx", qf1.getVirusListFormatted());
             assertEquals(COPY, qf1.getAction());
             assertNotNull(qf1.getCreatedAt());
-            
-            // analyze virus meta data file 2
-            final QuarantineFile qf2 = QuarantineFile.from(quarantineVirusFile2);
-            assertEquals(scanFile1.getPath(), qf2.getInfectedFile().getPath());
-            assertEquals("xxx", qf2.getVirusListFormatted());
-            assertEquals(COPY, qf2.getAction());
-            assertNotNull(qf2.getCreatedAt());
         }
         finally {
             tempFS.remove();

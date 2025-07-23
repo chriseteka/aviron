@@ -23,12 +23,11 @@
 package com.github.jlangch.aviron.quarantine;
 
 import java.io.File;
-import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -128,6 +127,7 @@ public class Quarantine {
                     "The quarantine file «" + filename + "» could not be completely deleted");
         }
     }
+    
 
     private void processQuarantineAction(final File file, final List<String> virusList) {
         if (!file.isFile() || !file.canRead()) {
@@ -149,13 +149,19 @@ public class Quarantine {
                             StandardCopyOption.ATOMIC_MOVE);
                 }
                 else if (quarantineFileAction == QuarantineFileAction.COPY) {
+                    // Check if the same quarantined file already to prevent adding
+                    // the infected file upon repeated scans over and over again!
+                    if (existsAlready(file, virusList)) {
+                        return;
+                    }
+                    
                     Files.copy(
                             file.toPath(), 
                             destFile.toPath(), 
                             StandardCopyOption.COPY_ATTRIBUTES);
                 }
 
-                makeQuarantineInfoFile(destInfoFile, file, virusList, quarantineFileAction);
+                makeQuarantineInfoFile(destFile, destInfoFile, file, virusList, quarantineFileAction);
 
                 try {
                     listener.accept(
@@ -211,24 +217,29 @@ public class Quarantine {
     }
 
     private void makeQuarantineInfoFile(
-            final File infoFile,
+            final File quarantineFile,
+            final File quarantineInfoFile,
             final File infectedFile,
             final List<String> virusList,
             final QuarantineFileAction action
     ) {
-        final List<String> data = new ArrayList<>();
-        data.add(KEY_INFECTED_FILE + "=" + infectedFile.getPath());
-        data.add(KEY_VIRUS_LIST + "=" + virusList.stream().collect(Collectors.joining(",")));
-        data.add(KEY_QUARANTINE_ACTION + "=" + action.name());      
-        data.add(KEY_CREATED_AT + "=" + LocalDateTime.now().toString());
-
         try {
+              final QuarantineFile qf = new QuarantineFile(
+                                                              quarantineFile.getName(),
+                                                          infectedFile,
+                                                          virusList,
+                                                          action,
+                                                          LocalDateTime.now(),
+                                                          action == QuarantineFileAction.MOVE
+                                                            ? hashFile(quarantineFile)
+                                                            : hashFile(infectedFile));
+
             Files.write(
-                infoFile.toPath(), 
-                data,
+                  quarantineInfoFile.toPath(), 
+                  qf.format().getBytes(Charset.defaultCharset()),
                 StandardOpenOption.CREATE);
         }
-        catch(IOException ex) {
+        catch(Exception ex) {
             throw new QuarantineFileActionException(
                     "Failed to create quarantine info file name for infected file "
                     + "«" + infectedFile + "»!",
@@ -236,12 +247,23 @@ public class Quarantine {
         }
     }
 
+    private boolean existsAlready(final File infectedFile, final List<String> virusList) {
+        return listQuarantineFiles()
+                    .stream()
+                    .anyMatch(f -> f.getInfectedFile().equals(infectedFile)
+                                       && f.getHash().equals(hashFile(infectedFile)));
+    }
+    
+    private String hashFile(final File file) {
+          return Hashes.hashFile(HASH_ALGO, HASH_SALT, file);
+    }
 
-    public static String KEY_INFECTED_FILE     =  "infected-file";
-    public static String KEY_VIRUS_LIST        =  "virus-list";
-    public static String KEY_QUARANTINE_ACTION =  "quarantine-action";
-    public static String KEY_CREATED_AT        =  "created-at";
 
+    // MD5 is fast and okay to compute hashes for the purpose of detecting
+    // duplicate files only!
+    private final static String HASH_ALGO = "MD5";
+    private final static String HASH_SALT = "ClamAV Aviron";
+                
     private final QuarantineFileAction quarantineFileAction;
     private final File quarantineDir;
     private final Consumer<QuarantineEvent> listener;

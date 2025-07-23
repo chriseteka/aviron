@@ -44,13 +44,15 @@ public class QuarantineFile {
             final File infectedFile,
             final List<String> virusList,
             final QuarantineFileAction action,
-            final LocalDateTime createdAt
+            final LocalDateTime createdAt,
+            final String hash
     ) {
         this.quarantineFileName = quarantineFileName;
         this.infectedFile = infectedFile;
         this.virusList.addAll(virusList);
         this.action = action;
         this.createdAt = createdAt;
+        this.hash = hash;
     }
 
     public static QuarantineFile from(final File quarantineInfoFile) {
@@ -64,7 +66,6 @@ public class QuarantineFile {
         }
 
         try {
-
             final String data = new String(
                                         Files.readAllBytes(quarantineInfoFile.toPath()),
                                         Charset.defaultCharset());
@@ -87,6 +88,7 @@ public class QuarantineFile {
             List<String> virusList = new ArrayList<>();
             QuarantineFileAction action = null;
             LocalDateTime createdAt = null;
+            String hash = null;
 
             for(String line : StringUtils.splitIntoLines(quarantineInfoFileData)) {
                 final int pos = line.indexOf('=');
@@ -106,6 +108,9 @@ public class QuarantineFile {
                     else if (key.equals(KEY_CREATED_AT)) {
                         createdAt = LocalDateTime.parse(value);
                     }
+                    else if (key.equals(KEY_HASH)) {
+                        hash = value;
+                    }
                  }
             }
 
@@ -114,7 +119,8 @@ public class QuarantineFile {
                         infectedFile,
                         virusList,
                         action,
-                        createdAt);
+                        createdAt,
+                        hash);
         }
         catch(Exception ex) {
             throw new QuarantineException(
@@ -147,6 +153,10 @@ public class QuarantineFile {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+
+    public String getHash() {
+        return hash;
+    }
     
 
     public String format() {
@@ -172,6 +182,11 @@ public class QuarantineFile {
         sb.append(getCreatedAt().toString());
         sb.append(System.lineSeparator());
 
+        sb.append(KEY_HASH);
+        sb.append("=");
+        sb.append(getHash());
+        sb.append(System.lineSeparator());
+
         return sb.toString();
     }
 
@@ -180,10 +195,12 @@ public class QuarantineFile {
     private static String KEY_VIRUS_LIST        =  "virus-list";
     private static String KEY_QUARANTINE_ACTION =  "quarantine-action";
     private static String KEY_CREATED_AT        =  "created-at";
+    private static String KEY_HASH              =  "hash";
 
     private final String quarantineFileName;
     private final File infectedFile;
     private final List<String> virusList = new ArrayList<>();
     private final QuarantineFileAction action;
     private final LocalDateTime createdAt;
+    private final String hash;
 }
