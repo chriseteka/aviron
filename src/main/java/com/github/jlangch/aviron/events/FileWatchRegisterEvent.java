@@ -36,6 +36,17 @@ public class FileWatchRegisterEvent implements Event {
         return path;
     }
 
+    
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
 
+        sb.append("Path: ");
+        sb.append(path);
+ 
+        return sb.toString();
+    }
+
+    
     private final Path path;
 }

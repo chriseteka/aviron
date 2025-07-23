@@ -42,6 +42,20 @@ public class FileWatchEvent implements Event {
     }
 
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append("Path: ");
+        sb.append(path);
+        sb.append(System.lineSeparator());
+        sb.append("Type: ");
+        sb.append(type);
+
+        return sb.toString();
+    }
+
+    
     private final Path path;
     private final FileWatchEventType type;
 }

@@ -43,6 +43,17 @@ public class RealtimeScanEvent implements Event {
         return result;
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append("Path: ");
+        sb.append(path);
+        sb.append(System.lineSeparator());
+        sb.append(result);
+
+        return sb.toString();
+    }
 
     private final Path path;
     private final ScanResult result;

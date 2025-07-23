@@ -41,7 +41,21 @@ public class FileWatchErrorEvent implements Event {
         return ex;
     }
 
+    
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
 
+        sb.append("Path: ");
+        sb.append(path);
+        sb.append(System.lineSeparator());
+        sb.append("Exception: ");
+        sb.append(ex == null ? "" : ex.getMessage());
+
+        return sb.toString();
+    }
+
+    
     private final Path path;
     private final Exception ex;
 }

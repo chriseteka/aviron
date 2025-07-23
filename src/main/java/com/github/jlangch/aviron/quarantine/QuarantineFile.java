@@ -191,6 +191,37 @@ public class QuarantineFile {
     }
 
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append("Quarantine File Name: ");
+        sb.append(getQuarantineFileName());
+        sb.append(System.lineSeparator());
+
+        sb.append("Infected File: ");
+        sb.append(getInfectedFile());
+        sb.append(System.lineSeparator());
+
+        sb.append("Virus Signatures: ");
+        sb.append(getVirusListFormatted());
+        sb.append(System.lineSeparator());
+
+        sb.append("Quarantine Action: ");
+        sb.append(getAction());
+        sb.append(System.lineSeparator());
+
+        sb.append("Created At: ");
+        sb.append(getCreatedAt());
+        sb.append(System.lineSeparator());
+
+        sb.append("Hash: ");
+        sb.append(getHash());
+
+        return sb.toString();
+    }
+
+
     private static String KEY_INFECTED_FILE     =  "infected-file";
     private static String KEY_VIRUS_LIST        =  "virus-list";
     private static String KEY_QUARANTINE_ACTION =  "quarantine-action";
