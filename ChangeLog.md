@@ -10,9 +10,9 @@ All notable changes to this project will be documented in this file.
 - Added method Client::isQuarantineActive()
 - Added method Client::listQuarantineFiles()
 - Added method Client::removeQuarantineFile()
-- Quarantine action in COPY mode with multiple rescans will copy the file only
-  once to the quarantine directory. The filename and a hash on the file's data is
-  used to identify file equality!
+- The quarantine action in COPY mode under multiple rescans will copy the same 
+  infected file only once to the quarantine directory. The filename and a hash 
+  on the file's data is used to identify file equality!
 - Reorganized quarantine code
 
 
