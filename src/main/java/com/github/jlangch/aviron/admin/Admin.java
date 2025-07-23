@@ -98,7 +98,9 @@ public class Admin {
             return s;
         }
         catch(Exception ex) {
-            throw new RuntimeException("", ex);
+            throw new AvironException(
+                    "Failed to load PID from file «" + pidFile + "»", 
+                    ex);
         }
     }
 
