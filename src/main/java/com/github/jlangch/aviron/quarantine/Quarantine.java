@@ -33,9 +33,12 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.junit.platform.commons.util.StringUtils;
+
 import com.github.jlangch.aviron.commands.scan.ScanResult;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
+import com.github.jlangch.aviron.ex.QuarantineException;
 import com.github.jlangch.aviron.ex.QuarantineFileActionException;
 
 
@@ -94,10 +97,37 @@ public class Quarantine {
                         .collect(Collectors.toList());
         }
         catch(Exception ex) {
-            throw new RuntimeException("Failed to list quarantine files", ex);
+            throw new QuarantineException("Failed to list quarantine files", ex);
         }
     }
+    
+    public void removeQuarantineFile(final QuarantineFile file) {
+        if (file == null) {
+            throw new IllegalArgumentException("A 'file' must not be null!");
+        }
 
+        final String filename = file.getQuarantineFileName();
+        
+        if (StringUtils.isBlank(filename)) {
+            throw new IllegalArgumentException(
+            		"The field 'quarantineFileName' in the 'file' must not be empty!");
+        }
+
+    	final File qFile = new File(quarantineDir, filename);
+    	final File qInfoFile = new File(quarantineDir, filename + ".virus");
+    	
+    	final boolean qFileDeleted = qFile.delete();  	
+    	final boolean qInfoFileDeleted = qInfoFile.delete();
+    	
+    	if (!qFileDeleted && !qInfoFileDeleted) {
+            throw new QuarantineException(
+            		"The quarantine file «" + filename + "» could not be deleted");
+    	}
+    	else if (!qFileDeleted || !qInfoFileDeleted) {
+            throw new QuarantineException(
+            		"The quarantine file «" + filename + "» could not be completely deleted");
+    	}
+    }
 
     private void processQuarantineAction(final File file, final List<String> virusList) {
         if (!file.isFile() || !file.canRead()) {

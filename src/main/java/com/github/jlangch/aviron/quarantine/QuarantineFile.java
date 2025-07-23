@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.github.jlangch.aviron.events.QuarantineFileAction;
+import com.github.jlangch.aviron.ex.QuarantineException;
 import com.github.jlangch.aviron.util.StringUtils;
 
 
@@ -58,7 +59,7 @@ public class QuarantineFile {
         }
 
         if (!quarantineInfoFile.getPath().endsWith(".virus")) {
-            throw new RuntimeException(
+            throw new QuarantineException(
                     "The file «" + quarantineInfoFile + "» is not a quarantine info file!");
         }
 
@@ -71,7 +72,7 @@ public class QuarantineFile {
             return from(quarantineInfoFile.getName(), data);
         }
         catch(IOException ex) {
-            throw new RuntimeException(
+            throw new QuarantineException(
                     "Failed read quarantine info file «" + quarantineInfoFile + "»!");
         }
     }
@@ -116,7 +117,7 @@ public class QuarantineFile {
                         createdAt);
         }
         catch(Exception ex) {
-            throw new RuntimeException(
+            throw new QuarantineException(
                     "Failed to parse quarantine info file " + "«" + quarantineInfoFileName + "». ",
                     ex);
         }

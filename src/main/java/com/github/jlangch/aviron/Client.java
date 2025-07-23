@@ -346,6 +346,19 @@ public class Client {
     }
 
     /**
+     * Removes a quarantine file.
+     * 
+     * <p>Silently ignores the request if the quarantine file does not exist.
+     */
+    public void removeQuarantineFile(final QuarantineFile file) {
+        if (file == null) {
+            throw new IllegalArgumentException("A 'file' must not be null!");
+        }
+
+        quarantine.removeQuarantineFile(file); 
+    }
+
+    /**
      * Print the client configuration in human readable form to a <code>PrintStream</code>
      * 
      * @param stream  the print stream. If <code>null</code> prints to stdout.

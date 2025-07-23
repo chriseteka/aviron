@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 - Added method Client::isQuarantineActive()
 - Added method Client::listQuarantineFiles()
+- Added method Client::removeQuarantineFile()
 - Reorganized quarantine code
 
 
