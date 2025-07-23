@@ -63,11 +63,11 @@ public class QuarantineFile {
         }
 
         try {
-    
+
             final String data = new String(
                                         Files.readAllBytes(quarantineInfoFile.toPath()),
                                         Charset.defaultCharset());
-    
+
             return from(quarantineInfoFile.getName(), data);
         }
         catch(IOException ex) {
