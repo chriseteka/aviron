@@ -52,13 +52,6 @@ public class StringUtils {
         return !isBlank(s);
     }
 
-    /**
-     * Splits a text into lines
-     * 
-     * @param text    a string
-     * 
-     * @return the lines (maybe empty if the text was <code>null</code> or empty
-     */
     public static List<String> splitIntoLines(final String text) {
         if (text == null || text.isEmpty()) {
             return new ArrayList<>();
@@ -71,6 +64,31 @@ public class StringUtils {
                 throw new RuntimeException("Failed to split text into lines", ex);
             }
         }
+    }
+
+    public static String stripEnd(final String str, final String tail) {
+        if (isBlank(str) || isBlank(tail)) {
+            return str;
+        }
+
+        if (str.equals(tail)) {
+            return "";
+        }
+        else if (str.endsWith(tail)) {
+            return str.substring(0, str.length() - tail.length());
+        }
+        else {
+            return str;
+        }
+    }
+
+    public static List<String> toList(final String... items) {
+        final List<String> list = new ArrayList<>();
+        
+        for(String it : items) {
+            list.add(it);
+        }
+        return list;
     }
 
 }

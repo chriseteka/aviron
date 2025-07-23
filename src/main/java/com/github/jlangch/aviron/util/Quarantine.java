@@ -29,9 +29,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -83,42 +81,19 @@ public class Quarantine {
                                   new File(e.getKey()),
                                   e.getValue()));
     }
-
-    public static Map<String,String> parseQuarantineInfoFile(final File infoFile) {
-        if (infoFile == null) {
-            throw new IllegalArgumentException("An 'infoFile' must not be null!");
-        }
-
+    
+    public List<QuarantineFile> listQuarantineFiles() {
         try {
-            final List<String> lines = Files.lines(infoFile.toPath())
-                                            .collect(Collectors.toList());
- 
-            final Map<String,String> data = new HashMap<>();
-
-            for(String line : lines) {
-                final int pos = line.indexOf('=');
-                if (pos > 0) {
-                    final String key = line.substring(0, pos);
-                    final String value = line.substring(pos+1);
-
-                    if (key.equals(KEY_INFECTED_FILE)
-                        || key.equals(KEY_VIRUS_LIST)
-                        || key.equals(KEY_QUARANTINE_ACTION)
-                        || key.equals(KEY_CREATED_AT)
-                    ) {
-                        data.put(key, value);
-                    }
-                }
-            }
-
-            return data;
+            return Files.list(quarantineDir.toPath())
+                        .filter(p -> !p.endsWith(".virus"))
+                        .map(p -> QuarantineFile.from(p.toFile()))
+                        .collect(Collectors.toList());
         }
         catch(Exception ex) {
-            throw new QuarantineFileActionException(
-                    "Failed to parser virus info file " + "«" + infoFile + "». ",
-                    ex);
+            throw new RuntimeException("Failed to list quarantine files", ex);
         }
     }
+
 
     private void processQuarantineAction(final File file, final List<String> virusList) {
         if (!file.isFile() || !file.canRead()) {
