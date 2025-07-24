@@ -32,14 +32,13 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.junit.platform.commons.util.StringUtils;
-
 import com.github.jlangch.aviron.dto.QuarantineFile;
 import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.ex.QuarantineException;
 import com.github.jlangch.aviron.ex.QuarantineFileActionException;
+import com.github.jlangch.aviron.impl.util.StringUtils;
 
 
 public class Quarantine {
