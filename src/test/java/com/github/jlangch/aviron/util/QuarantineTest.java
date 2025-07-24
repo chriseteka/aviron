@@ -260,7 +260,7 @@ class QuarantineTest {
             assertEquals(scanFile1.getPath(), qf.getInfectedFile().getPath());
             assertEquals("xxx", qf.getVirusListFormatted());
             assertEquals(COPY, qf.getAction());
-            assertNotNull(qf.getCreatedAt());
+            assertNotNull(qf.getQuarantinedAt());
         }
         finally {
             tempFS.remove();
@@ -302,7 +302,7 @@ class QuarantineTest {
             assertEquals(scanFile1.getPath(), qf1.getInfectedFile().getPath());
             assertEquals("xxx", qf1.getVirusListFormatted());
             assertEquals(COPY, qf1.getAction());
-            assertNotNull(qf1.getCreatedAt());
+            assertNotNull(qf1.getQuarantinedAt());
         }
         finally {
             tempFS.remove();
@@ -345,7 +345,7 @@ class QuarantineTest {
             assertEquals(scanFile1.getPath(), qf.getInfectedFile().getPath());
             assertEquals("xxx", qf.getVirusListFormatted());
             assertEquals(COPY, qf.getAction());
-            assertNotNull(qf.getCreatedAt());
+            assertNotNull(qf.getQuarantinedAt());
                         
             assertEquals(1, events.size());
             
@@ -441,7 +441,7 @@ class QuarantineTest {
             assertEquals(scanFile1.getPath(), qf.getInfectedFile().getPath());
             assertEquals("xxx", qf.getVirusListFormatted());
             assertEquals(MOVE, qf.getAction());
-            assertNotNull(qf.getCreatedAt());
+            assertNotNull(qf.getQuarantinedAt());
         }
         finally {
             tempFS.remove();
@@ -494,14 +494,14 @@ class QuarantineTest {
             assertEquals(scanFile1.getPath(), qf1.getInfectedFile().getPath());
             assertEquals("xxx", qf1.getVirusListFormatted());
             assertEquals(MOVE, qf1.getAction());
-            assertNotNull(qf1.getCreatedAt());
+            assertNotNull(qf1.getQuarantinedAt());
             
             // analyze virus meta data file 2
             final QuarantineFile qf2 = QuarantineFile.from(quarantineVirusFile2);
             assertEquals(scanFile1.getPath(), qf2.getInfectedFile().getPath());
             assertEquals("xxx", qf2.getVirusListFormatted());
             assertEquals(MOVE, qf2.getAction());
-            assertNotNull(qf2.getCreatedAt());
+            assertNotNull(qf2.getQuarantinedAt());
         }
         finally {
             tempFS.remove();
@@ -545,7 +545,7 @@ class QuarantineTest {
             assertEquals(scanFile1.getPath(), qf.getInfectedFile().getPath());
             assertEquals("xxx", qf.getVirusListFormatted());
             assertEquals(MOVE, qf.getAction());
-            assertNotNull(qf.getCreatedAt());
+            assertNotNull(qf.getQuarantinedAt());
             
             assertEquals(1, events.size());
             

@@ -51,7 +51,7 @@ class QuarantineFileTest {
         assertEquals(new File("/data/test.pdf"), qf.getInfectedFile());
         assertEquals(StringUtils.toList("v1", "v2"), qf.getVirusList());
         assertEquals(QuarantineFileAction.MOVE, qf.getAction());
-        assertEquals(ts, qf.getCreatedAt());
+        assertEquals(ts, qf.getQuarantinedAt());
         assertEquals("hash:123", qf.getHash());
     }
 
@@ -75,7 +75,7 @@ class QuarantineFileTest {
         assertEquals(new File("/data/test.pdf"), qf.getInfectedFile());
         assertEquals(StringUtils.toList("v1", "v2"), qf.getVirusList());
         assertEquals(QuarantineFileAction.MOVE, qf.getAction());
-        assertEquals(ts, qf.getCreatedAt());
+        assertEquals(ts, qf.getQuarantinedAt());
         assertEquals("hash:123", qf.getHash());
     }
 
