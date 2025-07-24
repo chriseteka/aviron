@@ -45,6 +45,7 @@ import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
 
 public class Scan {
+
     public static void main(String[] args) throws Exception {
         final String baseDir = "/data/files/";
 
@@ -80,13 +81,16 @@ configuration parameter.
 ```java
 import java.io.*;
 import java.nio.file.*;
+import java.util.*;
 
 import com.github.jlangch.aviron.Client;
-import com.github.jlangch.aviron.QuarantineFileAction;
-import com.github.jlangch.aviron.QuarantineEvent;
 import com.github.jlangch.aviron.FileSeparator;
+import com.github.jlangch.aviron.events.QuarantineFileAction;
+import com.github.jlangch.aviron.events.QuarantineEvent;
+import com.github.jlangch.aviron.quarantine.QuarantineFile;
 
 public class Scan {
+
     public static void main(String[] args) throws Exception {
         final String baseDir = "/data/files/";
         final String quarantineDir = "/data/quarantine/";
@@ -98,7 +102,7 @@ public class Scan {
                                         .serverFileSeparator(FileSeparator.UNIX)
                                         .quarantineFileAction(QuarantineFileAction.MOVE)
                                         .quarantineDir(quarantineDir)
-                                        .quarantineEventListener(this::listener)
+                                        .quarantineEventListener(l -> listener(l))
                                         .build();
 
         System.out.println("Reachable: " + client.isReachable());
@@ -113,6 +117,19 @@ public class Scan {
         try (InputStream is = new FileInputStream(new File(baseDir, "document.pdf"))) {
             System.out.println(client.scan(is));
         }
+        
+        
+        // quarantine management
+        final List<QuarantineFile> files = client.listQuarantineFiles();
+        System.out.println(String.format("%d quarantined files", files.size()));
+         
+        if (!files.isEmpty()) {
+            final QuarantineFile qf = files.get(0);
+            System.out.println(qf);
+            client.removeQuarantineFile(qf);
+        }
+
+        client.removeAllQuarantineFiles();
     }
     
     private void listener(final QuarantineEvent event) {

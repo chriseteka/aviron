@@ -549,6 +549,19 @@ public class Client {
         }
 
         /** 
+         * A quarantine directory where the infected files are move/copied to 
+         * depending on the configured quarantine file action. Defaults to 
+         * <code>null</code>.
+         *  
+         * @param quarantineDir a quarantine directory
+         * @return this builder
+         */
+        public Builder quarantineDir(final String quarantineDir) {
+            this.quarantineDir = quarantineDir == null ? null : new File(quarantineDir);
+            return this;
+        }
+
+        /** 
          * A quarantine event listener, that receives all quarantine file action
          * events. Defaults to <code>null</code>.
          *
