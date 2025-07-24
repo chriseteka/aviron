@@ -30,6 +30,7 @@ import com.github.jlangch.aviron.FileSeparator;
 
 
 public class Scan {
+
     public static void main(String[] args) throws Exception {
         final String baseDir = "/data/files/";
 

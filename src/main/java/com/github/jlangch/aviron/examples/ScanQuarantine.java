@@ -34,7 +34,7 @@ import com.github.jlangch.aviron.events.QuarantineEvent;
 
 
 public class ScanQuarantine {
-	
+
     public static void main(String[] args) throws Exception {
         final String baseDir = "/data/files/";
         final String quarantineDir = "/data/quarantine/";
@@ -83,7 +83,7 @@ public class ScanQuarantine {
     
     private static void listener(final QuarantineEvent event) {
         if (event.getException() != null) {
-      	   System.out.println("Error " + event.getException().getMessage());
+            System.out.println("Error " + event.getException().getMessage());
         }
         else {
             System.out.println("File " + event.getInfectedFile() + " moved to quarantine");
