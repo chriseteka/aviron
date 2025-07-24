@@ -48,7 +48,6 @@ import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.ex.AvironException;
 import com.github.jlangch.aviron.ex.UnknownCommandException;
 import com.github.jlangch.aviron.quarantine.Quarantine;
-import com.github.jlangch.aviron.quarantine.QuarantineFile;
 import com.github.jlangch.aviron.server.CommandRunDetails;
 import com.github.jlangch.aviron.server.ServerIO;
 import com.github.jlangch.aviron.util.Lazy;

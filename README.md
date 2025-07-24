@@ -85,9 +85,9 @@ import java.util.*;
 
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
+import com.github.jlangch.aviron.QuarantineFile;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.events.QuarantineEvent;
-import com.github.jlangch.aviron.quarantine.QuarantineFile;
 
 public class Scan {
 
