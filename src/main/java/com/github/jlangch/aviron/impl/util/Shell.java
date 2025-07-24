@@ -112,7 +112,7 @@ public class Shell {
         validateLinuxOrMacOSX("Shell::pgrep");
 
         try {
-            final ShellResult r = Shell.execCmd("pgrep", process);
+            final ShellResult r = Shell.execCmd("pgrep", "-x", process);
             return r.isZeroExitCode()
                     ? r.getStdoutLines()
                        .stream()

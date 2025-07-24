@@ -54,7 +54,10 @@ public class ClamdAdmin {
      * Returns the <i>clamd</i> PID or <code>null</code> if <i>clamd</i> daemon 
      * is not running.
      * 
-     * <p>Runs the shell command <code>pgrep clamd</code> to get the pid
+     * <p>Runs the following shell command to get the pid:
+     * <pre>
+     * pgrep -x clamd
+     * </pre>
      * 
      * <p>
      * Note: This function is available for Linux and MacOS only!
@@ -99,6 +102,11 @@ public class ClamdAdmin {
      * Returns the <i>cpulimit</i> PIDs. There are two <i>cpulimit</i> processes controlling
      * the CPU limit of a target process.
      * 
+     * <p>Runs the following shell command to get the pid:
+     * <pre>
+     * pgrep -x cpulimit
+     * </pre>
+     * 
      * <p>
      * Note: This function is available for Linux and MacOS only!
      * 
@@ -119,7 +127,10 @@ public class ClamdAdmin {
      *  <li>on a <i>Intel</i> single core with 2 hyperthreads LIMIT is 200%</li>
      * </ul>
      * 
-     * <p>Runs: <code>/bin/sh -c "nohup cpulimit -p {pid} -l 50 &lt;/dev/null &amp;&gt;/dev/null &amp;"</code>
+     * <p>Runs the following shell command to activate the cpu limit:
+     * <pre>
+     * /bin/sh -c "nohup cpulimit -p ${clamdPID} -l ${limit} &lt;/dev/null &amp;&gt;/dev/null &amp;"
+     * </pre>
      * 
      * <p>
      * Note: If the <i>clamd</i> process terminates the controlling <i>cpulimit</i>
@@ -167,7 +178,10 @@ public class ClamdAdmin {
     /**
      * Deactivates the CPU limit on the <i>clamd</i> process
      * 
-     * <p>Runs: <code>pkill -f cpulimit.*{pid}</code>
+     * <p>Runs the following shell command to deactivate the cpu limit:
+     * <pre>
+     * pkill -f cpulimit.*${clamdPID}
+     * </pre>
      * 
      * <p>Note: This function is available for Linux and MacOS only!
      * 
@@ -181,7 +195,7 @@ public class ClamdAdmin {
         if (StringUtils.isBlank(clamdPID)) {
             throw new NotRunningException("No Clamd PID!");
         }
-        
+
         try {
             final ShellResult r = Shell.execCmd("pkill", "-f", "cpulimit.*" + clamdPID);
             if (!r.isZeroExitCode()) {
@@ -200,6 +214,11 @@ public class ClamdAdmin {
 
     /**
      * Kills the <i>clamd</i> process if its running.
+     * 
+     * <p>Runs the following shell command to kill the process:
+     * <pre>
+     * kill -15 ${clamdPID}
+     * </pre>
      * 
      * <p>
      * Note: This function is available for Linux and MacOS only!
