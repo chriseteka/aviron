@@ -34,7 +34,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import com.github.jlangch.aviron.Client;
-import com.github.jlangch.aviron.commands.scan.ScanResult;
+import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.events.FileWatchErrorEvent;
 import com.github.jlangch.aviron.events.FileWatchEvent;
 import com.github.jlangch.aviron.events.FileWatchRegisterEvent;

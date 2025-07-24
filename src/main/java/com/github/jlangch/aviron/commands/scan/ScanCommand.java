@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.github.jlangch.aviron.commands.Command;
+import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.ex.InvalidResponseException;
 import com.github.jlangch.aviron.ex.ScanFailureException;
 

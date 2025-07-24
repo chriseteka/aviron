@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.admin;
+package com.github.jlangch.aviron;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,29 +35,21 @@ import com.github.jlangch.aviron.util.ShellBackgroundResult;
 import com.github.jlangch.aviron.util.ShellResult;
 import com.github.jlangch.aviron.util.Signal;
 import com.github.jlangch.aviron.util.StringUtils;
-import com.github.jlangch.aviron.util.Version;
 
 
 /**
- * Offers functions to control the CPU limit of the <i>clamd</i> daemon.
+ * Offers functions to manage the <i>clamd</i> daemon.
  * 
  * <p>
- * The <i>cpulimit</i> tool must be installed on the host running the
- * <i>clamd</i> daemon:
+ * The <i>cpulimit</i> tool must be installed to control the CPU limit
+ * of the <i>clamd</i> daemon:
  * 
  * <pre>
- * Alma Linux:         dnf install cpulimit
- * MacOS (Homebrew):   brew install cpulimit
+ * Alma Linux:         » dnf install cpulimit
+ * MacOS (Homebrew):   » brew install cpulimit
  * </pre>
  */
-public class Admin {
-
-    /**
-     * @return the Aviron version as {major}.{minor}.{patch} like "1.1.0".
-     */
-    public static String getAvironVersion() {
-        return Version.VERSION;
-    }
+public class ClamdAdmin {
 
     /**
      * Returns the <i>clamd</i> PID or <code>null</code> if <i>clamd</i> daemon 
@@ -145,7 +137,7 @@ public class Admin {
      * @param limit a percent value 0..LIMIT
      * @return the shell background result
      * 
-     * @see Admin#deactivateClamdCpuLimit(String) deactivateClamdCpuLimit
+     * @see ClamdAdmin#deactivateClamdCpuLimit(String) deactivateClamdCpuLimit
      */
     public static ShellBackgroundResult activateClamdCpuLimit(
             final String clamdPID, 
@@ -183,7 +175,7 @@ public class Admin {
      * 
      * @param clamdPID a clamd pid
      * 
-     * @see Admin#activateClamdCpuLimit(String,int) activateClamdCpuLimit
+     * @see ClamdAdmin#activateClamdCpuLimit(String,int) activateClamdCpuLimit
      */
     public static void deactivateClamdCpuLimit(final String clamdPID) {
         Shell.validateLinuxOrMacOSX("Admin::deactivateClamdCpuLimit");

@@ -34,8 +34,8 @@ import java.util.stream.Collectors;
 
 import org.junit.platform.commons.util.StringUtils;
 
-import com.github.jlangch.aviron.QuarantineFile;
-import com.github.jlangch.aviron.commands.scan.ScanResult;
+import com.github.jlangch.aviron.dto.QuarantineFile;
+import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.ex.QuarantineException;

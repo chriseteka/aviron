@@ -28,13 +28,13 @@ package com.github.jlangch.aviron.util;
  *
  * <p> Aviron follows semantic versioning
  */
-public class Version {
+public class AvironVersion {
 
     /**
      * @return the Aviron version as {major}.{minor}.{patch} like "1.1.0".
      */
     public static String getBuildVersion() {
-        final String version = Version.class.getPackage().getImplementationVersion();
+        final String version = AvironVersion.class.getPackage().getImplementationVersion();
         return version == null ? "0.0.0" : version;
     }
 

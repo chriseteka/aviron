@@ -24,7 +24,7 @@ package com.github.jlangch.aviron.events;
 
 import java.nio.file.Path;
 
-import com.github.jlangch.aviron.commands.scan.ScanResult;
+import com.github.jlangch.aviron.dto.ScanResult;
 
 
 public class RealtimeScanEvent implements Event {

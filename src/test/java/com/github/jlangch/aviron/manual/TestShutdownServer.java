@@ -22,9 +22,9 @@
  */
 package com.github.jlangch.aviron.manual;
 
+import com.github.jlangch.aviron.ClamdAdmin;
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
-import com.github.jlangch.aviron.admin.Admin;
 
 
 public class TestShutdownServer {
@@ -58,7 +58,7 @@ public class TestShutdownServer {
         System.out.println();
 
         System.out.println("[clamd PID]");
-        System.out.println(Admin.getClamdPID());
+        System.out.println(ClamdAdmin.getClamdPID());
         System.out.println();
         System.out.println();
 

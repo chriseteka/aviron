@@ -26,6 +26,7 @@ import java.io.InputStream;
 
 import com.github.jlangch.aviron.commands.CommandDef;
 import com.github.jlangch.aviron.commands.CommandFormat;
+import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.ex.UnknownCommandException;
 import com.github.jlangch.aviron.server.ServerIO;
 

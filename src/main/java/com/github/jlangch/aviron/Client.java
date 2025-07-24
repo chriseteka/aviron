@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.github.jlangch.aviron.admin.Admin;
 import com.github.jlangch.aviron.commands.Command;
 import com.github.jlangch.aviron.commands.mgmt.Ping;
 import com.github.jlangch.aviron.commands.mgmt.Reload;
@@ -42,14 +41,16 @@ import com.github.jlangch.aviron.commands.scan.ContScan;
 import com.github.jlangch.aviron.commands.scan.InStream;
 import com.github.jlangch.aviron.commands.scan.MultiScan;
 import com.github.jlangch.aviron.commands.scan.Scan;
-import com.github.jlangch.aviron.commands.scan.ScanResult;
+import com.github.jlangch.aviron.dto.CommandRunDetails;
+import com.github.jlangch.aviron.dto.QuarantineFile;
+import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.ex.AvironException;
 import com.github.jlangch.aviron.ex.UnknownCommandException;
 import com.github.jlangch.aviron.quarantine.Quarantine;
-import com.github.jlangch.aviron.server.CommandRunDetails;
 import com.github.jlangch.aviron.server.ServerIO;
+import com.github.jlangch.aviron.util.AvironVersion;
 import com.github.jlangch.aviron.util.Lazy;
 
 
@@ -399,7 +400,7 @@ public class Client {
      * @return the version
      */
     public String version() {
-        return Admin.getAvironVersion();
+        return AvironVersion.VERSION;
     }
 
     @Override

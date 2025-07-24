@@ -22,7 +22,7 @@
  */
 package com.github.jlangch.aviron.manual;
 
-import com.github.jlangch.aviron.admin.Admin;
+import com.github.jlangch.aviron.ClamdAdmin;
 
 
 public class TestAdmin {
@@ -34,18 +34,18 @@ public class TestAdmin {
     public static void main(String[] args) throws Exception {
 
         System.out.println("[CPUs]");
-        System.out.println(Admin.getNrOfCpus());
+        System.out.println(ClamdAdmin.getNrOfCpus());
         System.out.println();
         System.out.println();
  
         System.out.println("[clamd PID]");
-        System.out.println(Admin.getClamdPID());
+        System.out.println(ClamdAdmin.getClamdPID());
         System.out.println();
         System.out.println();
 
         System.out.println("[kill clamd]");
-        if (Admin.getClamdPID() != null) {
-            Admin.killClamd();
+        if (ClamdAdmin.getClamdPID() != null) {
+            ClamdAdmin.killClamd();
             Thread.sleep(3000);
             System.out.println();
             System.out.println();
@@ -57,7 +57,7 @@ public class TestAdmin {
         }
 
         System.out.println("[clamd PID]");
-        System.out.println(Admin.getClamdPID());
+        System.out.println(ClamdAdmin.getClamdPID());
         System.out.println();
         System.out.println();
     }

@@ -85,7 +85,7 @@ import java.util.*;
 
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
-import com.github.jlangch.aviron.QuarantineFile;
+import com.github.jlangch.aviron.dto.QuarantineFile;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 

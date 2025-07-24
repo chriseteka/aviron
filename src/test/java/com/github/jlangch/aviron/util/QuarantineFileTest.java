@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.jlangch.aviron.QuarantineFile;
+import com.github.jlangch.aviron.dto.QuarantineFile;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 
 

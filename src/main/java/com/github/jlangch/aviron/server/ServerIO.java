@@ -36,6 +36,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 import com.github.jlangch.aviron.FileSeparator;
+import com.github.jlangch.aviron.dto.CommandRunDetails;
 import com.github.jlangch.aviron.ex.CommunicationException;
 
 

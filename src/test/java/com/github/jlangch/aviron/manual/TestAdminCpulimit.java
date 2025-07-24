@@ -22,7 +22,7 @@
  */
 package com.github.jlangch.aviron.manual;
 
-import com.github.jlangch.aviron.admin.Admin;
+import com.github.jlangch.aviron.ClamdAdmin;
 import com.github.jlangch.aviron.util.ShellBackgroundResult;
 
 
@@ -34,36 +34,36 @@ public class TestAdminCpulimit {
      */
     public static void main(String[] args) throws Exception {
 
-        if (Admin.getClamdPID() == null) {
+        if (ClamdAdmin.getClamdPID() == null) {
             System.out.println("clamd is not running");
             return;
         }
 
         System.out.println("[clamd PID]");
-        System.out.println(Admin.getClamdPID());
+        System.out.println(ClamdAdmin.getClamdPID());
         System.out.println();
         System.out.println();
 
         System.out.println("[cpulimit PIDs]");
-        System.out.println(Admin.getCpulimitPIDs());
+        System.out.println(ClamdAdmin.getCpulimitPIDs());
         System.out.println();
         System.out.println();
 
         System.out.println("[activate cpulimit]");
-        final ShellBackgroundResult bgResult = Admin.activateClamdCpuLimit(Admin.getClamdPID(), 50);
+        final ShellBackgroundResult bgResult = ClamdAdmin.activateClamdCpuLimit(ClamdAdmin.getClamdPID(), 50);
         Thread.sleep(5000);
         System.out.println(bgResult);
         System.out.println();
         System.out.println();
 
         System.out.println("[cpulimit PIDs]");
-        System.out.println(Admin.getCpulimitPIDs());
+        System.out.println(ClamdAdmin.getCpulimitPIDs());
         System.out.println();
         System.out.println();
 
         System.out.println("[kill clamd]");
-        if (Admin.getClamdPID() != null) {
-            Admin.killClamd();
+        if (ClamdAdmin.getClamdPID() != null) {
+            ClamdAdmin.killClamd();
             Thread.sleep(3000);
             System.out.println("killed");
             System.out.println();
@@ -76,12 +76,12 @@ public class TestAdminCpulimit {
         }
 
         System.out.println("[clamd PID]");
-        System.out.println(Admin.getClamdPID());
+        System.out.println(ClamdAdmin.getClamdPID());
         System.out.println();
         System.out.println();
 
         System.out.println("[cpulimit PIDs]");
-        System.out.println(Admin.getCpulimitPIDs());
+        System.out.println(ClamdAdmin.getCpulimitPIDs());
         System.out.println();
         System.out.println();
     }
