@@ -58,6 +58,8 @@ public class Scan {
 
         System.out.println("Reachable: " + client.isReachable());
 
+        // Scanning -----------------------------------------------------------
+
         // scan single file
         System.out.println(client.scan(Paths.get(baseDir, "document.pdf")));
 
@@ -107,6 +109,8 @@ public class Scan {
 
         System.out.println("Reachable: " + client.isReachable());
 
+        // Scanning -----------------------------------------------------------
+
         // scan single file
         System.out.println(client.scan(Paths.get(baseDir, "document.pdf")));
 
@@ -117,24 +121,27 @@ public class Scan {
         try (InputStream is = new FileInputStream(new File(baseDir, "document.pdf"))) {
             System.out.println(client.scan(is));
         }
-        
-        
-        // quarantine management
+
+        // Quarantine Management ----------------------------------------------
+
+        // list quarantine files
         final List<QuarantineFile> files = client.listQuarantineFiles();
         System.out.println(String.format("%d quarantined files", files.size()));
          
+        // show quarantine file details and remove the file
         if (!files.isEmpty()) {
             final QuarantineFile qf = files.get(0);
             System.out.println(qf);
             client.removeQuarantineFile(qf);
         }
 
-        client.removeAllQuarantineFiles();
+         // remove all quarantine files
+         client.removeAllQuarantineFiles();
     }
-    
+
     private void listener(final QuarantineEvent event) {
         if (event.getException() != null) {
-      	   System.out.println("Error " + event.getException().getMessage());
+            System.out.println("Error " + event.getException().getMessage());
         }
         else {
             System.out.println("File " + event.getInfectedFile() + " moved to quarantine");

@@ -42,6 +42,8 @@ public class Scan {
 
         System.out.println("Reachable: " + client.isReachable());
 
+        // Scanning -----------------------------------------------------------
+
         // scan single file
         System.out.println(client.scan(Paths.get(baseDir, "document.pdf")));
 
