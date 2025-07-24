@@ -44,8 +44,8 @@ public class TestManagementFunctions {
         System.out.println();
         System.out.println();
 
-        System.out.println("[Version]");
-        System.out.println(client.version());
+        System.out.println("[ClamAV Version]");
+        System.out.println(client.clamAvVersion());
         System.out.println();
         System.out.println();
 

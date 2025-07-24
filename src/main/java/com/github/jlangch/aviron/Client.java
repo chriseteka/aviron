@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.github.jlangch.aviron.admin.Admin;
 import com.github.jlangch.aviron.commands.Command;
 import com.github.jlangch.aviron.commands.mgmt.Ping;
 import com.github.jlangch.aviron.commands.mgmt.Reload;
@@ -166,7 +167,7 @@ public class Client {
      * 
      * @return the ClamAV version
      */
-    public String version() {
+    public String clamAvVersion() {
         return sendCommand(new Version());
     }
 
@@ -321,7 +322,7 @@ public class Client {
      * 
      * @return the details on the last command run
      */
-    public CommandRunDetails getLastCommandRunDetails() {
+    public CommandRunDetails lastCommandRunDetails() {
         return server.getLastCommandRunDetails();
     }
 
@@ -391,6 +392,15 @@ public class Client {
     public void printConfig(final PrintStream stream) {
         final PrintStream ps = stream == null ? System.out : stream;
         ps.println(toString());
+    }
+
+    /**
+     * Returns the version of this Aviron library
+     * 
+     * @return the version
+     */
+    public String version() {
+        return Admin.getAvironVersion();
     }
 
     @Override

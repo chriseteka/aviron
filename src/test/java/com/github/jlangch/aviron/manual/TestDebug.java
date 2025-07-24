@@ -44,7 +44,7 @@ public class TestDebug {
         System.out.println();
 
         System.out.println("[Last Command]");
-        System.out.println(client.getLastCommandRunDetails());
+        System.out.println(client.lastCommandRunDetails());
         System.out.println();
         System.out.println();
     }
