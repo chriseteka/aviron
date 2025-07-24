@@ -377,12 +377,12 @@ public class Client {
         final PrintStream ps = stream == null ? System.out : stream;
         
         quarantine.listQuarantineFiles().forEach(f -> {
-        	ps.println(f.getQuarantineFileName());
-        	ps.println("    " + f.getInfectedFile());
-        	ps.println("    " + f.getVirusListFormatted());
-        	ps.println("    " + f.getAction());
-        	ps.println("    " + f.getQuarantinedAt());
-        	ps.println();
+            ps.println(f.getQuarantineFileName());
+            ps.println("    " + f.getInfectedFile());
+            ps.println("    " + f.getVirusListFormatted());
+            ps.println("    " + f.getAction());
+            ps.println("    " + f.getQuarantinedAt());
+            ps.println();
         });
     }
 
