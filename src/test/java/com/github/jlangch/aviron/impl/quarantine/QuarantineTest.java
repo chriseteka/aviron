@@ -44,9 +44,8 @@ import org.junit.jupiter.api.Test;
 import com.github.jlangch.aviron.dto.QuarantineFile;
 import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.events.QuarantineEvent;
-import com.github.jlangch.aviron.impl.quarantine.Quarantine;
-import com.github.jlangch.aviron.tools.EventSink;
-import com.github.jlangch.aviron.tools.TempFS;
+import com.github.jlangch.aviron.impl.test.EventSink;
+import com.github.jlangch.aviron.impl.test.TempFS;
 
 
 class QuarantineTest {

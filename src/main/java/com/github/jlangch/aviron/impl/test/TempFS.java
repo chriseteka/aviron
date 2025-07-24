@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.tools;
+package com.github.jlangch.aviron.impl.test;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,8 +29,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 
+
 public class TempFS {
-    
+
     public TempFS() {
         this.root = createTempDir();
         this.scanDir = new File(root, "scan");
@@ -44,11 +45,11 @@ public class TempFS {
     public int countScanFiles() {
         return scanDir.list().length;
     }
-    
+
     public int countQuarantineFiles() {
         return quarantineDir.list().length;
     }
-    
+
     public File createScanFile(final String name, final String data) {
         return createFile(scanDir, name, data);
     }
@@ -92,7 +93,7 @@ public class TempFS {
             throw new RuntimeException("Failed to create file", ex);
         }
     }
-   
+
     private File createTempDir() {
         try {
            return Files.createTempDirectory("quarantine_").toFile();
@@ -101,14 +102,13 @@ public class TempFS {
             throw new RuntimeException("Failed to create tempFS", ex);
         }
     }
-    
+
     private byte[] toBytes(final String text) {
         return text.getBytes(Charset.defaultCharset());
     }
-    
-    
+
+
     private final File root;
     private final File quarantineDir;
     private final File scanDir;
-
 }

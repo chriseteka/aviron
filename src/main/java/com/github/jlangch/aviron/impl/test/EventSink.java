@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.tools;
+package com.github.jlangch.aviron.impl.test;
 
 import java.util.ArrayList;
 import java.util.Collections;

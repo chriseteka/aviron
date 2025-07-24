@@ -30,8 +30,7 @@ import java.nio.charset.Charset;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.jlangch.aviron.impl.quarantine.Hashes;
-import com.github.jlangch.aviron.tools.TempFS;
+import com.github.jlangch.aviron.impl.test.TempFS;
 
 
 class HashesTest {
