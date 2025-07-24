@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 
 
 
-## [1.4.0] - 2025-07-xx
+## [1.4.0] - 2025-07-24
 
 - Added method Client::isQuarantineActive()
 - Added method Client::listQuarantineFiles()
