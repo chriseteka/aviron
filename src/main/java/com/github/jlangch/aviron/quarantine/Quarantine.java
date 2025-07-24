@@ -93,6 +93,7 @@ public class Quarantine {
             return Files.list(quarantineDir.toPath())
                         .map(p -> p.toFile().getPath())
                         .filter(f -> !f.endsWith(".virus"))
+                        .sorted()
                         .map(f -> new File(f + ".virus"))
                         .map(f -> QuarantineFile.from(f))
                         .collect(Collectors.toList());

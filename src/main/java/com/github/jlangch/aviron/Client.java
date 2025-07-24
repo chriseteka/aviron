@@ -366,6 +366,24 @@ public class Client {
     }
 
     /**
+     * Print the quarantine file info in human readable form to a <code>PrintStream</code>
+     * 
+     * @param stream  the print stream. If <code>null</code> prints to stdout.
+     */
+    public void printQuarantineInfo(final PrintStream stream) {
+        final PrintStream ps = stream == null ? System.out : stream;
+        
+        quarantine.listQuarantineFiles().forEach(f -> {
+        	ps.println(f.getQuarantineFileName());
+        	ps.println("    " + f.getInfectedFile());
+        	ps.println("    " + f.getVirusListFormatted());
+        	ps.println("    " + f.getAction());
+        	ps.println("    " + f.getCreatedAt());
+        	ps.println();
+        });
+    }
+
+    /**
      * Print the client configuration in human readable form to a <code>PrintStream</code>
      * 
      * @param stream  the print stream. If <code>null</code> prints to stdout.
