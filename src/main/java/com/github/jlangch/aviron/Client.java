@@ -350,6 +350,8 @@ public class Client {
      * Removes a quarantine file.
      * 
      * <p>Silently ignores the request if the quarantine file does not exist.
+     * 
+     * @param file  the quarantine file to remove
      */
     public void removeQuarantineFile(final QuarantineFile file) {
         if (file == null) {
