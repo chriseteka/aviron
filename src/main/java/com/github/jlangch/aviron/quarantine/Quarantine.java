@@ -130,6 +130,15 @@ public class Quarantine {
         }
     }
     
+    public void removeAllQuarantineFiles() {
+        try {
+            listQuarantineFiles().forEach(f -> removeQuarantineFile(f));
+        }
+        catch(Exception ex) {
+            throw new QuarantineException("Failed to remove all quarantine files", ex);
+        }
+    }
+    
 
     private void processQuarantineAction(final File file, final List<String> virusList) {
         if (!file.isFile() || !file.canRead()) {

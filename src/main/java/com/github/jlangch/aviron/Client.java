@@ -359,6 +359,13 @@ public class Client {
     }
 
     /**
+     * Removes all quarantine file.s
+     */
+    public void removeAllQuarantineFiles() {
+        quarantine.removeAllQuarantineFiles(); 
+    }
+
+    /**
      * Print the client configuration in human readable form to a <code>PrintStream</code>
      * 
      * @param stream  the print stream. If <code>null</code> prints to stdout.
