@@ -199,23 +199,23 @@ public class QuarantineFile {
         sb.append(getQuarantineFileName());
         sb.append(System.lineSeparator());
 
-        sb.append("Infected File: ");
+        sb.append("Infected File:        ");
         sb.append(getInfectedFile());
         sb.append(System.lineSeparator());
 
-        sb.append("Virus Signatures: ");
+        sb.append("Virus Signatures:     ");
         sb.append(getVirusListFormatted());
         sb.append(System.lineSeparator());
 
-        sb.append("Quarantine Action: ");
+        sb.append("Quarantine Action:    ");
         sb.append(getAction());
         sb.append(System.lineSeparator());
 
-        sb.append("Quarantined At: ");
+        sb.append("Quarantined At:       ");
         sb.append(getQuarantinedAt());
         sb.append(System.lineSeparator());
 
-        sb.append("Hash: ");
+        sb.append("File Hash:            ");
         sb.append(getHash());
 
         return sb.toString();
