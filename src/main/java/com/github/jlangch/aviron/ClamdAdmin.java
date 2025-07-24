@@ -30,11 +30,10 @@ import java.util.List;
 
 import com.github.jlangch.aviron.ex.AvironException;
 import com.github.jlangch.aviron.ex.NotRunningException;
-import com.github.jlangch.aviron.util.Shell;
-import com.github.jlangch.aviron.util.ShellBackgroundResult;
-import com.github.jlangch.aviron.util.ShellResult;
-import com.github.jlangch.aviron.util.Signal;
-import com.github.jlangch.aviron.util.StringUtils;
+import com.github.jlangch.aviron.impl.util.Shell;
+import com.github.jlangch.aviron.impl.util.ShellResult;
+import com.github.jlangch.aviron.impl.util.Signal;
+import com.github.jlangch.aviron.impl.util.StringUtils;
 
 
 /**
@@ -135,11 +134,10 @@ public class ClamdAdmin {
      * 
      * @param clamdPID a clamd pid
      * @param limit a percent value 0..LIMIT
-     * @return the shell background result
      * 
      * @see ClamdAdmin#deactivateClamdCpuLimit(String) deactivateClamdCpuLimit
      */
-    public static ShellBackgroundResult activateClamdCpuLimit(
+    public static void activateClamdCpuLimit(
             final String clamdPID, 
             final int limit
     ) {
@@ -158,7 +156,7 @@ public class ClamdAdmin {
             // /bin/sh -c "nohup /usr/bin/cpulimit -p 1234 -l 50 </dev/null &>/dev/null &"
             
             // run cpulimit as nohup process
-            return Shell.execCmdBackgroundNohup("cpulimit", "--limit=" + limit, "--pid=" + clamdPID);
+            Shell.execCmdBackgroundNohup("cpulimit", "--limit=" + limit, "--pid=" + clamdPID);
         }
         catch(IOException ex) {
             throw new AvironException(

@@ -23,7 +23,6 @@
 package com.github.jlangch.aviron.manual;
 
 import com.github.jlangch.aviron.ClamdAdmin;
-import com.github.jlangch.aviron.util.ShellBackgroundResult;
 
 
 public class TestAdminCpulimit {
@@ -50,9 +49,8 @@ public class TestAdminCpulimit {
         System.out.println();
 
         System.out.println("[activate cpulimit]");
-        final ShellBackgroundResult bgResult = ClamdAdmin.activateClamdCpuLimit(ClamdAdmin.getClamdPID(), 50);
+        ClamdAdmin.activateClamdCpuLimit(ClamdAdmin.getClamdPID(), 50);
         Thread.sleep(5000);
-        System.out.println(bgResult);
         System.out.println();
         System.out.println();
 

@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.ex.QuarantineException;
-import com.github.jlangch.aviron.util.StringUtils;
+import com.github.jlangch.aviron.impl.util.StringUtils;
 
 
 public class QuarantineFile {
