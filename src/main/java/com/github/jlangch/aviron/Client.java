@@ -379,7 +379,7 @@ public class Client {
         	ps.println("    " + f.getInfectedFile());
         	ps.println("    " + f.getVirusListFormatted());
         	ps.println("    " + f.getAction());
-        	ps.println("    " + f.getCreatedAt());
+        	ps.println("    " + f.getQuarantinedAt());
         	ps.println();
         });
     }

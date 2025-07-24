@@ -44,14 +44,14 @@ public class QuarantineFile {
             final File infectedFile,
             final List<String> virusList,
             final QuarantineFileAction action,
-            final LocalDateTime createdAt,
+            final LocalDateTime quarantinedAt,
             final String hash
     ) {
         this.quarantineFileName = quarantineFileName;
         this.infectedFile = infectedFile;
         this.virusList.addAll(virusList);
         this.action = action;
-        this.createdAt = createdAt;
+        this.quarantinedAt = quarantinedAt;
         this.hash = hash;
     }
 
@@ -105,7 +105,7 @@ public class QuarantineFile {
                     else if (key.equals(KEY_QUARANTINE_ACTION)) {
                         action = QuarantineFileAction.valueOf(value);
                     }
-                    else if (key.equals(KEY_CREATED_AT)) {
+                    else if (key.equals(KEY_QUARANTINED_AT)) {
                         createdAt = LocalDateTime.parse(value);
                     }
                     else if (key.equals(KEY_HASH)) {
@@ -150,8 +150,8 @@ public class QuarantineFile {
         return action;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public LocalDateTime getQuarantinedAt() {
+        return quarantinedAt;
     }
 
     public String getHash() {
@@ -177,9 +177,9 @@ public class QuarantineFile {
         sb.append(getAction().name());
         sb.append(System.lineSeparator());
 
-        sb.append(KEY_CREATED_AT);
+        sb.append(KEY_QUARANTINED_AT);
         sb.append("=");
-        sb.append(getCreatedAt().toString());
+        sb.append(getQuarantinedAt());
         sb.append(System.lineSeparator());
 
         sb.append(KEY_HASH);
@@ -211,8 +211,8 @@ public class QuarantineFile {
         sb.append(getAction());
         sb.append(System.lineSeparator());
 
-        sb.append("Created At: ");
-        sb.append(getCreatedAt());
+        sb.append("Quarantined At: ");
+        sb.append(getQuarantinedAt());
         sb.append(System.lineSeparator());
 
         sb.append("Hash: ");
@@ -225,13 +225,13 @@ public class QuarantineFile {
     private static String KEY_INFECTED_FILE     =  "infected-file";
     private static String KEY_VIRUS_LIST        =  "virus-list";
     private static String KEY_QUARANTINE_ACTION =  "quarantine-action";
-    private static String KEY_CREATED_AT        =  "created-at";
+    private static String KEY_QUARANTINED_AT    =  "quarantined-at";
     private static String KEY_HASH              =  "hash";
 
     private final String quarantineFileName;
     private final File infectedFile;
     private final List<String> virusList = new ArrayList<>();
     private final QuarantineFileAction action;
-    private final LocalDateTime createdAt;
+    private final LocalDateTime quarantinedAt;
     private final String hash;
 }
