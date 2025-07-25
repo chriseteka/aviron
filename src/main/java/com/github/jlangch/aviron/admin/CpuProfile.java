@@ -95,10 +95,13 @@ public class CpuProfile {
                       .collect(Collectors.toList()));
     }
 
-    public static CpuProfile allDay(final String name, final int limit) {
-        final List<Entry> entries = new ArrayList<>();
-        entries.add(new Entry(LocalTime.of(0, 0), LocalTime.of(23, 59), limit));
-        return new CpuProfile(name, entries);
+    /**
+     * Returns the default profile: "00:00-23:59 @ 100%"
+     * 
+     * @return the default profile
+     */
+    public static CpuProfile defaultProfile() {
+    	return new CpuProfile("default","00:00-23:59 @ 100%");
     }
     
     public String getName() {

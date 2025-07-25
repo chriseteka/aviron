@@ -22,6 +22,7 @@
  */
 package com.github.jlangch.aviron.admin;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
 
@@ -53,9 +54,8 @@ public class ClamdCpuLimiter {
     }
 
     public ClamdCpuLimiter(final CpuProfile profile) {
-        this.profile = profile != null
-                        ? profile
-                        : new CpuProfile("default","00:00-23:59 @ 100%");
+        final CpuProfile p = profile != null ? profile : CpuProfile.defaultProfile();
+        dayOfWeekProfiles = new CpuProfile[] { p, p, p, p, p, p, p };
     }
 
 
@@ -115,6 +115,10 @@ public class ClamdCpuLimiter {
             throw new IllegalArgumentException("No Clamd PID!");
         }
 
+        final int dayOfWeek = LocalDate.now().getDayOfWeek().getValue();
+        
+        final CpuProfile profile = dayOfWeekProfiles[dayOfWeek-1];
+        		
         return activateClamdCpuLimit(clamdPID, profile.getLimit(LocalTime.now()));
     }
 
@@ -164,5 +168,6 @@ public class ClamdCpuLimiter {
 
 
     private Limit lastSeen = new Limit(null, 100);
-    private final CpuProfile profile;
+    
+    private final CpuProfile[] dayOfWeekProfiles;
 }
