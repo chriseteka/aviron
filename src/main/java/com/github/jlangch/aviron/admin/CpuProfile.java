@@ -36,10 +36,10 @@ import com.github.jlangch.aviron.impl.util.StringUtils;
 
 
 /**
- * Defines a 24 hours CPU profile
+ * Defines a 24 hours CPU limit profile
  */
 public class CpuProfile {
-    
+
     /**
      * Create a named CPU profile
      * 
@@ -64,13 +64,13 @@ public class CpuProfile {
         if (entries == null) {
             throw new IllegalArgumentException("An entries list must not be null!");
         }
-        
+
         validate(entries);
-        
+
         this.name = name;
         this.entries.addAll(entries);
     }
-    
+
     /**
      * Create a named CPU profile
      * 
@@ -101,26 +101,26 @@ public class CpuProfile {
      * @return the default profile
      */
     public static CpuProfile defaultProfile() {
-    	return new CpuProfile("default","00:00-23:59 @ 100%");
+        return new CpuProfile("default","00:00-23:59 @ 100%");
     }
-    
+
     public String getName() {
         return name;
     }
- 
+
     public List<Entry> getEntries() {
         return Collections.unmodifiableList(entries);
     }
 
     public int getLimit(final int hour, final int minute) {
-    	return getLimit(LocalTime.of(hour, minute));
+        return getLimit(LocalTime.of(hour, minute));
     }
 
     public int getLimit(final LocalTime time) {
         if (time == null) {
             return off.getLimit();
         }
-        
+
         return entries
                 .stream()
                 .filter(e -> e.isWithin(time))
@@ -128,8 +128,8 @@ public class CpuProfile {
                 .orElse(off)
                 .getLimit();
     }
-    
-    
+
+
     private void validate(final List<Entry> entries) {
         if (entries.isEmpty()) {
             throw new IllegalArgumentException("An entries list must not be empty!");
@@ -208,7 +208,7 @@ public class CpuProfile {
             
             return end.isBefore(other.start);
         }
-      
+
         public LocalTime getStart() {
             return start;
         }
@@ -232,7 +232,7 @@ public class CpuProfile {
         private final int limit;
     }
 
-    
+
     private final static Entry off = new Entry(LocalTime.of(0, 0), LocalTime.of(23, 59), 0);
 
     private final String name;
