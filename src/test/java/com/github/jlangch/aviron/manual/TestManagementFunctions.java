@@ -22,9 +22,9 @@
  */
 package com.github.jlangch.aviron.manual;
 
-import com.github.jlangch.aviron.ClamdAdmin;
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
+import com.github.jlangch.aviron.admin.ClamdAdmin;
 
 
 public class TestManagementFunctions {

@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron;
+package com.github.jlangch.aviron.admin;
 
 import java.io.File;
 import java.io.IOException;
@@ -152,7 +152,7 @@ public class ClamdAdmin {
      * @param clamdPID a clamd pid
      * @param limit a percent value 0..LIMIT
      * 
-     * @see ClamdAdmin#deactivateClamdCpuLimit(String) deactivateClamdCpuLimit
+     * @see ClamdAdmin#deactivateClamdCpuLimit(String)
      */
     public static void activateClamdCpuLimit(
             final String clamdPID, 
@@ -193,7 +193,7 @@ public class ClamdAdmin {
      * 
      * @param clamdPID a clamd pid
      * 
-     * @see ClamdAdmin#activateClamdCpuLimit(String,int) activateClamdCpuLimit
+     * @see ClamdAdmin#activateClamdCpuLimit(String,int)
      */
     public static void deactivateClamdCpuLimit(final String clamdPID) {
         Shell.validateLinuxOrMacOSX("Admin::deactivateClamdCpuLimit");
