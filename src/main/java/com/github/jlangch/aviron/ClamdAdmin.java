@@ -62,7 +62,7 @@ public class ClamdAdmin {
      * <p>
      * Note: This function is available for Linux and MacOS only!
      * 
-     * @return the <i>clamd</i> PID
+     * @return the <i>clamd</i> PID or <code>null</code> if <i>clamd</i> is not running.
      */
     public static String getClamdPID() {
         Shell.validateLinuxOrMacOSX("Admin::getClamdPID");
@@ -75,7 +75,8 @@ public class ClamdAdmin {
      * Loads the <i>clamd</i> PID from a file.
      * 
      * @param pidFile the pid file
-     * @return the PID
+     * @return the PID or <code>null</code> if the PID file does not exist, 
+     *         is not readable or is empty
      */
     public static String loadClamdPID(final File pidFile) {
         if (pidFile == null) {
@@ -83,13 +84,18 @@ public class ClamdAdmin {
         }
 
         try {
-            final String s = Files
-                                .lines(pidFile.toPath(), Charset.defaultCharset())
-                                .map(l -> l.trim())
-                                .findFirst()
-                                .orElse(null);
-
-            return s;
+        	if (pidFile.isFile() && pidFile.canRead()) {
+	            final String s = Files
+	                                .lines(pidFile.toPath(), Charset.defaultCharset())
+	                                .map(l -> l.trim())
+	                                .findFirst()
+	                                .orElse(null);
+	
+	            return s;
+        	}
+        	else {
+        		return null;
+        	}
         }
         catch(Exception ex) {
             throw new AvironException(
@@ -138,7 +144,7 @@ public class ClamdAdmin {
      * 
      * <p>
      * Note: Still facing "Process found but you aren't allowed to control it"
-     *       problem on MacOS, even when run with sudo
+     *       problem on MacOS, even when run with sudo!
      * 
      * <p>
      * Note: This function is available for Linux and MacOS only!

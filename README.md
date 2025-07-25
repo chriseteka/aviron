@@ -10,7 +10,7 @@
 
 # Aviron
 
-Aviron is a zero dependency Clam AV Java client.
+Aviron is a zero dependency ClamAV Java client. It requires Java 8+.
 
 
 ## Change Log
@@ -44,9 +44,19 @@ import java.nio.file.*;
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
 
+
 public class Scan {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
+        try {
+            new Scan().scan();
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void scan() throws Exception {
         final String baseDir = "/data/files/";
 
         // Note: The file separator depends on the server's type (Unix, Windows)
@@ -74,11 +84,18 @@ public class Scan {
 }
 ```
 
+
 ### Extended example with quarantine support:
 
 Infected files are move/copied implicitly to a quarantine directory. Whether
 an infected file is moved or copied can be controlled by the *quarantineFileAction*
 configuration parameter.
+
+Note: 
+
+In COPY mode unaltered infected files are copied only once to the quarantine directory
+no matter how many times they get rescanned. Aviron uses a hash code of the
+file's data to check whether the file has changed since the copy action.
 
 ```java
 import java.io.*;
@@ -91,10 +108,20 @@ import com.github.jlangch.aviron.dto.QuarantineFile;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 
-public class Scan {
+
+public class ScanQuarantine {
 
     public static void main(String[] args) throws Exception {
-        final String baseDir = "/data/files/";
+        try {
+            new Scan().scan();
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void scan() throws Exception {
+       final String baseDir = "/data/files/";
         final String quarantineDir = "/data/quarantine/";
 
         // Note: The file separator depends on the server's type (Unix, Windows)
@@ -104,7 +131,7 @@ public class Scan {
                                         .serverFileSeparator(FileSeparator.UNIX)
                                         .quarantineFileAction(QuarantineFileAction.MOVE)
                                         .quarantineDir(quarantineDir)
-                                        .quarantineEventListener(l -> listener(l))
+                                        .quarantineEventListener(this::eventListener)
                                         .build();
 
         System.out.println("Reachable: " + client.isReachable());
@@ -127,7 +154,7 @@ public class Scan {
         // list quarantine files
         final List<QuarantineFile> files = client.listQuarantineFiles();
         System.out.println(String.format("%d quarantined files", files.size()));
-         
+
         // show quarantine file details and remove the file
         if (!files.isEmpty()) {
             final QuarantineFile qf = files.get(0);
@@ -135,11 +162,11 @@ public class Scan {
             client.removeQuarantineFile(qf);
         }
 
-         // remove all quarantine files
-         client.removeAllQuarantineFiles();
+        // remove all quarantine files
+        client.removeAllQuarantineFiles();
     }
-
-    private void listener(final QuarantineEvent event) {
+    
+    private void eventListener(final QuarantineEvent event) {
         if (event.getException() != null) {
             System.out.println("Error " + event.getException().getMessage());
         }
@@ -162,6 +189,7 @@ You can can pull it from the central Maven repositories:
   <version>1.4.0</version>
 </dependency>
 ```
+
 
 ## Contributing
 

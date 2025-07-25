@@ -36,7 +36,16 @@ import com.github.jlangch.aviron.events.QuarantineEvent;
 public class ScanQuarantine {
 
     public static void main(String[] args) throws Exception {
-        final String baseDir = "/data/files/";
+        try {
+            new Scan().scan();
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void scan() throws Exception {
+       final String baseDir = "/data/files/";
         final String quarantineDir = "/data/quarantine/";
 
         // Note: The file separator depends on the server's type (Unix, Windows)
@@ -46,7 +55,7 @@ public class ScanQuarantine {
                                         .serverFileSeparator(FileSeparator.UNIX)
                                         .quarantineFileAction(QuarantineFileAction.MOVE)
                                         .quarantineDir(quarantineDir)
-                                        .quarantineEventListener(l -> listener(l))
+                                        .quarantineEventListener(this::eventListener)
                                         .build();
 
         System.out.println("Reachable: " + client.isReachable());
@@ -81,7 +90,7 @@ public class ScanQuarantine {
         client.removeAllQuarantineFiles();
     }
     
-    private static void listener(final QuarantineEvent event) {
+    private void eventListener(final QuarantineEvent event) {
         if (event.getException() != null) {
             System.out.println("Error " + event.getException().getMessage());
         }

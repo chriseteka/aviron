@@ -31,7 +31,16 @@ import com.github.jlangch.aviron.FileSeparator;
 
 public class Scan {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
+        try {
+            new Scan().scan();
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void scan() throws Exception {
         final String baseDir = "/data/files/";
 
         // Note: The file separator depends on the server's type (Unix, Windows)
