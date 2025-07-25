@@ -51,35 +51,24 @@ import com.github.jlangch.aviron.impl.util.StringUtils;
  */
 public class ClamdCpuLimiter {
 
-    public ClamdCpuLimiter() {
-        this((CpuProfile)null);
+    private ClamdCpuLimiter(final DynamicCpuLimit dynamicCpuLimit) {
+        this.dynamicCpuLimit = dynamicCpuLimit;
     }
 
-    public ClamdCpuLimiter(final CpuProfile profile) {
-        final CpuProfile p = profile != null ? profile : CpuProfile.defaultProfile();
-        this.dynamicLimitFn = (ts) -> p.getLimit(ts.toLocalTime());
+    public static ClamdCpuLimiter withDefaults() {
+        return new ClamdCpuLimiter(new DynamicCpuLimit());
     }
 
-    public ClamdCpuLimiter(final List<CpuProfile> dayOfWeekProfiles) {
-        if (dayOfWeekProfiles == null) {
-            throw new IllegalArgumentException(
-            		"A dayOfWeekProfiles list must not be null");
-        }
-        if (dayOfWeekProfiles.size() != 7) {
-            throw new IllegalArgumentException(
-            		"A dayOfWeekProfiles list must provide 7 entries (Mon to Sun)");
-        }
-
-        final List<CpuProfile> profiles = new ArrayList<>(dayOfWeekProfiles);
-        
-        this.dynamicLimitFn = (ts) -> { final int dayOfWeek = ts.getDayOfWeek().getValue();
-        								return profiles
-        										  .get(dayOfWeek-1)
-        										  .getLimit(ts.toLocalTime()); };
+    public static ClamdCpuLimiter with(final CpuProfile profile) {
+        return new ClamdCpuLimiter(new DynamicCpuLimit(profile));
     }
 
-    public ClamdCpuLimiter(final Function<LocalDateTime,Integer> dynamicLimitFn) {
-    	this.dynamicLimitFn = dynamicLimitFn;
+    public static ClamdCpuLimiter with(final List<CpuProfile> dayOfWeekProfiles) {
+         return new ClamdCpuLimiter(new DynamicCpuLimit(dayOfWeekProfiles));
+    }
+
+    public static ClamdCpuLimiter with(final Function<LocalDateTime,Integer> dynamicLimitFn) {
+         return new ClamdCpuLimiter(new DynamicCpuLimit(dynamicLimitFn));
     }
 
 
@@ -139,8 +128,8 @@ public class ClamdCpuLimiter {
             throw new IllegalArgumentException("No Clamd PID!");
         }
 
-        final int limit = limit_0to1000(dynamicLimitFn.apply(LocalDateTime.now()));
-               		
+        final int limit = dynamicCpuLimit.computeCpuLimit();
+                       
         return activateClamdCpuLimit(clamdPID, limit);
     }
 
@@ -164,6 +153,56 @@ public class ClamdCpuLimiter {
         ClamdAdmin.deactivateClamdCpuLimit(clamdPID);
     }
 
+
+    public static class DynamicCpuLimit {
+        public DynamicCpuLimit() {
+            this((CpuProfile)null);
+        }
+
+        public DynamicCpuLimit(final CpuProfile profile) {
+            final CpuProfile p = profile != null ? profile : CpuProfile.defaultProfile();
+            this.dynamicLimitFn = (ts) -> p.getLimit(ts.toLocalTime());
+        }
+
+        public DynamicCpuLimit(final List<CpuProfile> dayOfWeekProfiles) {
+            if (dayOfWeekProfiles == null) {
+                throw new IllegalArgumentException(
+                        "A dayOfWeekProfiles list must not be null");
+            }
+            if (dayOfWeekProfiles.size() != 7) {
+                throw new IllegalArgumentException(
+                        "A dayOfWeekProfiles list must provide 7 entries (Mon to Sun)");
+            }
+
+            final List<CpuProfile> profiles = new ArrayList<>(dayOfWeekProfiles);
+            
+            this.dynamicLimitFn = (ts) -> { final int dayOfWeek = ts.getDayOfWeek().getValue();
+                                            return profiles
+                                                      .get(dayOfWeek-1)
+                                                      .getLimit(ts.toLocalTime()); };
+        }
+
+        public DynamicCpuLimit(final Function<LocalDateTime,Integer> dynamicLimitFn) {
+            this.dynamicLimitFn = dynamicLimitFn;
+        }
+        
+        public int computeCpuLimit() {
+            return computeCpuLimit(LocalDateTime.now());
+        }
+
+        public int computeCpuLimit(final LocalDateTime ts) {
+            if (ts == null) {
+                throw new IllegalArgumentException("A ts must not be null");
+            }
+            return limit_0to1000(dynamicLimitFn.apply(ts));
+        }
+
+        private static int limit_0to1000(final Integer value) {
+            return value == null ? 0 : Math.max(0, Math.min(1000, value));
+        }
+
+        private final Function<LocalDateTime,Integer> dynamicLimitFn;
+    }
 
     public static class Limit {
         public Limit(final String pid, final int limit) {
@@ -193,12 +232,8 @@ public class ClamdCpuLimiter {
     }
     
     
-    private static int limit_0to1000(final Integer value) {
-    	return value == null ? 0 : Math.max(0, Math.min(1000, value));
-    }
-
 
     private Limit lastSeen = new Limit(null, 100);
     
-    private final Function<LocalDateTime,Integer> dynamicLimitFn;
+    private final DynamicCpuLimit dynamicCpuLimit;
 }
