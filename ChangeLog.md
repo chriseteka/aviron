@@ -7,7 +7,8 @@ All notable changes to this project will be documented in this file.
 
 ## [1.4.1] - 2025-07-xx
 
-- ...
+- Added a ClamdCpuLimiter to dynamically limit the CPU usage of the clamd daemon 
+  across the 24 hours of day.
 
 
 
