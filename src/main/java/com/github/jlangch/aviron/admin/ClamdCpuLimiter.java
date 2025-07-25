@@ -33,6 +33,9 @@ import com.github.jlangch.aviron.impl.util.StringUtils;
  * <p>Remembers the limit set for the clamd daemon and changes to a new
  * limit only if the last {pid, limit} differs from the new {pid, limit}. 
  * 
+ * <p>The <code>ClamdCpuLimiter</code> allows you to dynamically limit the 
+ * CPU usage of the clamd daemon across the 24 hours of day.
+ * 
  * <p>
  * The <i>cpulimit</i> tool must be installed to control the CPU limit
  * of the <i>clamd</i> daemon:
