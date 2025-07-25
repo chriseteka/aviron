@@ -84,18 +84,18 @@ public class ClamdAdmin {
         }
 
         try {
-        	if (pidFile.isFile() && pidFile.canRead()) {
-	            final String s = Files
-	                                .lines(pidFile.toPath(), Charset.defaultCharset())
-	                                .map(l -> l.trim())
-	                                .findFirst()
-	                                .orElse(null);
-	
-	            return s;
-        	}
-        	else {
-        		return null;
-        	}
+            if (pidFile.isFile() && pidFile.canRead()) {
+                final String s = Files
+                                    .lines(pidFile.toPath(), Charset.defaultCharset())
+                                    .map(l -> l.trim())
+                                    .findFirst()
+                                    .orElse(null);
+    
+                return s;
+            }
+            else {
+                return null;
+            }
         }
         catch(Exception ex) {
             throw new AvironException(
