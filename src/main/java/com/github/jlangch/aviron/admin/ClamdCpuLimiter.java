@@ -77,7 +77,15 @@ public class ClamdCpuLimiter {
     }
 
     /**
-     * Activates a CPU limit [0..LIMIT] on the <i>clamd</i> process
+     * Activates a CPU limit on the <i>clamd</i> process. 
+     * 
+     * <p>The limit must be in the range  [0..LIMIT] depending on the number 
+     * of logical processors: 
+     * <ul>
+     *  <li>on a 8 core <i>MacBook Air</i> LIMIT is 800%</li>
+     *  <li>on a <i>Intel</i> single core with 2 hyperthreads LIMIT is 200%</li>
+     * </ul>
+     * 
      * 
      * @param clamdPID a clamd pid
      * @param limit a percent value 0..LIMIT
@@ -110,10 +118,10 @@ public class ClamdCpuLimiter {
             return true;
         }
     }
-    
+
     /**
-     * Activates the current limit obtained from the CPU profile on the 
-     * <i>clamd</i> process
+     * Activates the current limit obtained from the dynamic limit computation 
+     * on the <i>clamd</i> process.
      * 
      * @param clamdPID a clamd pid
      * 
