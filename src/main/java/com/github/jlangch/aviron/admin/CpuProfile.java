@@ -112,6 +112,10 @@ public class CpuProfile {
         return Collections.unmodifiableList(entries);
     }
 
+    public int getLimit(final int hour, final int minute) {
+    	return getLimit(LocalTime.of(hour, minute));
+    }
+
     public int getLimit(final LocalTime time) {
         if (time == null) {
             return off.getLimit();

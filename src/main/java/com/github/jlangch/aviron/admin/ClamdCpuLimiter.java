@@ -238,10 +238,10 @@ public class ClamdCpuLimiter {
         private final int limit;
         private final LocalDateTime ts;
     }
-    
-    
+
+
 
     private Limit lastSeen = new Limit(null, 100);
-    
+
     private final DynamicCpuLimit dynamicCpuLimit;
 }
