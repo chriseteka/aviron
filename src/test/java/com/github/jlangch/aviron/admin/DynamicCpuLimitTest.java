@@ -39,7 +39,7 @@ class DynamicCpuLimitTest {
     @Test
     void testWithDefaults() {
         final DynamicCpuLimit dynamicCpuLimit = new DynamicCpuLimit();
-        
+
         assertEquals(100, dynamicCpuLimit.computeCpuLimit());
 
         assertEquals(100, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,1,  6, 0)));
@@ -56,9 +56,9 @@ class DynamicCpuLimitTest {
                                         "09:00-17:59 @ 0%, " +
                                         "18:00-21:59 @ 50%, " +
                                         "22:00-23:59 @ 100%");
-        
+
         final DynamicCpuLimit dynamicCpuLimit = new DynamicCpuLimit(profile);
-        
+
         assertEquals(100, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,1,  4,21)));
         assertEquals( 50, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,1,  7,30)));
         assertEquals(  0, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,1, 12,35)));
