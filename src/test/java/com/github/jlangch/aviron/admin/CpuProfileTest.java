@@ -136,7 +136,7 @@ class CpuProfileTest {
                 IllegalArgumentException.class, 
                 () -> new CpuProfile("weekday", entries));
     }
-    
+
     @Test
     void testCpuProfileNew2() {
         final CpuProfile profile = new CpuProfile(
@@ -163,7 +163,15 @@ class CpuProfileTest {
                             "18:00-21:59 @ 50%, " +
                             "22:00-23:59 @ 100%"));
     }
-    
+
+    @Test
+    void testCpuProfileNew3() {
+        final CpuProfile profile = new CpuProfile("weekday","00:00-23:59 @ 100%");
+        
+        assertEquals("weekday", profile.getName());
+        assertEquals(1, profile.getEntries().size());
+    }
+
     @Test
     void testCpuProfileLimit1() {
         final List<Entry> entries = new ArrayList<>();

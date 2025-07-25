@@ -85,7 +85,8 @@ public class CpuProfile {
      * </pre>
      * 
      * @param name the profil's name
-     * @param entries the profile's entries
+     * @param entries the formatted profile's entries (a string with comma 
+     *        separated list of stringified profile entries)
      */
     public CpuProfile(final String name, final String entries) {
         this(name, Arrays
@@ -118,13 +119,13 @@ public class CpuProfile {
                 .filter(e -> e.isWithin(time))
                 .findFirst()
                 .orElse(off)
-                .getLimit();    
+                .getLimit();
     }
     
     
     private void validate(final List<Entry> entries) {
         if (entries.isEmpty()) {
-            throw new IllegalArgumentException("An entries list must not be empty!");            
+            throw new IllegalArgumentException("An entries list must not be empty!");
         }
         else if (entries.size() == 1) {
             return;
@@ -134,7 +135,7 @@ public class CpuProfile {
                 if (!entries.get(ii).isBefore(entries.get(ii+1))) {
                     throw new IllegalArgumentException(
                             "The entries are not in ascending order or are overlapping! "
-                            + "Check entry: \"" + entries.get(ii+1) + "\"");            
+                            + "Check entry: \"" + entries.get(ii+1) + "\"");
                 }
             }
         }
