@@ -22,6 +22,7 @@
  */
 package com.github.jlangch.aviron.admin;
 
+import java.time.LocalTime;
 import java.util.Objects;
 
 import com.github.jlangch.aviron.impl.util.StringUtils;
@@ -48,10 +49,17 @@ import com.github.jlangch.aviron.impl.util.StringUtils;
 public class ClamdCpuLimiter {
 
     public ClamdCpuLimiter() {
+        this(null);
+    }
+
+    public ClamdCpuLimiter(final CpuProfile profile) {
+        this.profile = profile != null
+                        ? profile
+                        : new CpuProfile("default","00:00-23:59 @ 100%");
     }
 
 
-    public synchronized Limit getLimit() {
+    public synchronized Limit getLastSeenLimit() {
         return lastSeen;
     }
 
@@ -62,7 +70,8 @@ public class ClamdCpuLimiter {
      * @param limit a percent value 0..LIMIT
      * 
      * @see ClamdAdmin#activateClamdCpuLimit(String,int)
-     * @see ClamdCpuLimiter#deactivateClamdCpuLimit
+     * @see ClamdCpuLimiter#activateClamdCpuLimit(String)
+     * @see ClamdCpuLimiter#deactivateClamdCpuLimit()
      */
     public synchronized boolean activateClamdCpuLimit(
             final String clamdPID, 
@@ -77,16 +86,36 @@ public class ClamdCpuLimiter {
                     "A limit value must not be negative!");
         }
 
-        final Limit process = new Limit(clamdPID, limit);
+        final Limit newLimit = new Limit(clamdPID, limit);
         
         if (Objects.equals(clamdPID, lastSeen.pid) && limit == lastSeen.limit) {
             return false;  // no change
         }
         else {
-            lastSeen = process;
+            lastSeen = newLimit;
             ClamdAdmin.activateClamdCpuLimit(clamdPID, limit);
             return true;
         }
+    }
+    
+    /**
+     * Activates the current limit obtained from the CPU profile on the 
+     * <i>clamd</i> process
+     * 
+     * @param clamdPID a clamd pid
+     * 
+     * @see ClamdAdmin#activateClamdCpuLimit(String,int)
+     * @see ClamdCpuLimiter#activateClamdCpuLimit(String,int)
+     * @see ClamdCpuLimiter#deactivateClamdCpuLimit()
+     */
+    public synchronized boolean activateClamdCpuLimit(
+            final String clamdPID
+    ) {
+        if (StringUtils.isBlank(clamdPID)) {
+            throw new IllegalArgumentException("No Clamd PID!");
+        }
+
+        return activateClamdCpuLimit(clamdPID, profile.getLimit(LocalTime.now()));
     }
 
     /**
@@ -94,8 +123,9 @@ public class ClamdCpuLimiter {
      * 
      * @param clamdPID a clamd pid
      * 
-     * @see ClamdAdmin#deactivateClamdCpuLimit
+     * @see ClamdAdmin#deactivateClamdCpuLimit()
      * @see ClamdCpuLimiter#activateClamdCpuLimit(String,int)
+     * @see ClamdCpuLimiter#activateClamdCpuLimit(String)
      */
     public synchronized void deactivateClamdCpuLimit(
             final String clamdPID
@@ -134,4 +164,5 @@ public class ClamdCpuLimiter {
 
 
     private Limit lastSeen = new Limit(null, 100);
+    private final CpuProfile profile;
 }

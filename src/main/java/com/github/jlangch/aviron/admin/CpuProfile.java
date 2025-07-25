@@ -227,7 +227,7 @@ public class CpuProfile {
 
     
     private final static Entry off = new Entry(LocalTime.of(0, 0), LocalTime.of(23, 59), 0);
-    
+
     private final String name;
     private final List<Entry> entries = new ArrayList<>();
 }
