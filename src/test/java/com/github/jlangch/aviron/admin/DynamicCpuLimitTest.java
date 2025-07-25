@@ -94,14 +94,14 @@ class DynamicCpuLimitTest {
         profiles.add(weekend); // Sun
 
         final DynamicCpuLimit dynamicCpuLimit = new DynamicCpuLimit(profiles);
-        
+
         // weekday (Tuesday 2025-07-01)
         assertEquals(100, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,1,  4,21)));
         assertEquals( 50, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,1,  7,30)));
         assertEquals(  0, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,1, 12,35)));
         assertEquals( 50, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,1, 19,48)));
         assertEquals(100, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,1, 23,51)));
-        
+
         // weekend (Saturday 2025-07-05)
         assertEquals(100, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,5,  4,21)));
         assertEquals( 60, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,5,  7,30)));
@@ -112,9 +112,9 @@ class DynamicCpuLimitTest {
 
     @Test
     void testWithComputeFunction1() {
-        final Function<LocalDateTime,Integer> fn = (ts) -> 80;
-        
-        final DynamicCpuLimit dynamicCpuLimit = new DynamicCpuLimit(fn);
+        final Function<LocalDateTime,Integer> computeLimitFn = (ts) -> 80;
+
+        final DynamicCpuLimit dynamicCpuLimit = new DynamicCpuLimit(computeLimitFn);
 
         assertEquals(80, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,1,  4,21)));
         assertEquals(80, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,1,  7,30)));
@@ -125,9 +125,9 @@ class DynamicCpuLimitTest {
 
     @Test
     void testWithComputeFunction2() {
-        final Function<LocalDateTime,Integer> fn = (ts) -> ts.getHour() % 2 == 0 ? 100 : 20;
-        
-        final DynamicCpuLimit dynamicCpuLimit = new DynamicCpuLimit(fn);
+        final Function<LocalDateTime,Integer> computeLimitFn = (ts) -> ts.getHour() % 2 == 0 ? 100 : 20;
+
+        final DynamicCpuLimit dynamicCpuLimit = new DynamicCpuLimit(computeLimitFn);
 
         assertEquals(100, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,1,  4,21)));
         assertEquals( 20, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,1,  7,30)));
