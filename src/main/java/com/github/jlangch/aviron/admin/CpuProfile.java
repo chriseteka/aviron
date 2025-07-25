@@ -22,49 +22,211 @@
  */
 package com.github.jlangch.aviron.admin;
 
+import static java.lang.Integer.parseInt;
+
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.github.jlangch.aviron.ex.AvironException;
+import com.github.jlangch.aviron.impl.util.StringUtils;
+
 
 /**
  * Defines a 24 hours CPU profile
  */
 public class CpuProfile {
     
-    public CpuProfile(final String name) {
+    /**
+     * Create a named CPU profile
+     * 
+     * <pre>
+     * final List<Entry> entries = new ArrayList<>();
+     * entries.add(Entry.parse("00:00-05:59 @ 100%"));
+     * entries.add(Entry.parse("06:00-08:59 @ 50%"));
+     * entries.add(Entry.parse("09:00-17:59 @ 0%"));
+     * entries.add(Entry.parse("18:00-21:59 @ 50%"));
+     * entries.add(Entry.parse("22:00-23:59 @ 100%"));
+     * 
+     * final CpuProfile profile = new CpuProfile("weekday", entries);
+     * </pre>
+     * 
+     * @param name the profil's name
+     * @param entries the profile's entries
+     */
+    public CpuProfile(final String name, final List<Entry> entries) {
+        if (StringUtils.isBlank(name)) {
+            throw new IllegalArgumentException("A name time must not be blank!");
+        }
+        if (entries == null) {
+            throw new IllegalArgumentException("An entries list must not be null!");
+        }
+        
+        validate(entries);
+        
         this.name = name;
+        this.entries.addAll(entries);
+    }
+    
+    /**
+     * Create a named CPU profile
+     * 
+     * <pre>
+     * final CpuProfile profile = new CpuProfile(
+     *                                  "weekday", 
+     *                                  "00:00-05:59 @ 100%, " +
+     *                                  "06:00-08:59 @ 50%,  " +
+     *                                  "09:00-17:59 @ 0%,   " +
+     *                                  "18:00-21:59 @ 50%,  " +
+     *                                  "22:00-23:59 @ 100%");
+     * </pre>
+     * 
+     * @param name the profil's name
+     * @param entries the profile's entries
+     */
+    public CpuProfile(final String name, final String entries) {
+        this(name, Arrays
+                      .stream(entries.split(" *, *"))
+                      .map(e -> Entry.parse(e))
+                      .collect(Collectors.toList()));
     }
 
-
+    public static CpuProfile allDay(final String name, final int limit) {
+        final List<Entry> entries = new ArrayList<>();
+        entries.add(new Entry(LocalTime.of(0, 0), LocalTime.of(23, 59), limit));
+        return new CpuProfile(name, entries);
+    }
+    
     public String getName() {
         return name;
     }
+ 
+    public List<Entry> getEntries() {
+        return Collections.unmodifiableList(entries);
+    }
 
-    // TODO: implement
-
-    /*
+    public int getLimit(final LocalTime time) {
+        if (time == null) {
+            return off.getLimit();
+        }
+        
+        return entries
+                .stream()
+                .filter(e -> e.isWithin(time))
+                .findFirst()
+                .orElse(off)
+                .getLimit();    
+    }
     
-                   time range     cpu
-                   -------------  ---
-     { :weekday  [["00:00-02:45"  100]
-                  ["02:45-04:30"    0]
-                  ["04:30-06:00"  100]
-                  ["06:00-07:00"   70]
-                  ["07:00-08:00"   30]
-                  ["08:00-18:00"    0]
-                  ["18:00-20:00"   30]
-                  ["20:00-21:00"   40]
-                  ["21:00-22:00"   50]
-                  ["22:00-24:00"  100]]
+    
+    private void validate(final List<Entry> entries) {
+        if (entries.isEmpty()) {
+            throw new IllegalArgumentException("An entries list must not be empty!");            
+        }
+        else if (entries.size() == 1) {
+            return;
+        }
+        else {
+            for(int ii=0; ii<entries.size()-1; ii++) {
+                if (!entries.get(ii).isBefore(entries.get(ii+1))) {
+                    throw new IllegalArgumentException(
+                            "The entries are not in ascending order or are overlapping! "
+                            + "Check entry: \"" + entries.get(ii+1) + "\"");            
+                }
+            }
+        }
+    }
 
-       :weekend  [["00:00-02:45"  100]
-                  ["02:45-04:30"    0]
-                  ["04:30-08:00"  100]
-                  ["08:00-09:00"   75]
-                  ["09:00-10:00"   50]
-                  ["10:00-22:00"   30]
-                  ["22:00-23:00"   50]
-                  ["23:00-24:00"   75]] }
+    
+    public static class Entry {
+        public Entry(final LocalTime start, final LocalTime end, final int limit) {
+            if (start == null) {
+                throw new IllegalArgumentException("A start time must not be null!");
+            }
+            if (end == null) {
+                throw new IllegalArgumentException("An end time must not be null!");
+            }
+            if (limit < 0) {
+                throw new IllegalArgumentException("A limit must not be negative!");
+            }
+            if (start.isAfter(end)) {
+                throw new IllegalArgumentException("The start time must not be after the end time!");
+            }
 
-     */
+            this.start = start;
+            this.end = end;
+            this.limit = limit;
+        }
+        
+        public static Entry parse(final String s) {
+            try {
+                final String[] e = s.split(" *[@:\\-%] *");
+                return new Entry(
+                            LocalTime.of(parseInt(e[0]), parseInt(e[1])),
+                            LocalTime.of(parseInt(e[2]), parseInt(e[3])),
+                            parseInt(e[4]));
+            }
+            catch(Exception ex) {
+                throw new AvironException(
+                        "Invalid CpuProfile entry. Expected a format like \"09:00 - 15:30 @ 100%\"");
+            }
+        }
 
+        public boolean isWithin(final LocalTime time) {
+            if (time == null) {
+                throw new IllegalArgumentException("A time must not be null!");
+            }
+            
+            return !time.isBefore(start) && !time.isAfter(end);
+        }
 
+        public boolean isOverlapping(final Entry other) {
+            if (other == null) {
+                throw new IllegalArgumentException("A other time entry must not be null!");
+            }
+            
+            if (other.end.isBefore(start)) return false;
+            else if (other.start.isAfter(end)) return false;
+            else return true;
+        }
+
+        public boolean isBefore(final Entry other) {
+            if (other == null) {
+                throw new IllegalArgumentException("An other entry must not be null!");
+            }
+            
+            return end.isBefore(other.start);
+        }
+      
+        public LocalTime getStart() {
+            return start;
+        }
+        public LocalTime getEnd() {
+            return end;
+        }
+        public int getLimit() {
+            return limit;
+        }
+        
+        @Override
+        public String toString() {
+            return String.format(
+                    "%02d:%02d - %02d:%02d @ %d%%", 
+                    start.getHour(), start.getMinute(),end.getHour(), end.getMinute(), limit);
+        }
+        
+
+        private final LocalTime start;
+        private final LocalTime end;
+        private final int limit;
+    }
+
+    
+    private final static Entry off = new Entry(LocalTime.of(0, 0), LocalTime.of(23, 59), 0);
+    
     private final String name;
+    private final List<Entry> entries = new ArrayList<>();
 }
