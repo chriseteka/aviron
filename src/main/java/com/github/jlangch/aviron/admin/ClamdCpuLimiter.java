@@ -28,7 +28,7 @@ import com.github.jlangch.aviron.impl.util.StringUtils;
 
 
 /**
- * Limits CPU for the clamd daemon.
+ * Limits the CPU for the clamd daemon.
  * 
  * <p>Remembers the limit set for the clamd daemon and changes to a new
  * limit only if the last {pid, limit} differs from the new {pid, limit}. 

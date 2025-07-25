@@ -31,14 +31,14 @@ public class CpuProfile {
     public CpuProfile(final String name) {
         this.name = name;
     }
-    
-    
+
+
     public String getName() {
         return name;
     }
-    
+
     // TODO: implement
-    
+
     /*
     
                    time range     cpu
