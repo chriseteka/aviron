@@ -22,9 +22,11 @@
  */
 package com.github.jlangch.aviron.admin;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 import com.github.jlangch.aviron.impl.util.StringUtils;
 
@@ -50,12 +52,34 @@ import com.github.jlangch.aviron.impl.util.StringUtils;
 public class ClamdCpuLimiter {
 
     public ClamdCpuLimiter() {
-        this(null);
+        this((CpuProfile)null);
     }
 
     public ClamdCpuLimiter(final CpuProfile profile) {
         final CpuProfile p = profile != null ? profile : CpuProfile.defaultProfile();
-        dayOfWeekProfiles = new CpuProfile[] { p, p, p, p, p, p, p };
+        this.dynamicLimitFn = (ts) -> p.getLimit(ts.toLocalTime());
+    }
+
+    public ClamdCpuLimiter(final List<CpuProfile> dayOfWeekProfiles) {
+        if (dayOfWeekProfiles == null) {
+            throw new IllegalArgumentException(
+            		"A dayOfWeekProfiles list must not be null");
+        }
+        if (dayOfWeekProfiles.size() != 7) {
+            throw new IllegalArgumentException(
+            		"A dayOfWeekProfiles list must provide 7 entries (Mon to Sun)");
+        }
+
+        final List<CpuProfile> profiles = new ArrayList<>(dayOfWeekProfiles);
+        
+        this.dynamicLimitFn = (ts) -> { final int dayOfWeek = ts.getDayOfWeek().getValue();
+        								return profiles
+        										  .get(dayOfWeek-1)
+        										  .getLimit(ts.toLocalTime()); };
+    }
+
+    public ClamdCpuLimiter(final Function<LocalDateTime,Integer> dynamicLimitFn) {
+    	this.dynamicLimitFn = dynamicLimitFn;
     }
 
 
@@ -115,11 +139,9 @@ public class ClamdCpuLimiter {
             throw new IllegalArgumentException("No Clamd PID!");
         }
 
-        final int dayOfWeek = LocalDate.now().getDayOfWeek().getValue();
-        
-        final CpuProfile profile = dayOfWeekProfiles[dayOfWeek-1];
-        		
-        return activateClamdCpuLimit(clamdPID, profile.getLimit(LocalTime.now()));
+        final int limit = limit_0to1000(dynamicLimitFn.apply(LocalDateTime.now()));
+               		
+        return activateClamdCpuLimit(clamdPID, limit);
     }
 
     /**
@@ -147,27 +169,36 @@ public class ClamdCpuLimiter {
         public Limit(final String pid, final int limit) {
             this.pid = pid;
             this.limit = limit;
+            this.ts = LocalDateTime.now();
         }
 
         public String getPid() {
             return pid;
         }
-
         public int getLimit() {
             return limit;
+        }
+        public LocalDateTime getTimestamp() {
+            return ts;
         }
 
         @Override
         public String toString() {
-            return String.format("pid=%s, limit=%d", pid, limit);
+            return String.format("pid=%s, limit=%d, ts=%s", pid, limit, ts.toString());
         }
 
         private final String pid;
         private final int limit;
+        private final LocalDateTime ts;
+    }
+    
+    
+    private static int limit_0to1000(final Integer value) {
+    	return value == null ? 0 : Math.max(0, Math.min(1000, value));
     }
 
 
     private Limit lastSeen = new Limit(null, 100);
     
-    private final CpuProfile[] dayOfWeekProfiles;
+    private final Function<LocalDateTime,Integer> dynamicLimitFn;
 }
