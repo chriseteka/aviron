@@ -105,6 +105,30 @@ public class ClamdAdmin {
     }
 
     /**
+     * Checks if the process with a PID is running.
+     * 
+     * <p>Runs the following shell command:
+     * <pre>
+     * ps -p ${pid}
+     * </pre>
+     * 
+     * <p>
+     * Note: This function is available for Linux and MacOS only!
+     * 
+     * @param pid a pid
+     * @return <i>true</i> if there is process running with the PID else <i>false</i> 
+     */
+    public static boolean isProcessAlive(final String pid) {
+        if (StringUtils.isBlank(pid)) {
+            throw new IllegalArgumentException("A pid must not be blank!");
+        }
+
+        Shell.validateLinuxOrMacOSX("Admin::isProcessAlive");
+
+        return Shell.isProcessAlive(pid);
+    }
+
+    /**
      * Returns the <i>cpulimit</i> PIDs. There are two <i>cpulimit</i> processes controlling
      * the CPU limit of a target process.
      * 

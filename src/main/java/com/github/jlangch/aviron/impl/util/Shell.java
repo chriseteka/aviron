@@ -108,6 +108,20 @@ public class Shell {
         }
     }
 
+    public static boolean isProcessAlive(final String pid) {
+        validateLinuxOrMacOSX("Shell::isProcessAlive");
+
+        try {
+            return Shell.execCmd("ps", "-p", pid)
+                        .isZeroExitCode();
+        }
+        catch(IOException ex) {
+            throw new AvironException(
+                    "Failed to check if the process with the PID " + pid + " is alive!", 
+                    ex);
+        }
+    }
+
     public static List<String> pgrep(final String process) {
         validateLinuxOrMacOSX("Shell::pgrep");
 
