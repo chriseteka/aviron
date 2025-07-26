@@ -74,7 +74,7 @@ public class CpuProfile {
      * Create a named CPU profile
      * 
      * <pre>
-     * final CpuProfile profile = new CpuProfile(
+     * final CpuProfile profile = CpuProfile.of(
      *                                  "weekday", 
      *                                  CollectionUtils.toList(
      *                                      "00:00-05:59 @ 100%",
