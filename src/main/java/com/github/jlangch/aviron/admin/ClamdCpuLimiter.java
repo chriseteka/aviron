@@ -63,6 +63,10 @@ public class ClamdCpuLimiter {
         return dynamicCpuLimit.computeCpuLimit();
     }
 
+    public int getLimitForTimestamp(final LocalDateTime timestamp) {
+        return dynamicCpuLimit.computeCpuLimit(timestamp);
+    }
+
     public synchronized int getLastSeenLimit() {
         return lastSeen.limit;
     }
