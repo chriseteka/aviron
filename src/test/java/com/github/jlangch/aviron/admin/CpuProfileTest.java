@@ -22,6 +22,7 @@
  */
 package com.github.jlangch.aviron.admin;
 
+import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -89,7 +90,7 @@ class CpuProfileTest {
 
         assertFalse(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(12, 0), LocalTime.of(13, 0), 100)));
         assertFalse(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(13, 0), LocalTime.of(13, 59), 100)));
- 
+
         assertTrue(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(13, 00), LocalTime.of(16, 00), 100)));
 
         assertTrue(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(13, 50), LocalTime.of(14, 00), 100)));
@@ -129,7 +130,7 @@ class CpuProfileTest {
         entries.add(CpuProfileEntry.parse("06:00-08:59 @ 50%"));
         entries.add(CpuProfileEntry.parse("18:00-21:59 @ 50%"));
         entries.add(CpuProfileEntry.parse("22:00-23:59 @ 100%"));
- 
+
         assertThrows(
                 IllegalArgumentException.class, 
                 () -> new CpuProfile("weekday", entries));
@@ -137,14 +138,15 @@ class CpuProfileTest {
 
     @Test
     void testCpuProfileNew2() {
-        final CpuProfile profile = new CpuProfile(
-                                        "weekday", 
-                                        "00:00-05:59 @ 100%, " +
-                                        "06:00-08:59 @ 50%, " +
-                                        "09:00-17:59 @ 0%, " +
-                                        "18:00-21:59 @ 50%, " +
-                                        "22:00-23:59 @ 100%");
-        
+        final CpuProfile profile = CpuProfile.of(
+                                    "weekday",
+                                    toList(
+                                        "00:00-05:59 @ 100%",
+                                        "06:00-08:59 @  50%",
+                                        "09:00-17:59 @   0%",
+                                        "18:00-21:59 @  50%",
+                                        "22:00-23:59 @ 100%"));
+
         assertEquals("weekday", profile.getName());
         assertEquals(5, profile.getEntries().size());
     }
@@ -153,18 +155,19 @@ class CpuProfileTest {
     void testCpuProfileNewUnordered2() {
         assertThrows(
                 IllegalArgumentException.class, 
-                () -> new CpuProfile(
-                            "weekday", 
-                            "00:00-05:59 @ 100%, " +
-                            "09:00-17:59 @ 0%, " +
-                            "06:00-08:59 @ 50%, " +
-                            "18:00-21:59 @ 50%, " +
-                            "22:00-23:59 @ 100%"));
+                () -> CpuProfile.of(
+                        "weekday",
+                        toList(
+                            "00:00-05:59 @ 100%",
+                            "09:00-17:59 @   0%",
+                            "06:00-08:59 @  50%",
+                            "18:00-21:59 @  50%",
+                            "22:00-23:59 @ 100%")));
     }
 
     @Test
     void testCpuProfileNew3() {
-        final CpuProfile profile = new CpuProfile("weekday","00:00-23:59 @ 100%");
+        final CpuProfile profile = CpuProfile.of("weekday", toList("00:00-23:59 @ 100%"));
         
         assertEquals("weekday", profile.getName());
         assertEquals(1, profile.getEntries().size());

@@ -22,9 +22,10 @@
  */
 package com.github.jlangch.aviron.admin;
 
+import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
+
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -74,20 +75,23 @@ public class CpuProfile {
      * <pre>
      * final CpuProfile profile = new CpuProfile(
      *                                  "weekday", 
-     *                                  "00:00-05:59 @ 100%, " +
-     *                                  "06:00-08:59 @ 50%,  " +
-     *                                  "09:00-17:59 @ 0%,   " +
-     *                                  "18:00-21:59 @ 50%,  " +
-     *                                  "22:00-23:59 @ 100%");
+     *                                  toList(
+     *                                      "00:00-05:59 @ 100%",
+     *                                      "06:00-08:59 @  50%",
+     *                                      "09:00-17:59 @   0%",
+     *                                      "18:00-21:59 @  50%",
+     *                                      "22:00-23:59 @ 100%");
      * </pre>
      * 
      * @param name the profil's name
      * @param entries the formatted profile's entries (a string with comma 
      *        separated list of stringified profile entries)
      */
-    public CpuProfile(final String name, final String entries) {
-        this(name, Arrays
-                      .stream(entries.split(" *, *"))
+    public static CpuProfile of(final String name, final List<String> entries) {
+        return new CpuProfile(
+                    name, 
+                    entries
+                      .stream()
                       .map(e -> CpuProfileEntry.parse(e))
                       .collect(Collectors.toList()));
     }
@@ -98,7 +102,7 @@ public class CpuProfile {
      * @return the default profile
      */
     public static CpuProfile defaultProfile() {
-        return new CpuProfile("default","00:00-23:59 @ 100%");
+        return CpuProfile.of("default", toList("00:00-23:59 @ 100%"));
     }
 
     public String getName() {
@@ -147,9 +151,9 @@ public class CpuProfile {
 
     
     private final static CpuProfileEntry off = new CpuProfileEntry(
-    													LocalTime.of(0, 0), 
-    													LocalTime.of(23, 59), 
-    													0);
+                                                        LocalTime.of(0, 0), 
+                                                        LocalTime.of(23, 59), 
+                                                        0);
 
     private final String name;
     private final List<CpuProfileEntry> entries = new ArrayList<>();

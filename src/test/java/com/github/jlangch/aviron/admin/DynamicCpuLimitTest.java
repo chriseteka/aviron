@@ -22,6 +22,7 @@
  */
 package com.github.jlangch.aviron.admin;
 
+import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDateTime;
@@ -47,13 +48,14 @@ class DynamicCpuLimitTest {
 
     @Test
     void testWithAllDayProfile() {
-        final CpuProfile profile = new CpuProfile(
-                                        "weekday", 
-                                        "00:00-05:59 @ 100%, " +
-                                        "06:00-08:59 @ 50%, " +
-                                        "09:00-17:59 @ 0%, " +
-                                        "18:00-21:59 @ 50%, " +
-                                        "22:00-23:59 @ 100%");
+        final CpuProfile profile = CpuProfile.of(
+                                        "weekday",
+                                        toList(
+                                            "00:00-05:59 @ 100%",
+                                            "06:00-08:59 @  50%",
+                                            "09:00-17:59 @   0%",
+                                            "18:00-21:59 @  50%",
+                                            "22:00-23:59 @ 100%"));
 
         final DynamicCpuLimit dynamicCpuLimit = new DynamicCpuLimit(profile);
 
@@ -66,21 +68,23 @@ class DynamicCpuLimitTest {
 
     @Test
     void testWithWeekDaysProfile() {
-        final CpuProfile weekday = new CpuProfile(
-                                        "weekday", 
-                                        "00:00-05:59 @ 100%, " +
-                                        "06:00-08:59 @ 50%, " +
-                                        "09:00-17:59 @ 0%, " +
-                                        "18:00-21:59 @ 50%, " +
-                                        "22:00-23:59 @ 100%");
+        final CpuProfile weekday = CpuProfile.of(
+                                        "weekday",
+                                        toList(
+                                            "00:00-05:59 @ 100%",
+                                            "06:00-08:59 @  50%",
+                                            "09:00-17:59 @   0%",
+                                            "18:00-21:59 @  50%",
+                                            "22:00-23:59 @ 100%"));
 
-        final CpuProfile weekend = new CpuProfile(
-                                        "weekday", 
-                                        "00:00-05:59 @ 100%, " +
-                                        "06:00-08:59 @ 60%, " +
-                                        "09:00-17:59 @ 40%, " +
-                                        "18:00-21:59 @ 60%, " +
-                                        "22:00-23:59 @ 100%");
+        final CpuProfile weekend = CpuProfile.of(
+                                            "weekend",
+                                            toList(
+                                                "00:00-05:59 @ 100%",
+                                                "06:00-08:59 @  60%",
+                                                "09:00-17:59 @  40%",
+                                                "18:00-21:59 @  60%",
+                                                "22:00-23:59 @ 100%"));
         
         final List<CpuProfile> profiles = new ArrayList<>();
         profiles.add(weekday); // Mon
@@ -110,8 +114,8 @@ class DynamicCpuLimitTest {
 
     @Test
     void testWeekday_Weekend() {
-        final CpuProfile profile1 = new CpuProfile("weekday", "00:00-23:59 @ 30%");
-        final CpuProfile profile2 = new CpuProfile("weekend", "00:00-23:59 @ 60%");
+        final CpuProfile profile1 = CpuProfile.of("weekday", toList("00:00-23:59 @ 30%"));
+        final CpuProfile profile2 = CpuProfile.of("weekend", toList("00:00-23:59 @ 60%"));
 
         final List<CpuProfile> profiles = new ArrayList<>();
         profiles.add(profile1);  // Mon
