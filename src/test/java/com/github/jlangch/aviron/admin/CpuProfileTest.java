@@ -33,90 +33,88 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.jlangch.aviron.admin.CpuProfile.Entry;
-
 
 class CpuProfileTest {
 
     @Test
-    void testCpuProfileEntryNew() {
+    void testCpuProfileCpuProfileEntryNew() {
         assertThrows(
             IllegalArgumentException.class, 
-            () -> new Entry(null, LocalTime.of(15, 0), 100));
+            () -> new CpuProfileEntry(null, LocalTime.of(15, 0), 100));
 
         assertThrows(
                 IllegalArgumentException.class, 
-                () -> new Entry(LocalTime.of(14, 0), null, 100));
+                () -> new CpuProfileEntry(LocalTime.of(14, 0), null, 100));
 
         assertThrows(
                 IllegalArgumentException.class, 
-                () -> new Entry(LocalTime.of(14, 0), LocalTime.of(15, 0), -1));
+                () -> new CpuProfileEntry(LocalTime.of(14, 0), LocalTime.of(15, 0), -1));
 
         assertThrows(
                 IllegalArgumentException.class, 
-                () -> new Entry(LocalTime.of(16, 0), LocalTime.of(15, 0), 100));
+                () -> new CpuProfileEntry(LocalTime.of(16, 0), LocalTime.of(15, 0), 100));
     }
 
     @Test
-    void testCpuProfileEntryToString() {
-        assertEquals("00:00 - 03:09 @ 10%", new Entry(LocalTime.of(0, 0), LocalTime.of(3, 9), 10).toString());
-        assertEquals("12:00 - 15:00 @ 100%", new Entry(LocalTime.of(12, 0), LocalTime.of(15, 0), 100).toString());
+    void testCpuProfileCpuProfileEntryToString() {
+        assertEquals("00:00 - 03:09 @ 10%", new CpuProfileEntry(LocalTime.of(0, 0), LocalTime.of(3, 9), 10).toString());
+        assertEquals("12:00 - 15:00 @ 100%", new CpuProfileEntry(LocalTime.of(12, 0), LocalTime.of(15, 0), 100).toString());
     }
 
     @Test
-    void testCpuProfileEntryParse() {
-        assertEquals("00:00 - 03:09 @ 10%", Entry.parse("00:00 - 03:09 @ 10%").toString());
-        assertEquals("12:00 - 15:00 @ 100%", Entry.parse("12:00 - 15:00 @ 100%").toString());
+    void testCpuProfileCpuProfileEntryParse() {
+        assertEquals("00:00 - 03:09 @ 10%", CpuProfileEntry.parse("00:00 - 03:09 @ 10%").toString());
+        assertEquals("12:00 - 15:00 @ 100%", CpuProfileEntry.parse("12:00 - 15:00 @ 100%").toString());
     }
 
     @Test
-    void testCpuProfileEntryWithin() {
-        final Entry entry = new Entry(LocalTime.of(14, 0), LocalTime.of(14, 59), 100);
+    void testCpuProfileCpuProfileEntryWithin() {
+        final CpuProfileEntry CpuProfileEntry = new CpuProfileEntry(LocalTime.of(14, 0), LocalTime.of(14, 59), 100);
 
-        assertFalse(entry.isWithin(LocalTime.of(13, 0)));
-        assertFalse(entry.isWithin(LocalTime.of(13, 59)));
+        assertFalse(CpuProfileEntry.isWithin(LocalTime.of(13, 0)));
+        assertFalse(CpuProfileEntry.isWithin(LocalTime.of(13, 59)));
 
-        assertTrue(entry.isWithin(LocalTime.of(14, 0)));
-        assertTrue(entry.isWithin(LocalTime.of(14, 30)));
-        assertTrue(entry.isWithin(LocalTime.of(14, 59)));
+        assertTrue(CpuProfileEntry.isWithin(LocalTime.of(14, 0)));
+        assertTrue(CpuProfileEntry.isWithin(LocalTime.of(14, 30)));
+        assertTrue(CpuProfileEntry.isWithin(LocalTime.of(14, 59)));
 
-        assertFalse(entry.isWithin(LocalTime.of(15, 0)));
-        assertFalse(entry.isWithin(LocalTime.of(15, 30)));
+        assertFalse(CpuProfileEntry.isWithin(LocalTime.of(15, 0)));
+        assertFalse(CpuProfileEntry.isWithin(LocalTime.of(15, 30)));
     }
 
 
     @Test
-    void testCpuProfileEntryOverlapping() {
-        final Entry entry = new Entry(LocalTime.of(14, 0), LocalTime.of(14, 59), 100);
+    void testCpuProfileCpuProfileEntryOverlapping() {
+        final CpuProfileEntry CpuProfileEntry = new CpuProfileEntry(LocalTime.of(14, 0), LocalTime.of(14, 59), 100);
 
-        assertFalse(entry.isOverlapping(new Entry(LocalTime.of(12, 0), LocalTime.of(13, 0), 100)));
-        assertFalse(entry.isOverlapping(new Entry(LocalTime.of(13, 0), LocalTime.of(13, 59), 100)));
+        assertFalse(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(12, 0), LocalTime.of(13, 0), 100)));
+        assertFalse(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(13, 0), LocalTime.of(13, 59), 100)));
  
-        assertTrue(entry.isOverlapping(new Entry(LocalTime.of(13, 00), LocalTime.of(16, 00), 100)));
+        assertTrue(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(13, 00), LocalTime.of(16, 00), 100)));
 
-        assertTrue(entry.isOverlapping(new Entry(LocalTime.of(13, 50), LocalTime.of(14, 00), 100)));
-        assertTrue(entry.isOverlapping(new Entry(LocalTime.of(13, 50), LocalTime.of(14, 10), 100)));
+        assertTrue(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(13, 50), LocalTime.of(14, 00), 100)));
+        assertTrue(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(13, 50), LocalTime.of(14, 10), 100)));
 
-        assertTrue(entry.isOverlapping(new Entry(LocalTime.of(14, 00), LocalTime.of(14, 20), 100)));
-        assertTrue(entry.isOverlapping(new Entry(LocalTime.of(14, 20), LocalTime.of(14, 40), 100)));
-        assertTrue(entry.isOverlapping(new Entry(LocalTime.of(14, 40), LocalTime.of(14, 59), 100)));
-        assertTrue(entry.isOverlapping(new Entry(LocalTime.of(14, 00), LocalTime.of(14, 59), 100)));
+        assertTrue(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(14, 00), LocalTime.of(14, 20), 100)));
+        assertTrue(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(14, 20), LocalTime.of(14, 40), 100)));
+        assertTrue(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(14, 40), LocalTime.of(14, 59), 100)));
+        assertTrue(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(14, 00), LocalTime.of(14, 59), 100)));
         
-        assertTrue(entry.isOverlapping(new Entry(LocalTime.of(14, 50), LocalTime.of(15, 00), 100)));
-        assertTrue(entry.isOverlapping(new Entry(LocalTime.of(14, 50), LocalTime.of(15, 10), 100)));
+        assertTrue(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(14, 50), LocalTime.of(15, 00), 100)));
+        assertTrue(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(14, 50), LocalTime.of(15, 10), 100)));
 
-        assertFalse(entry.isOverlapping(new Entry(LocalTime.of(15, 0), LocalTime.of(16, 0), 100)));
-        assertFalse(entry.isOverlapping(new Entry(LocalTime.of(16, 0), LocalTime.of(17, 0), 100)));
+        assertFalse(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(15, 0), LocalTime.of(16, 0), 100)));
+        assertFalse(CpuProfileEntry.isOverlapping(new CpuProfileEntry(LocalTime.of(16, 0), LocalTime.of(17, 0), 100)));
     }
     
     @Test
     void testCpuProfileNew() {
-        final List<Entry> entries = new ArrayList<>();
-        entries.add(Entry.parse("00:00-05:59 @ 100%"));
-        entries.add(Entry.parse("06:00-08:59 @ 50%"));
-        entries.add(Entry.parse("09:00-17:59 @ 0%"));
-        entries.add(Entry.parse("18:00-21:59 @ 50%"));
-        entries.add(Entry.parse("22:00-23:59 @ 100%"));
+        final List<CpuProfileEntry> entries = new ArrayList<>();
+        entries.add(CpuProfileEntry.parse("00:00-05:59 @ 100%"));
+        entries.add(CpuProfileEntry.parse("06:00-08:59 @ 50%"));
+        entries.add(CpuProfileEntry.parse("09:00-17:59 @ 0%"));
+        entries.add(CpuProfileEntry.parse("18:00-21:59 @ 50%"));
+        entries.add(CpuProfileEntry.parse("22:00-23:59 @ 100%"));
 
         final CpuProfile profile = new CpuProfile("weekday", entries);
         assertEquals("weekday", profile.getName());
@@ -125,12 +123,12 @@ class CpuProfileTest {
 
     @Test
     void testCpuProfileNewUnordered() {
-        final List<Entry> entries = new ArrayList<>();
-        entries.add(Entry.parse("00:00-05:59 @ 100%"));
-        entries.add(Entry.parse("09:00-17:59 @ 0%"));
-        entries.add(Entry.parse("06:00-08:59 @ 50%"));
-        entries.add(Entry.parse("18:00-21:59 @ 50%"));
-        entries.add(Entry.parse("22:00-23:59 @ 100%"));
+        final List<CpuProfileEntry> entries = new ArrayList<>();
+        entries.add(CpuProfileEntry.parse("00:00-05:59 @ 100%"));
+        entries.add(CpuProfileEntry.parse("09:00-17:59 @ 0%"));
+        entries.add(CpuProfileEntry.parse("06:00-08:59 @ 50%"));
+        entries.add(CpuProfileEntry.parse("18:00-21:59 @ 50%"));
+        entries.add(CpuProfileEntry.parse("22:00-23:59 @ 100%"));
  
         assertThrows(
                 IllegalArgumentException.class, 
@@ -174,12 +172,12 @@ class CpuProfileTest {
 
     @Test
     void testCpuProfileLimit1() {
-        final List<Entry> entries = new ArrayList<>();
-        entries.add(Entry.parse("00:00-05:59 @ 100%"));
-        entries.add(Entry.parse("06:00-08:59 @ 50%"));
-        entries.add(Entry.parse("09:00-17:59 @ 0%"));
-        entries.add(Entry.parse("18:00-21:59 @ 50%"));
-        entries.add(Entry.parse("22:00-23:59 @ 100%"));
+        final List<CpuProfileEntry> entries = new ArrayList<>();
+        entries.add(CpuProfileEntry.parse("00:00-05:59 @ 100%"));
+        entries.add(CpuProfileEntry.parse("06:00-08:59 @ 50%"));
+        entries.add(CpuProfileEntry.parse("09:00-17:59 @ 0%"));
+        entries.add(CpuProfileEntry.parse("18:00-21:59 @ 50%"));
+        entries.add(CpuProfileEntry.parse("22:00-23:59 @ 100%"));
         
         final CpuProfile profile = new CpuProfile("weekday", entries);
 
@@ -206,9 +204,9 @@ class CpuProfileTest {
     
     @Test
     void testCpuProfileLimit2() {
-        final List<Entry> entries = new ArrayList<>();
-        entries.add(Entry.parse("00:00-05:59 @ 100%"));
-        entries.add(Entry.parse("22:00-23:59 @ 100%"));
+        final List<CpuProfileEntry> entries = new ArrayList<>();
+        entries.add(CpuProfileEntry.parse("00:00-05:59 @ 100%"));
+        entries.add(CpuProfileEntry.parse("22:00-23:59 @ 100%"));
 
         final CpuProfile profile = new CpuProfile("weekday", entries);
 

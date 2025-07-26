@@ -31,8 +31,6 @@ import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.jlangch.aviron.admin.ClamdCpuLimiter.DynamicCpuLimit;
-
 
 class DynamicCpuLimitTest {
 
