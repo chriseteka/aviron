@@ -42,14 +42,15 @@ public class CpuProfile {
      * Create a named CPU profile
      * 
      * <pre>
-     * final List&lt;CpuProfileEntry&gt; entries = new ArrayList&lt;&gt;();
-     * entries.add(Entry.parse("00:00-05:59 @ 100%"));
-     * entries.add(Entry.parse("06:00-08:59 @ 50%"));
-     * entries.add(Entry.parse("09:00-17:59 @ 0%"));
-     * entries.add(Entry.parse("18:00-21:59 @ 50%"));
-     * entries.add(Entry.parse("22:00-23:59 @ 100%"));
-     * 
-     * final CpuProfile profile = new CpuProfile("weekday", entries);
+     * final CpuProfile profile = 
+     *        new CpuProfile(
+     *               "weekday", 
+     *               CollectionUtils.toList(
+     *                  CpuProfileEntry.parse("00:00-05:59 @ 100%"),
+     *                  CpuProfileEntry.parse("06:00-08:59 @  50%"),
+     *                  CpuProfileEntry.parse("09:00-17:59 @   0%"),
+     *                  CpuProfileEntry.parse("18:00-21:59 @  50%"),
+     *                  CpuProfileEntry.parse("22:00-23:59 @ 100%"));
      * </pre>
      * 
      * @param name the profil's name
@@ -75,7 +76,7 @@ public class CpuProfile {
      * <pre>
      * final CpuProfile profile = new CpuProfile(
      *                                  "weekday", 
-     *                                  toList(
+     *                                  CollectionUtils.toList(
      *                                      "00:00-05:59 @ 100%",
      *                                      "06:00-08:59 @  50%",
      *                                      "09:00-17:59 @   0%",
