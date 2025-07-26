@@ -50,7 +50,7 @@ public class DynamicCpuLimit {
         }
         if (dayOfWeekProfiles.stream().anyMatch(p -> p == null)) {
             throw new IllegalArgumentException(
-                    "At least item of the dayOfWeekProfiles list is null!");
+                    "At least one item of the dayOfWeekProfiles list is null!");
         }
 
         final List<CpuProfile> profiles = new ArrayList<>(dayOfWeekProfiles);
