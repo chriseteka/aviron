@@ -86,6 +86,7 @@ public class CpuProfile {
      * 
      * @param name the profil's name
      * @param entries an list of formatted profile's entries
+     * @return the profile
      */
     public static CpuProfile of(final String name, final List<String> entries) {
         return new CpuProfile(

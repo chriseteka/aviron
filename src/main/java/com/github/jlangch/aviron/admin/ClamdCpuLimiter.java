@@ -63,6 +63,7 @@ public class ClamdCpuLimiter {
      * Returns the limit for a given timestamp. If the timestamp is <code>null</code>
      * returns the limit for <i>now</i>.
      * 
+     * @param timestamp a timestamp
      * @return the cpu limit
      */
     public int getLimitForTimestamp(final LocalDateTime timestamp) {
