@@ -60,7 +60,7 @@ public class ClamdCpuLimiter {
 
 
     public synchronized int getLastSeenLimit() {
-        return lastSeen.getLimit();
+        return lastSeen.limit;
     }
 
     /**
@@ -149,21 +149,11 @@ public class ClamdCpuLimiter {
     }
 
 
-    public static class Limit {
+    private static class Limit {
         public Limit(final String pid, final int limit) {
             this.pid = pid;
             this.limit = limit;
             this.ts = LocalDateTime.now();
-        }
-
-        public String getPid() {
-            return pid;
-        }
-        public int getLimit() {
-            return limit;
-        }
-        public LocalDateTime getTimestamp() {
-            return ts;
         }
 
         @Override
