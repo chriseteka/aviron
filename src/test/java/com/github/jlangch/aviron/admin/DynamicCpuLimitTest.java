@@ -109,6 +109,31 @@ class DynamicCpuLimitTest {
     }
 
     @Test
+    void testWeekday_Weekend() {
+        final CpuProfile profile1 = new CpuProfile("weekday", "00:00-23:59 @ 30%");
+        final CpuProfile profile2 = new CpuProfile("weekend", "00:00-23:59 @ 60%");
+
+        final List<CpuProfile> profiles = new ArrayList<>();
+        profiles.add(profile1);  // Mon
+        profiles.add(profile1);  // Tue
+        profiles.add(profile1);  // Wed
+        profiles.add(profile1);  // Thu
+        profiles.add(profile1);  // Fri
+        profiles.add(profile2);  // Sat
+        profiles.add(profile2);  // Sun
+        
+        final DynamicCpuLimit dynamicCpuLimit = new DynamicCpuLimit(profiles);
+
+        assertEquals(30, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,21,12,0)));  // Mon
+        assertEquals(30, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,22,12,0)));  // Tue
+        assertEquals(30, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,23,12,0)));  // Wed
+        assertEquals(30, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,24,12,0)));  // Thu
+        assertEquals(30, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,25,12,0)));  // Fri
+        assertEquals(60, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,26,12,0)));  // Sat
+        assertEquals(60, dynamicCpuLimit.computeCpuLimit(LocalDateTime.of(2025,7,27,12,0)));  // Sun
+    }
+
+    @Test
     void testWithComputeFunction1() {
         final Function<LocalDateTime,Integer> computeLimitFn = (ts) -> 80;
 
