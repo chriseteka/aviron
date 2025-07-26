@@ -84,8 +84,7 @@ public class CpuProfile {
      * </pre>
      * 
      * @param name the profil's name
-     * @param entries the formatted profile's entries (a string with comma 
-     *        separated list of stringified profile entries)
+     * @param entries an list of formatted profile's entries
      */
     public static CpuProfile of(final String name, final List<String> entries) {
         return new CpuProfile(
