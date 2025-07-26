@@ -59,6 +59,10 @@ public class ClamdCpuLimiter {
     }
 
 
+    public int getCurrentLimit() {
+        return dynamicCpuLimit.computeCpuLimit();
+    }
+
     public synchronized int getLastSeenLimit() {
         return lastSeen.limit;
     }
