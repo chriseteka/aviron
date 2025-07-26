@@ -50,6 +50,19 @@ public class CpuProfileEntry {
         this.limit = limit;
     }
 
+    public CpuProfileEntry(
+            final int startHour,
+            final int startMinute,
+            final int endHour, 
+            final int endMinute,
+            final int limit
+    ) {
+        this(
+            LocalTime.of(startHour, startMinute),
+            LocalTime.of(endHour, endMinute),
+            limit);
+    }
+
     public static CpuProfileEntry parse(final String s) {
         try {
             final String[] e = s.trim().split(" *[@:\\-%] *");
