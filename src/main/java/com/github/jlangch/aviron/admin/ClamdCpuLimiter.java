@@ -63,6 +63,11 @@ public class ClamdCpuLimiter {
         return dynamicCpuLimit.computeCpuLimit(timestamp);
     }
 
+    /**
+     * Returns the CPU limit last activated on the clamd daemon
+     * 
+     * @return the cpu limit
+     */
     public synchronized int getLastSeenLimit() {
         return lastSeen.limit;
     }
