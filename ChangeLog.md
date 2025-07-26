@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 
 ## [1.5.1] - 2025-07-xx
 
-- Added a ClamdCpuLimiter to dynamically limit the CPU usage of a clamd daemon.
+- ...
 
 
 
