@@ -230,5 +230,34 @@ class CpuProfileTest {
         assertEquals(100, profile.getLimit(LocalTime.of(23, 11)));
         assertEquals(100, profile.getLimit(LocalTime.of(23, 59)));
     }
+    
+    @Test
+    void testCpuProfileLimit3() {
+        final List<CpuProfileEntry> entries = new ArrayList<>();
+        entries.add(CpuProfileEntry.parse(" 00:00 - 05:59  @  100% "));
+        entries.add(CpuProfileEntry.parse(" 22:00 - 23:59  @  100% "));
+
+        final CpuProfile profile = new CpuProfile("weekday", entries);
+
+        assertEquals(100, profile.getLimit(LocalTime.of(0, 0)));
+        assertEquals(100, profile.getLimit(LocalTime.of(3, 11)));
+        assertEquals(100, profile.getLimit(LocalTime.of(5, 59)));
+
+        assertEquals(0, profile.getLimit(LocalTime.of(6, 0)));
+        assertEquals(0, profile.getLimit(LocalTime.of(7, 11)));
+        assertEquals(0, profile.getLimit(LocalTime.of(8, 59)));
+
+        assertEquals(0, profile.getLimit(LocalTime.of(9, 0)));
+        assertEquals(0, profile.getLimit(LocalTime.of(12, 11)));
+        assertEquals(0, profile.getLimit(LocalTime.of(17, 59)));
+
+        assertEquals(0, profile.getLimit(LocalTime.of(18, 0)));
+        assertEquals(0, profile.getLimit(LocalTime.of(19, 11)));
+        assertEquals(0, profile.getLimit(LocalTime.of(21, 59)));
+
+        assertEquals(100, profile.getLimit(LocalTime.of(22, 0)));
+        assertEquals(100, profile.getLimit(LocalTime.of(23, 11)));
+        assertEquals(100, profile.getLimit(LocalTime.of(23, 59)));
+    }
 
 }

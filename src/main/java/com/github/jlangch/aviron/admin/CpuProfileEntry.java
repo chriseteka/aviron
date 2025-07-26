@@ -52,7 +52,7 @@ public class CpuProfileEntry {
 
     public static CpuProfileEntry parse(final String s) {
         try {
-            final String[] e = s.split(" *[@:\\-%] *");
+            final String[] e = s.trim().split(" *[@:\\-%] *");
             return new CpuProfileEntry(
                         LocalTime.of(parseInt(e[0]), parseInt(e[1])),
                         LocalTime.of(parseInt(e[2]), parseInt(e[3])),
