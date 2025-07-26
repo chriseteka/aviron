@@ -41,7 +41,7 @@ public class CpuProfile {
      * Create a named CPU profile
      * 
      * <pre>
-     * final List<Entry> entries = new ArrayList<>();
+     * final List&lt;CpuProfileEntry&gt; entries = new ArrayList&lt;&gt;();
      * entries.add(Entry.parse("00:00-05:59 @ 100%"));
      * entries.add(Entry.parse("06:00-08:59 @ 50%"));
      * entries.add(Entry.parse("09:00-17:59 @ 0%"));

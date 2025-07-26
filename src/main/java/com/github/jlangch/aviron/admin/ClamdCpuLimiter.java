@@ -76,10 +76,13 @@ public class ClamdCpuLimiter {
      * 
      * @param clamdPID a clamd pid
      * @param limit a percent value 0..LIMIT
+     * @return Returns <code>true</code> if the limit has been changed to the
+     *         new value else <code>false</code> if the limit was already at
+     *         the desired value.
      * 
      * @see ClamdAdmin#activateClamdCpuLimit(String,int)
      * @see ClamdCpuLimiter#activateClamdCpuLimit(String)
-     * @see ClamdCpuLimiter#deactivateClamdCpuLimit()
+     * @see ClamdCpuLimiter#deactivateClamdCpuLimit(String)
      */
     public synchronized boolean activateClamdCpuLimit(
             final String clamdPID, 
@@ -114,9 +117,9 @@ public class ClamdCpuLimiter {
      * 
      * @see ClamdAdmin#activateClamdCpuLimit(String,int)
      * @see ClamdCpuLimiter#activateClamdCpuLimit(String,int)
-     * @see ClamdCpuLimiter#deactivateClamdCpuLimit()
+     * @see ClamdCpuLimiter#deactivateClamdCpuLimit(String)
      */
-    public synchronized boolean activateClamdCpuLimit(
+    public synchronized void activateClamdCpuLimit(
             final String clamdPID
     ) {
         if (StringUtils.isBlank(clamdPID)) {
@@ -125,7 +128,7 @@ public class ClamdCpuLimiter {
 
         final int limit = dynamicCpuLimit.computeCpuLimit();
 
-        return activateClamdCpuLimit(clamdPID, limit);
+        activateClamdCpuLimit(clamdPID, limit);
     }
 
     /**
@@ -133,7 +136,7 @@ public class ClamdCpuLimiter {
      * 
      * @param clamdPID a clamd pid
      * 
-     * @see ClamdAdmin#deactivateClamdCpuLimit()
+     * @see ClamdAdmin#deactivateClamdCpuLimit(String)
      * @see ClamdCpuLimiter#activateClamdCpuLimit(String,int)
      * @see ClamdCpuLimiter#activateClamdCpuLimit(String)
      */
