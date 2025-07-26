@@ -48,6 +48,10 @@ public class DynamicCpuLimit {
             throw new IllegalArgumentException(
                     "A dayOfWeekProfiles list must provide 7 entries (Mon to Sun)");
         }
+        if (dayOfWeekProfiles.stream().anyMatch(p -> p == null)) {
+            throw new IllegalArgumentException(
+                    "At least item of the dayOfWeekProfiles list is null!");
+        }
 
         final List<CpuProfile> profiles = new ArrayList<>(dayOfWeekProfiles);
 
@@ -58,6 +62,11 @@ public class DynamicCpuLimit {
     }
 
     public DynamicCpuLimit(final Function<LocalDateTime,Integer> dynamicLimitFn) {
+        if (dynamicLimitFn == null) {
+            throw new IllegalArgumentException(
+                    "A dynamicLimitFn function must not be null");
+        }
+
         this.dynamicLimitFn = dynamicLimitFn;
     }
 
