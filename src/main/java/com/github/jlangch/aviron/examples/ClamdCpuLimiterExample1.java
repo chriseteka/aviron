@@ -100,7 +100,7 @@ public class ClamdCpuLimiterExample1 {
             // update clamd CPU limit 
             final int limit = updateCpuLimit(limiter, clamdPID);
 
-            if (limit >= MIN_SCAN_LIMIT) {
+            if (limit >= MIN_SCAN_LIMIT_PERCENT) {
                 // scan next filestore directory
                 final File dir = fsMgr.nextDir();
                 System.out.println(client.scan(dir.toPath(), false));
@@ -143,7 +143,7 @@ public class ClamdCpuLimiterExample1 {
     }
 
 
-    private static final int MIN_SCAN_LIMIT = 20;
+    private static final int MIN_SCAN_LIMIT_PERCENT = 20;
 
     private final AtomicBoolean stop = new AtomicBoolean(false);
 }
