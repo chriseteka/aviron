@@ -133,6 +133,9 @@ public class ClamdCpuLimiter {
      * on the <i>clamd</i> process.
      * 
      * @param clamdPID a clamd pid
+     * @return Returns <code>true</code> if the limit has been changed to the
+     *         new value else <code>false</code> if the limit was already at
+     *         the desired value.
      * 
      * @see ClamdAdmin#activateClamdCpuLimit(String,int)
      * @see ClamdCpuLimiter#activateClamdCpuLimit(String,int)
