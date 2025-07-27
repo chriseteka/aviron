@@ -502,12 +502,11 @@ Our demo filestore requiring virus scanning looks like:
 and the demo code:
 
 ```java
+
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 
 import java.io.File;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
@@ -517,6 +516,7 @@ import com.github.jlangch.aviron.admin.CpuProfile;
 import com.github.jlangch.aviron.admin.DynamicCpuLimit;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
+import com.github.jlangch.aviron.util.FileStoreMgr;
 
 
 public class ClamdCpuLimiterExample {

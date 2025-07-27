@@ -35,7 +35,7 @@ import com.github.jlangch.aviron.admin.CpuProfile;
 import com.github.jlangch.aviron.admin.DynamicCpuLimit;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
-import com.github.jlangch.aviron.impl.util.FileStoreMgr;
+import com.github.jlangch.aviron.util.FileStoreMgr;
 
 
 public class ClamdCpuLimiterExample1 {

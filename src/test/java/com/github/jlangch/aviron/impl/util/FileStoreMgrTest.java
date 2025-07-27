@@ -30,6 +30,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 import com.github.jlangch.aviron.impl.test.TempFS;
+import com.github.jlangch.aviron.util.FileStoreMgr;
 
 
 public class FileStoreMgrTest {
