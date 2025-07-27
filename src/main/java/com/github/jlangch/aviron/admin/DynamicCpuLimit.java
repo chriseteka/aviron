@@ -37,6 +37,7 @@ public class DynamicCpuLimit {
     public DynamicCpuLimit(final CpuProfile profile) {
         final CpuProfile p = profile != null ? profile : CpuProfile.defaultProfile();
         this.dynamicLimitFn = (ts) -> p.getLimit(ts.toLocalTime());
+        this.dayOfWeekProfiles.add(profile);
     }
 
     public DynamicCpuLimit(final List<CpuProfile> dayOfWeekProfiles) {
@@ -59,6 +60,7 @@ public class DynamicCpuLimit {
                                         return profiles
                                                   .get(dayOfWeek-1)
                                                   .getLimit(ts.toLocalTime()); };
+        this.dayOfWeekProfiles.addAll(dayOfWeekProfiles);
     }
 
     public DynamicCpuLimit(final Function<LocalDateTime,Integer> dynamicLimitFn) {
@@ -84,6 +86,45 @@ public class DynamicCpuLimit {
         return Math.max(0,  limit);
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+
+        if (dayOfWeekProfiles.isEmpty()) {
+            sb.append("Compute Function (fn[LocalDateTime] -> int)");
+        }
+        else if (dayOfWeekProfiles.size() == 1) {
+            sb.append("Single day profile:");
+            sb.append(System.lineSeparator());
+            final CpuProfile p = dayOfWeekProfiles.get(0);
+            p.getEntries().forEach(e -> {
+                sb.append("  " + e.toString());
+                sb.append(System.lineSeparator());
+            });
+        }
+        else {
+            sb.append("7 day profile:");
+            sb.append(System.lineSeparator());
+            int dayOfWeek = 0;
+            for(CpuProfile p : dayOfWeekProfiles) {
+                sb.append("  " + DAYS[dayOfWeek]);
+                sb.append(System.lineSeparator());
+                p.getEntries().forEach(e -> {
+                    sb.append("    " + e.toString());
+                    sb.append(System.lineSeparator());
+                });
+                dayOfWeek++;
+            }
+        }
+
+        return sb.toString();
+    }
+
+
+    private static String[] DAYS = new String[] {
+                                        "Monday", "Tuesday", "Wednesday", "Thursday", 
+                                        "Friday", "Saturday", "Sunday"};
 
     private final Function<LocalDateTime,Integer> dynamicLimitFn;
+    private final List<CpuProfile> dayOfWeekProfiles = new ArrayList<>();
 }

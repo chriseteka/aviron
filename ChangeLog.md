@@ -14,7 +14,6 @@ All notable changes to this project will be documented in this file.
 
 
 
-
 ## [1.5.1] - 2025-07-27
 
 - Added method ClamdCpuLimiter::getLimitForTimestamp(ts)

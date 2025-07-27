@@ -171,6 +171,12 @@ public class ClamdCpuLimiter {
     }
 
 
+    @Override
+    public String toString() {
+        return dynamicCpuLimit.toString();
+    };
+
+
     private static class Limit {
         public Limit(final String pid, final int limit) {
             this.pid = pid;

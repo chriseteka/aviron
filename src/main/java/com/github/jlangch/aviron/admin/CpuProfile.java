@@ -131,6 +131,16 @@ public class CpuProfile {
                 .getLimit();
     }
 
+    
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        entries.forEach(e -> {
+            sb.append(e.toString());
+            sb.append(System.lineSeparator());
+        });
+        return sb.toString();
+    }
 
     private void validate(final List<CpuProfileEntry> entries) {
         if (entries.isEmpty()) {
