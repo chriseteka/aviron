@@ -120,7 +120,10 @@ public class ClamdCpuLimiter {
         }
         else {
             lastSeen = newLimit;
-            ClamdAdmin.activateClamdCpuLimit(clamdPID, limit);
+            ClamdAdmin.deactivateClamdCpuLimit(clamdPID);
+            if (limit != 100) {
+            	ClamdAdmin.activateClamdCpuLimit(clamdPID, limit);
+            }
             return true;
         }
     }
