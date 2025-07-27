@@ -50,6 +50,12 @@ public class TempFS {
         return quarantineDir.list().length;
     }
 
+    public File createScanSubDir(final String name) {
+       final File dir = new File(scanDir, name);
+       dir.mkdir();
+       return dir;
+    }
+
     public File createScanFile(final String name, final String data) {
         return createFile(scanDir, name, data);
     }

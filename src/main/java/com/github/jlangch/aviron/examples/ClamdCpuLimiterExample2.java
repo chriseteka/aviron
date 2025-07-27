@@ -25,9 +25,6 @@ package com.github.jlangch.aviron.examples;
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 
 import java.io.File;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +38,7 @@ import com.github.jlangch.aviron.admin.CpuProfile;
 import com.github.jlangch.aviron.admin.DynamicCpuLimit;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
+import com.github.jlangch.aviron.impl.util.FileStoreMgr;
 
 
 public class ClamdCpuLimiterExample2 {
@@ -94,29 +92,27 @@ public class ClamdCpuLimiterExample2 {
 
         final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
 
+        final FileStoreMgr fsMgr = new FileStoreMgr(filestoreDir);
+
         // inital CPU limit after startup
         initialCpuLimit(limiter, clamdPID);
 
         try {
-            // 
             ses = Executors.newScheduledThreadPool(1);
-                    
+
             // update CPU limit task, fired every 5 minutes
             final Runnable updateCpuLimitTask = () -> updateCpuLimit(limiter, clamdPID);
             ses.scheduleAtFixedRate(updateCpuLimitTask, 5, 5, TimeUnit.MINUTES);
 
-            // scan until we're killed or stopped
+            // scan in an endless loop the filestore directories until we get killed or stopped
             while(!stop.get()) {
-                try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(filestoreDir.toPath())) {
-                    dirStream.forEach(path -> {
-                        if (limiter.getLastSeenLimit() >= MIN_SCAN_LIMIT) {
-                            // Scan the next filestore directory
-                            System.out.println(client.scan(path, false));
-                        }
-                    });
+                // scan next filestore directory
+                if (limiter.getLastSeenLimit() >= MIN_SCAN_LIMIT) {
+                    final File dir = fsMgr.nextDir();
+                    System.out.println(client.scan(dir.toPath(), false));
                 }
-                catch(Exception ex) {
-                    System.out.println("Error: " + ex.getMessage());
+                else {
+                    Thread.sleep(30_000);  // wait 30s
                 }
             }
         }
@@ -151,11 +147,11 @@ public class ClamdCpuLimiterExample2 {
             System.out.println("File " + event.getInfectedFile() + " moved to quarantine");
         }
     }
-    
-    
+
+
     private static final int MIN_SCAN_LIMIT = 20;
-    
+
     private final AtomicBoolean stop = new AtomicBoolean(false);
-    
+
     private ScheduledExecutorService ses;
 }

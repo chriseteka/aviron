@@ -25,9 +25,7 @@ package com.github.jlangch.aviron.examples;
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 
 import java.io.File;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
@@ -37,6 +35,7 @@ import com.github.jlangch.aviron.admin.CpuProfile;
 import com.github.jlangch.aviron.admin.DynamicCpuLimit;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
+import com.github.jlangch.aviron.impl.util.FileStoreMgr;
 
 
 public class ClamdCpuLimiterExample1 {
@@ -90,24 +89,24 @@ public class ClamdCpuLimiterExample1 {
 
         final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
 
+        final FileStoreMgr fsMgr = new FileStoreMgr(filestoreDir);
+
         // inital CPU limit after startup
         initialCpuLimit(limiter, clamdPID);
 
-        // scan until we're killed
-        while(true) {
-            try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(filestoreDir.toPath())) {
-                dirStream.forEach(path -> {
-                    // update clamd CPU limit 
-                    final int limit = updateCpuLimit(limiter, clamdPID);
+       // scan in an endless loop the filestore directories until we get killed or stopped
+        while(!stop.get()) {
+            // scan next filestore directory
 
-                    if (limit >= MIN_SCAN_LIMIT) {
-                        // Scan the next filestore directory
-                        System.out.println(client.scan(path, false));
-                    }
-                });
+            // update clamd CPU limit 
+            final int limit = updateCpuLimit(limiter, clamdPID);
+
+            if (limit >= MIN_SCAN_LIMIT) {
+                final File dir = fsMgr.nextDir();
+                System.out.println(client.scan(dir.toPath(), false));
             }
-            catch(Exception ex) {
-                System.out.println("Error: " + ex.getMessage());
+            else {
+                Thread.sleep(30_000);  // wait 30s
             }
         }
     }
@@ -145,4 +144,6 @@ public class ClamdCpuLimiterExample1 {
 
 
     private static final int MIN_SCAN_LIMIT = 20;
+
+    private final AtomicBoolean stop = new AtomicBoolean(false);
 }
