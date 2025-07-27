@@ -134,7 +134,7 @@ Whether an infected file is moved or copied can be controlled by the
 Note: 
 
 In COPY mode unaltered infected files are copied only once to the quarantine 
-directory no matter how many times they get rescanned. Aviron uses a hash code 
+directory no matter how many times they get rescanned. **Aviron** uses a hash code 
 of the file's data to check whether the file has changed since the last copy 
 action.
 
@@ -221,7 +221,7 @@ public class ScanQuarantine {
 ## Defining Clamd CPU profiles
 
 Sometimes running the *clamd* daemon constantly at 100% CPU time is not an 
-option. Aviron allows the definition of CPU profiles to control the clamd CPU
+option. **Aviron** allows the definition of CPU profiles to control the *clamd* CPU
 usage.
 
 
@@ -477,8 +477,8 @@ Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
 
 ## Controlling the Clamd CPU usage
 
-Demonstrates how a demo filestore can be continuously scanned honoring a *clamd*
-CPU profile.
+This example demonstrates how a demo filestore can be continuously scanned 
+honoring a *clamd* CPU profile.
 
 In the examples package you find two variants:
 * ClamdCpuLimiterExample1 (explicit cpu limit update)
