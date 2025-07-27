@@ -62,7 +62,7 @@ public class DynamicCpuLimitExample {
         //   |     \_ fileN.doc
         //   +-- 0001
         //   :
-        //   +-- 0099
+        //   +-- NNNN
         //         \_ file1.doc
         //
         final File filestoreDir = new File("/data/filestore/");
