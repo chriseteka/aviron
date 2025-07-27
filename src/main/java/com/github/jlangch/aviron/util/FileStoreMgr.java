@@ -33,8 +33,8 @@ import java.util.stream.Collectors;
  * A FileStoreMgr keeps track of the directories in a file store.
  * 
  * For each call to {@link #nextDir() nextDir} it cycles through the
- * directories of the file store. If the last directory is reached
- * it starts over from the first directory.
+ * directories of the file store one by one. If the last directory 
+ * is reached it starts over from the first directory.
  * 
  * <p>The directories are ordered ascending by its name.
  * 
