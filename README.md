@@ -258,7 +258,7 @@ Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
 ```
 
 
-### A weeday/weekend profile
+### A weekday/weekend profile
 
 ```java
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
@@ -374,10 +374,11 @@ public class DynamicCpuLimitExample3 {
 
     public void test() throws Exception {
         final Function<LocalDateTime,Integer> limitFn = 
-                (t) -> { final int h = t.getHour();
-                         if (h < 8)   return 100;
-                         if (h >= 20) return 100;
-                         else         return 30; };
+                (t) -> { final int hour = t.getHour();
+                         final int day = t.getDayOfWeek().getValue();
+                         if (hour < 8)   return 100;
+                         if (hour >= 20) return 100;
+                         else            return day > 5 ? 60 : 30; };
 
         final DynamicCpuLimit dynamicCpuLimit = new DynamicCpuLimit(limitFn);
 
@@ -402,18 +403,18 @@ Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
 05:00      100%   100%   100%   100%   100%   100%   100%
 06:00      100%   100%   100%   100%   100%   100%   100%
 07:00      100%   100%   100%   100%   100%   100%   100%
-08:00       30%    30%    30%    30%    30%    30%    30%
-09:00       30%    30%    30%    30%    30%    30%    30%
-10:00       30%    30%    30%    30%    30%    30%    30%
-11:00       30%    30%    30%    30%    30%    30%    30%
-12:00       30%    30%    30%    30%    30%    30%    30%
-13:00       30%    30%    30%    30%    30%    30%    30%
-14:00       30%    30%    30%    30%    30%    30%    30%
-15:00       30%    30%    30%    30%    30%    30%    30%
-16:00       30%    30%    30%    30%    30%    30%    30%
-17:00       30%    30%    30%    30%    30%    30%    30%
-18:00       30%    30%    30%    30%    30%    30%    30%
-19:00       30%    30%    30%    30%    30%    30%    30%
+08:00       30%    30%    30%    30%    30%    60%    60%
+09:00       30%    30%    30%    30%    30%    60%    60%
+10:00       30%    30%    30%    30%    30%    60%    60%
+11:00       30%    30%    30%    30%    30%    60%    60%
+12:00       30%    30%    30%    30%    30%    60%    60%
+13:00       30%    30%    30%    30%    30%    60%    60%
+14:00       30%    30%    30%    30%    30%    60%    60%
+15:00       30%    30%    30%    30%    30%    60%    60%
+16:00       30%    30%    30%    30%    30%    60%    60%
+17:00       30%    30%    30%    30%    30%    60%    60%
+18:00       30%    30%    30%    30%    30%    60%    60%
+19:00       30%    30%    30%    30%    30%    60%    60%
 20:00      100%   100%   100%   100%   100%   100%   100%
 21:00      100%   100%   100%   100%   100%   100%   100%
 22:00      100%   100%   100%   100%   100%   100%   100%

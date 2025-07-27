@@ -41,10 +41,11 @@ public class DynamicCpuLimitExample3 {
 
     public void test() throws Exception {
         final Function<LocalDateTime,Integer> limitFn = 
-                (t) -> { final int h = t.getHour();
-                         if (h < 8)   return 100;
-                         if (h >= 20) return 100;
-                         else         return 30; };
+                (t) -> { final int hour = t.getHour();
+                         final int day = t.getDayOfWeek().getValue();
+                         if (hour < 8)   return 100;
+                         if (hour >= 20) return 100;
+                         else            return day > 5 ? 60 : 30; };
 
         final DynamicCpuLimit dynamicCpuLimit = new DynamicCpuLimit(limitFn);
 
