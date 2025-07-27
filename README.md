@@ -14,18 +14,19 @@
 
 **Aviron** features:
 
-* Send documents via a socket from within a Java application to the *clamd*  
-  daemon for on-the-fly virus scanning
-* Send virus scan request for files and directories to the *clamd* daemon
+* Send documents through a socket from within a Java application to the 
+  *clamd* daemon for on-the-fly virus scanning
+* Send virus scan requests for files and directories to the *clamd* daemon
 * Build virus scanners with support for quarantine. Infected files can be
   moved/copied to a quarantine directory
-* Dynamically limit *clamd* daemon CPU usage through time-based CPU limit 
-  profiles
+* Dynamically limit the *clamd* daemon CPU usage through time-based CPU
+  limit profiles
+* The quarantine and CPU limit features are optional
 * Available for Linux and MacOS (battle tested on Alma Linux)
 
-The ClamAV tools (clamd, clamdscan, clamscan) are just simple virus scanners. They lack 
-support for putting infected files into quarantine and do not have any CPU limiting
-features.
+The ClamAV tools (clamd, clamdscan, clamscan) are just simple virus scanners. 
+They lack support for putting infected files into quarantine and do not have 
+any CPU limiting features.
 
 
 ## Table of Content
