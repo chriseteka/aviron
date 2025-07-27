@@ -24,16 +24,20 @@ package com.github.jlangch.aviron.examples;
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.*;
 
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
+import com.github.jlangch.aviron.dto.QuarantineFile;
+import com.github.jlangch.aviron.events.QuarantineFileAction;
+import com.github.jlangch.aviron.events.QuarantineEvent;
 
 
-public class Scan {
+public class ScanQuarantineExample {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         try {
-            new Scan().scan();
+            new ScanExample().scan();
         }
         catch(Exception ex) {
             ex.printStackTrace();
@@ -41,13 +45,17 @@ public class Scan {
     }
 
     public void scan() throws Exception {
-        final String baseDir = "/data/files/";
+       final String baseDir = "/data/files/";
+        final String quarantineDir = "/data/quarantine/";
 
         // Note: The file separator depends on the server's type (Unix, Windows)
         //       clamd is running on!
         final Client client = new Client.Builder()
                                         .serverHostname("localhost")
                                         .serverFileSeparator(FileSeparator.UNIX)
+                                        .quarantineFileAction(QuarantineFileAction.MOVE)
+                                        .quarantineDir(quarantineDir)
+                                        .quarantineEventListener(this::eventListener)
                                         .build();
 
         System.out.println("Reachable: " + client.isReachable());
@@ -63,6 +71,31 @@ public class Scan {
         // scan streamed data
         try (InputStream is = new FileInputStream(new File(baseDir, "document.pdf"))) {
             System.out.println(client.scan(is));
+        }
+
+        // Quarantine Management ----------------------------------------------
+
+        // list quarantine files
+        final List<QuarantineFile> files = client.listQuarantineFiles();
+        System.out.println(String.format("%d quarantined files", files.size()));
+
+        // show quarantine file details and remove the file
+        if (!files.isEmpty()) {
+            final QuarantineFile qf = files.get(0);
+            System.out.println(qf);
+            client.removeQuarantineFile(qf);
+        }
+
+        // remove all quarantine files
+        client.removeAllQuarantineFiles();
+    }
+    
+    private void eventListener(final QuarantineEvent event) {
+        if (event.getException() != null) {
+            System.out.println("Error " + event.getException().getMessage());
+        }
+        else {
+            System.out.println("File " + event.getInfectedFile() + " moved to quarantine");
         }
     }
 }

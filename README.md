@@ -178,6 +178,250 @@ public class ScanQuarantine {
 }
 ```
 
+## Defining Clamd CPU profiles
+
+Sometimes running the *clamd* daemon constantly at 100% CPU time is not an 
+option. Aviron allows the definition if CPU profiles to control the clamd CPU
+usage.
+
+
+### A simply daily profile used for Mon - Sun
+
+```java
+import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
+
+import com.github.jlangch.aviron.admin.CpuProfile;
+import com.github.jlangch.aviron.admin.DynamicCpuLimit;
+
+
+public class DynamicCpuLimitExample1 {
+
+    public static void main(String[] args) {
+        try {
+            new DynamicCpuLimitExample1().test();
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void test() throws Exception {
+        // Use the same day profile for Mon - Sun
+        final CpuProfile everyday = CpuProfile.of(
+                                        "weekday",
+                                        toList(
+                                            "00:00-05:59 @ 100%",
+                                            "06:00-08:59 @  50%",
+                                            "09:00-17:59 @   0%",
+                                            "18:00-21:59 @  50%",
+                                            "22:00-23:59 @ 100%"));
+
+        final DynamicCpuLimit dynamicCpuLimit = new DynamicCpuLimit(everyday);
+
+        // Event though the profile has resolution base on minutes the 
+        // 'formatProfilesAsTableByHour' function prints the overview table 
+        // for simplicity at an hour resolution!
+        final String s = dynamicCpuLimit.formatProfilesAsTableByHour();
+        System.out.println(s);
+    }
+```
+
+```
+---------------------------------------------------------
+Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
+---------------------------------------------------------
+00:00      100%   100%   100%   100%   100%   100%   100%
+01:00      100%   100%   100%   100%   100%   100%   100%
+02:00      100%   100%   100%   100%   100%   100%   100%
+03:00      100%   100%   100%   100%   100%   100%   100%
+04:00      100%   100%   100%   100%   100%   100%   100%
+05:00      100%   100%   100%   100%   100%   100%   100%
+06:00       50%    50%    50%    50%    50%    50%    50%
+07:00       50%    50%    50%    50%    50%    50%    50%
+08:00       50%    50%    50%    50%    50%    50%    50%
+09:00        0%     0%     0%     0%     0%     0%     0%
+10:00        0%     0%     0%     0%     0%     0%     0%
+11:00        0%     0%     0%     0%     0%     0%     0%
+12:00        0%     0%     0%     0%     0%     0%     0%
+13:00        0%     0%     0%     0%     0%     0%     0%
+14:00        0%     0%     0%     0%     0%     0%     0%
+15:00        0%     0%     0%     0%     0%     0%     0%
+16:00        0%     0%     0%     0%     0%     0%     0%
+17:00        0%     0%     0%     0%     0%     0%     0%
+18:00       50%    50%    50%    50%    50%    50%    50%
+19:00       50%    50%    50%    50%    50%    50%    50%
+20:00       50%    50%    50%    50%    50%    50%    50%
+21:00       50%    50%    50%    50%    50%    50%    50%
+22:00      100%   100%   100%   100%   100%   100%   100%
+23:00      100%   100%   100%   100%   100%   100%   100%
+---------------------------------------------------------
+```
+
+
+### A weeday/weekend profile
+
+```java
+import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
+
+import java.util.List;
+
+import com.github.jlangch.aviron.admin.CpuProfile;
+import com.github.jlangch.aviron.admin.DynamicCpuLimit;
+import com.github.jlangch.aviron.impl.util.CollectionUtils;
+
+
+public class DynamicCpuLimitExample2 {
+
+    public static void main(String[] args) {
+        try {
+            new DynamicCpuLimitExample2().test();
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void test() throws Exception {
+        final CpuProfile weekday = CpuProfile.of(
+                                        "weekday",
+                                        toList(
+                                            "00:00-05:59 @ 100%",
+                                            "06:00-08:59 @  50%",
+                                            "09:00-17:59 @   0%",
+                                            "18:00-21:59 @  50%",
+                                            "22:00-23:59 @ 100%"));
+
+        final CpuProfile weekend = CpuProfile.of(
+                                        "weekend",
+                                        toList(
+                                            "00:00-05:59 @ 100%",
+                                            "06:00-08:59 @  60%",
+                                            "09:00-17:59 @  40%",
+                                            "18:00-21:59 @  60%",
+                                            "22:00-23:59 @ 100%"));
+
+        // Use the profiles wor weekdays (Mon-Fri) and weekend (Sat,Sun)
+        final List<CpuProfile> profiles = CollectionUtils.toList(
+                                            weekday,  // Mon
+                                            weekday,  // Tue
+                                            weekday,  // Wed
+                                            weekday,  // Thu
+                                            weekday,  // Fri
+                                            weekend,  // Sat
+                                            weekend); // Sun
+
+        final DynamicCpuLimit dynamicCpuLimit = new DynamicCpuLimit(profiles);
+
+        // Event though the profile has resolution base on minutes the 
+        // 'formatProfilesAsTableByHour' function prints the overview table 
+        // for simplicity at an hour resolution!
+        final String s = dynamicCpuLimit.formatProfilesAsTableByHour();
+        System.out.println(s);
+    }
+}
+```
+
+```
+---------------------------------------------------------
+Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
+---------------------------------------------------------
+00:00      100%   100%   100%   100%   100%   100%   100%
+01:00      100%   100%   100%   100%   100%   100%   100%
+02:00      100%   100%   100%   100%   100%   100%   100%
+03:00      100%   100%   100%   100%   100%   100%   100%
+04:00      100%   100%   100%   100%   100%   100%   100%
+05:00      100%   100%   100%   100%   100%   100%   100%
+06:00       50%    50%    50%    50%    50%    60%    60%
+07:00       50%    50%    50%    50%    50%    60%    60%
+08:00       50%    50%    50%    50%    50%    60%    60%
+09:00        0%     0%     0%     0%     0%    40%    40%
+10:00        0%     0%     0%     0%     0%    40%    40%
+11:00        0%     0%     0%     0%     0%    40%    40%
+12:00        0%     0%     0%     0%     0%    40%    40%
+13:00        0%     0%     0%     0%     0%    40%    40%
+14:00        0%     0%     0%     0%     0%    40%    40%
+15:00        0%     0%     0%     0%     0%    40%    40%
+16:00        0%     0%     0%     0%     0%    40%    40%
+17:00        0%     0%     0%     0%     0%    40%    40%
+18:00       50%    50%    50%    50%    50%    60%    60%
+19:00       50%    50%    50%    50%    50%    60%    60%
+20:00       50%    50%    50%    50%    50%    60%    60%
+21:00       50%    50%    50%    50%    50%    60%    60%
+22:00      100%   100%   100%   100%   100%   100%   100%
+23:00      100%   100%   100%   100%   100%   100%   100%
+---------------------------------------------------------
+```
+
+### A dynamic profile
+
+```java
+import java.time.LocalDateTime;
+import java.util.function.Function;
+
+import com.github.jlangch.aviron.admin.DynamicCpuLimit;
+
+
+public class DynamicCpuLimitExample3 {
+
+    public static void main(String[] args) {
+        try {
+            new DynamicCpuLimitExample3().test();
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void test() throws Exception {
+        final Function<LocalDateTime,Integer> limitFn = 
+                (t) -> { final int h = t.getHour();
+                         if (h < 8)   return 100;
+                         if (h >= 20) return 100;
+                         else         return 30; };
+
+        final DynamicCpuLimit dynamicCpuLimit = new DynamicCpuLimit(limitFn);
+
+        // Event though the profile has resolution base on minutes the 
+        // 'formatProfilesAsTableByHour' function prints the overview table 
+        // for simplicity at an hour resolution!
+        final String s = dynamicCpuLimit.formatProfilesAsTableByHour();
+        System.out.println(s);
+    }
+}
+```
+
+```
+---------------------------------------------------------
+Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
+---------------------------------------------------------
+00:00      100%   100%   100%   100%   100%   100%   100%
+01:00      100%   100%   100%   100%   100%   100%   100%
+02:00      100%   100%   100%   100%   100%   100%   100%
+03:00      100%   100%   100%   100%   100%   100%   100%
+04:00      100%   100%   100%   100%   100%   100%   100%
+05:00      100%   100%   100%   100%   100%   100%   100%
+06:00      100%   100%   100%   100%   100%   100%   100%
+07:00      100%   100%   100%   100%   100%   100%   100%
+08:00       30%    30%    30%    30%    30%    30%    30%
+09:00       30%    30%    30%    30%    30%    30%    30%
+10:00       30%    30%    30%    30%    30%    30%    30%
+11:00       30%    30%    30%    30%    30%    30%    30%
+12:00       30%    30%    30%    30%    30%    30%    30%
+13:00       30%    30%    30%    30%    30%    30%    30%
+14:00       30%    30%    30%    30%    30%    30%    30%
+15:00       30%    30%    30%    30%    30%    30%    30%
+16:00       30%    30%    30%    30%    30%    30%    30%
+17:00       30%    30%    30%    30%    30%    30%    30%
+18:00       30%    30%    30%    30%    30%    30%    30%
+19:00       30%    30%    30%    30%    30%    30%    30%
+20:00      100%   100%   100%   100%   100%   100%   100%
+21:00      100%   100%   100%   100%   100%   100%   100%
+22:00      100%   100%   100%   100%   100%   100%   100%
+23:00      100%   100%   100%   100%   100%   100%   100%
+---------------------------------------------------------
+```
+
+
 
 ## Getting the latest release
 

@@ -90,7 +90,7 @@ public class DynamicCpuLimit {
         final StringBuilder sb = new StringBuilder();
         sb.append("---------------------------------------------------------");
         sb.append(System.lineSeparator());
-        sb.append("Hour        Mon    Tue    Wed    Thu    Fri    Sat    Sun");
+        sb.append("Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun");
         sb.append(System.lineSeparator());
         sb.append("---------------------------------------------------------");
         sb.append(System.lineSeparator());
@@ -98,7 +98,7 @@ public class DynamicCpuLimit {
         for(int hour=0; hour<24; hour++) {
             sb.append(
                 String.format(
-                    "%02d:       %4d%%  %4d%%  %4d%%  %4d%%  %4d%%  %4d%%  %4d%%",
+                    "%02d:00     %4d%%  %4d%%  %4d%%  %4d%%  %4d%%  %4d%%  %4d%%",
                     hour,
                     computeCpuLimit(LocalDateTime.of(2025,7,21,hour,0,0)),    /* Mon */
                     computeCpuLimit(LocalDateTime.of(2025,7,22,hour,0,0)),    /* Tue */
