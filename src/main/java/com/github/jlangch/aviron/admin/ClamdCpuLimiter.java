@@ -122,7 +122,7 @@ public class ClamdCpuLimiter {
             lastSeen = newLimit;
             ClamdAdmin.deactivateClamdCpuLimit(clamdPID);
             if (limit != 100) {
-            	ClamdAdmin.activateClamdCpuLimit(clamdPID, limit);
+                ClamdAdmin.activateClamdCpuLimit(clamdPID, limit);
             }
             return true;
         }
@@ -138,7 +138,7 @@ public class ClamdCpuLimiter {
      * @see ClamdCpuLimiter#activateClamdCpuLimit(String,int)
      * @see ClamdCpuLimiter#deactivateClamdCpuLimit(String)
      */
-    public synchronized void activateClamdCpuLimit(
+    public synchronized boolean activateClamdCpuLimit(
             final String clamdPID
     ) {
         if (StringUtils.isBlank(clamdPID)) {
@@ -147,7 +147,7 @@ public class ClamdCpuLimiter {
 
         final int limit = dynamicCpuLimit.computeCpuLimit();
 
-        activateClamdCpuLimit(clamdPID, limit);
+        return activateClamdCpuLimit(clamdPID, limit);
     }
 
     /**

@@ -92,6 +92,9 @@ public class DynamicCpuLimitExample {
 
         // inital CPU limit after startup
         limiter.activateClamdCpuLimit(clamdPID);
+        System.out.println(String.format(
+                            "Initial clamd CPU limit: %d%%",
+                            limiter.getLastSeenLimit()));
 
         // scan until we're killed
         while(true) {
@@ -99,10 +102,20 @@ public class DynamicCpuLimitExample {
                 dirStream.forEach(path -> {
                     // update clamd CPU limit 
                     // note: applied only if the new limit differs from the last one
-                    limiter.activateClamdCpuLimit(clamdPID);
+                    final int lastSeenLimit = limiter.getLastSeenLimit();
+                    if (limiter.activateClamdCpuLimit(clamdPID)) {
+                        final int newLimit = limiter.getLastSeenLimit();
+                        System.out.println(String.format(
+                                            "Adjusted clamd CPU limit: %d%% -> %d%%",
+                                            lastSeenLimit, newLimit));
+                    }
 
+                    // Scan the next filestore directory
                     System.out.println(client.scan(path, false));
                 });
+            }
+            catch(Exception ex) {
+                System.out.println("Error: " + ex.getMessage());
             }
         }
     }
