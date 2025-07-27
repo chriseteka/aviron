@@ -15,7 +15,6 @@ Aviron is a zero dependency ClamAV Java client. It requires Java 8+.
 
 ## Table of Content
 
-* [Change Log](#change-log)
 * [Examples](#examples)
 * [Defining Clamd CPU profiles](#defining-clamd-cpu-profiles)
 * [Controlling the Clamd CPU usage](#controlling-the-clamd-cpu-usage)
