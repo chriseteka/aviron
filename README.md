@@ -87,15 +87,16 @@ public class Scan {
 
 ### Extended example with quarantine support:
 
-Infected files are move/copied implicitly to a quarantine directory. Whether
-an infected file is moved or copied can be controlled by the *quarantineFileAction*
-configuration parameter.
+Infected files can be moved/copied implicitly to a quarantine directory. 
+Whether an infected file is moved or copied can be controlled by the 
+*quarantineFileAction* configuration parameter.
 
 Note: 
 
-In COPY mode unaltered infected files are copied only once to the quarantine directory
-no matter how many times they get rescanned. Aviron uses a hash code of the
-file's data to check whether the file has changed since the copy action.
+In COPY mode unaltered infected files are copied only once to the quarantine 
+directory no matter how many times they get rescanned. Aviron uses a hash code 
+of the file's data to check whether the file has changed since the last copy 
+action.
 
 ```java
 import java.io.*;
