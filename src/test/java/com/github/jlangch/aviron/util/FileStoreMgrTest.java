@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.impl.util;
+package com.github.jlangch.aviron.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -30,7 +30,6 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 import com.github.jlangch.aviron.impl.test.TempFS;
-import com.github.jlangch.aviron.util.FileStoreMgr;
 
 
 public class FileStoreMgrTest {
