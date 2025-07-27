@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  * 
  * <p>The directories are ordered ascending by its name.
  * 
- * <p>Each time starts over it refreshes the list of directories to
+ * <p>At start over event it refreshes the list of the directories to
  * respect newly created directories.
  * 
  * <pre>
