@@ -10,7 +10,18 @@
 
 # Aviron
 
-Aviron is a zero dependency ClamAV Java client. It requires Java 8+.
+**Aviron** is a zero dependency ClamAV Java client. It requires Java 8+.
+
+**Aviron** features:
+
+* Send documents via a socket from within a Java application to *clamd* for 
+  on-the-fly virus scanning
+* Build virus scanners with support for quarantine
+* Dynamically limit *clamd* CPU usage through time-based CPU limit profiles
+
+The ClamAV tools (clamd, clamdscan, clamscan) are just simple virus scanners. They lack 
+support for putting infected files into quarantine and do not have any CPU limiting
+features.
 
 
 ## Table of Content
