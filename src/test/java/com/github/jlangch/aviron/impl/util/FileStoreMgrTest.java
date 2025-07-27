@@ -129,4 +129,40 @@ public class FileStoreMgrTest {
         }
     }
 
+
+    @Test 
+    void testSaveAnRestore() throws IOException {
+        final TempFS tempFS = new TempFS();
+
+        final FileStoreMgr fsMgr = new FileStoreMgr(tempFS.getScanDir());
+
+        try {
+            tempFS.createScanSubDir("0000");
+            tempFS.createScanSubDir("0001");
+            tempFS.createScanSubDir("0002");
+            tempFS.createScanSubDir("0003");
+
+            assertEquals("0000", fsMgr.nextDir().getName());
+            assertEquals("0001", fsMgr.nextDir().getName());
+
+            // save point
+            final String last = fsMgr.getLastDirName();
+            assertEquals("0001", last);
+
+            fsMgr.refresh();
+            assertNull(fsMgr.getLastDirName());
+
+            // restore
+            fsMgr.restoreLastDirName(last);
+            assertEquals(last, fsMgr.getLastDirName());
+
+            assertEquals("0002", fsMgr.nextDir().getName());
+            assertEquals("0003", fsMgr.nextDir().getName());
+            assertEquals("0000", fsMgr.nextDir().getName());
+        }
+        finally {
+            tempFS.remove();
+        }
+    }
+
 }

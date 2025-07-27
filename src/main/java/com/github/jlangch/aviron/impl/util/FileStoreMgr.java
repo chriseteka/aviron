@@ -71,10 +71,10 @@ public class FileStoreMgr {
 
         int dirIdx = lastDirIdx + 1;
         if (dirIdx >= subDirs.size()) {
-            // we past the last directory - refresh to see dir changes
+            // we past the last directory -> refresh to reflect dir changes
             refresh();
             if (subDirs.isEmpty()) {
-                return null;
+                return null;  // empty now
             }
             dirIdx = 0;
         }
@@ -87,6 +87,25 @@ public class FileStoreMgr {
         subDirs.clear();
         subDirs.addAll(dirs());
         lastDirIdx = -1;
+    }
+
+    public String getLastDirName() {
+        return lastDirIdx < 0 || lastDirIdx >= subDirs.size()-1
+            ? null
+            : subDirs.get(lastDirIdx).getName();
+    }
+
+    public void restoreLastDirName(final String name) {
+        lastDirIdx = getIndexOf(name);
+    }
+
+    private int getIndexOf(final String name) {
+        for(int ii=0; ii<subDirs.size(); ii++) {
+            if (subDirs.get(ii).getName().equals(name)) {
+                return ii;
+            }
+        }
+        return -1;
     }
 
     private List<File> dirs() {
