@@ -19,6 +19,7 @@
 * Build virus scanners with support for quarantine. Infected files can be
   moved/copied to a quarantine directory
 * Dynamically limit *clamd* CPU usage through time-based CPU limit profiles
+* Available for Linux and MacOS (battle tested on Alma Linux)
 
 The ClamAV tools (clamd, clamdscan, clamscan) are just simple virus scanners. They lack 
 support for putting infected files into quarantine and do not have any CPU limiting
