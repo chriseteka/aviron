@@ -31,7 +31,6 @@ import java.util.List;
 import com.github.jlangch.aviron.ex.AvironException;
 import com.github.jlangch.aviron.ex.NotRunningException;
 import com.github.jlangch.aviron.impl.util.Shell;
-import com.github.jlangch.aviron.impl.util.ShellResult;
 import com.github.jlangch.aviron.impl.util.Signal;
 import com.github.jlangch.aviron.impl.util.StringUtils;
 
@@ -227,13 +226,12 @@ public class ClamdAdmin {
         }
 
         try {
-            final ShellResult r = Shell.execCmd("pkill", "-f", "cpulimit.*" + clamdPID);
-            if (!r.isZeroExitCode()) {
-                throw new AvironException(
-                        "Failed to deactivate CPU limit on clamd process (" + clamdPID + ").\n"
-                        + "\nExit code: " + r.getExitCode()
-                        + "\nError msg: " + r.getStderr());
-            }
+        	// best effort, do not check the exit code
+        	//
+        	// note: if there are no cpulimit processes running on the {clamdPID} pid
+        	//       pkill returns the exit code 1. we don't want to throw an exception
+        	//       in this case
+            Shell.execCmd("pkill", "-f", "cpulimit.*" + clamdPID);
         }
         catch(IOException ex) {
             throw new AvironException(

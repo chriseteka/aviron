@@ -5,9 +5,13 @@ All notable changes to this project will be documented in this file.
 
 
 
-## [1.5.2] - 2025-07-xx
+## [1.5.2] - 2025-07-27
 
-- ...
+- Fixed an issue with the Linux 'pkill -f cpulimit.*{pid}' command.
+  If there are no cpulimit processes running on the pid, pkill returns 
+  the exit code 1 signaling an error. This is now handled without 
+  signaling the error to the caller. 
+
 
 
 
