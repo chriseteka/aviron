@@ -39,11 +39,11 @@ import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 
 
-public class DynamicCpuLimitExample1 {
+public class DynamicCpuLimitExample {
 
     public static void main(String[] args) {
         try {
-            new DynamicCpuLimitExample1().scan();
+            new DynamicCpuLimitExample().scan();
         }
         catch(Exception ex) {
             ex.printStackTrace();
@@ -93,6 +93,7 @@ public class DynamicCpuLimitExample1 {
         // inital CPU limit after startup
         limiter.activateClamdCpuLimit(clamdPID);
 
+        // scan until we're killed
         while(true) {
             try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(filestoreDir.toPath())) {
                 dirStream.forEach(path -> {
