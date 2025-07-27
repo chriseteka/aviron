@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - Added function `ClamdCpuLimiter::formatProfilesAsTableByHour()`
 - The function `ClamdCpuLimiter::activateClamdCpuLimit(String)` returns
-  now also a boolean flag to indicate whether the clamd CPU limit has
+  now also a boolean flag to indicate whether the *clamd* CPU limit has
   been changed.
 
 
@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file.
 ## [1.5.2] - 2025-07-27
 
 - Fixed an issue with the Linux `pkill -f cpulimit.*{pid}` command.
-  If there are no cpulimit processes running on the pid, pkill returns 
+  If there are no `cpulimit` processes running on the pid, `pkill` returns 
   the exit code 1 signaling an error. This is now handled without 
   signaling the error to the caller. 
 
@@ -25,15 +25,15 @@ All notable changes to this project will be documented in this file.
 ## [1.5.1] - 2025-07-27
 
 - Added method `ClamdCpuLimiter::getLimitForTimestamp(LocalDateTime)`
-- Fixed `ClamdCpuLimiter::activateClamdCpuLimit`. Killing now all cpulimit 
-  processes controlling the clamd process prior to starting a new cpulimit 
+- Fixed `ClamdCpuLimiter::activateClamdCpuLimit`. Killing now all `cpulimit` 
+  processes controlling the *clamd* process prior to starting a new `cpulimit`
   process.
 
 
 
 ## [1.5.0] - 2025-07-26
 
-- Added a ClamdCpuLimiter to dynamically limit the CPU usage of a clamd daemon.
+- Added a `ClamdCpuLimiter` to dynamically limit the CPU usage of a *clamd* daemon.
 
 
 
@@ -59,7 +59,7 @@ All notable changes to this project will be documented in this file.
 
 ## [1.3.2] - 2025-07-20
 
-- Improved admin functions to control the clamd cpu limit
+- Improved admin functions to control the *clamd* cpu limit
 
 
 
