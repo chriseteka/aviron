@@ -188,7 +188,7 @@ public class ScanQuarantine {
 ## Defining Clamd CPU profiles
 
 Sometimes running the *clamd* daemon constantly at 100% CPU time is not an 
-option. Aviron allows the definition if CPU profiles to control the clamd CPU
+option. Aviron allows the definition of CPU profiles to control the clamd CPU
 usage.
 
 
