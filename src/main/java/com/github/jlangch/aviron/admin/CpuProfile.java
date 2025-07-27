@@ -131,7 +131,7 @@ public class CpuProfile {
                 .getLimit();
     }
 
-    
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
@@ -160,7 +160,7 @@ public class CpuProfile {
         }
     }
 
-    
+
     private final static CpuProfileEntry off = new CpuProfileEntry(
                                                         LocalTime.of(0, 0), 
                                                         LocalTime.of(23, 59), 
