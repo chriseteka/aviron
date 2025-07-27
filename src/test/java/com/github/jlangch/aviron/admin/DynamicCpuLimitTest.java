@@ -167,13 +167,13 @@ class DynamicCpuLimitTest {
     @Test
     void testToString1() {
         final CpuProfile weekday = CpuProfile.of(
-                                    "weekday",
-                                    toList(
-                                        "00:00-05:59 @ 100%",
-                                        "06:00-08:59 @  50%",
-                                        "09:00-17:59 @   0%",
-                                        "18:00-21:59 @  50%",
-                                        "22:00-23:59 @ 100%"));
+                                        "weekday",
+                                        toList(
+                                            "00:00-05:59 @ 100%",
+                                            "06:00-08:59 @  50%",
+                                            "09:00-17:59 @   0%",
+                                            "18:00-21:59 @  50%",
+                                            "22:00-23:59 @ 100%"));
 
         final List<CpuProfile> profiles = new ArrayList<>();
         profiles.add(weekday);  // Mon
@@ -194,13 +194,13 @@ class DynamicCpuLimitTest {
     @Test
     void testToString2() {
         final CpuProfile weekday = CpuProfile.of(
-                                    "weekday",
-                                    toList(
-                                        "00:00-05:59 @ 100%",
-                                        "06:00-08:59 @  50%",
-                                        "09:00-17:59 @   0%",
-                                        "18:00-21:59 @  50%",
-                                        "22:00-23:59 @ 100%"));
+                                        "weekday",
+                                        toList(
+                                            "00:00-05:59 @ 100%",
+                                            "06:00-08:59 @  50%",
+                                            "09:00-17:59 @   0%",
+                                            "18:00-21:59 @  50%",
+                                            "22:00-23:59 @ 100%"));
 
         final CpuProfile weekend = CpuProfile.of(
                                         "weekend",
@@ -230,13 +230,13 @@ class DynamicCpuLimitTest {
     @Test
     void testFormatProfilesAsTableByHour1() {
         final CpuProfile weekday = CpuProfile.of(
-                                    "weekday",
-                                    toList(
-                                        "00:00-05:59 @ 100%",
-                                        "06:00-08:59 @  50%",
-                                        "09:00-17:59 @   0%",
-                                        "18:00-21:59 @  50%",
-                                        "22:00-23:59 @ 100%"));
+                                        "weekday",
+                                        toList(
+                                            "00:00-05:59 @ 100%",
+                                            "06:00-08:59 @  50%",
+                                            "09:00-17:59 @   0%",
+                                            "18:00-21:59 @  50%",
+                                            "22:00-23:59 @ 100%"));
 
         final List<CpuProfile> profiles = new ArrayList<>();
         profiles.add(weekday);  // Mon
@@ -257,13 +257,13 @@ class DynamicCpuLimitTest {
     @Test
     void testFormatProfilesAsTableByHour2() {
         final CpuProfile weekday = CpuProfile.of(
-                                    "weekday",
-                                    toList(
-                                        "00:00-05:59 @ 100%",
-                                        "06:00-08:59 @  50%",
-                                        "09:00-17:59 @   0%",
-                                        "18:00-21:59 @  50%",
-                                        "22:00-23:59 @ 100%"));
+                                        "weekday",
+                                        toList(
+                                            "00:00-05:59 @ 100%",
+                                            "06:00-08:59 @  50%",
+                                            "09:00-17:59 @   0%",
+                                            "18:00-21:59 @  50%",
+                                            "22:00-23:59 @ 100%"));
 
         final CpuProfile weekend = CpuProfile.of(
                                         "weekend",
