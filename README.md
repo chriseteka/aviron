@@ -10,7 +10,8 @@
 
 # Aviron
 
-**Aviron** is a zero dependency ClamAV Java client. It requires Java 8+.
+**Aviron** is a zero dependency [ClamAV](https://www.clamav.net/) Java 
+client. It requires Java 8+.
 
 **Aviron** features:
 
