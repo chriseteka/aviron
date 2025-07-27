@@ -86,6 +86,37 @@ public class DynamicCpuLimit {
         return Math.max(0,  limit);
     }
 
+    public String formatProfilesAsTableByHour() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("---------------------------------------------------------");
+        sb.append(System.lineSeparator());
+        sb.append("Hour        Mon    Tue    Wed    Thu    Fri    Sat    Sun");
+        sb.append(System.lineSeparator());
+        sb.append("---------------------------------------------------------");
+        sb.append(System.lineSeparator());
+
+        for(int hour=0; hour<24; hour++) {
+            sb.append(
+                String.format(
+                    "%02d:       %4d%%  %4d%%  %4d%%  %4d%%  %4d%%  %4d%%  %4d%%",
+                    hour,
+                    computeCpuLimit(LocalDateTime.of(2025,7,21,hour,0,0)),    /* Mon */
+                    computeCpuLimit(LocalDateTime.of(2025,7,22,hour,0,0)),    /* Tue */
+                    computeCpuLimit(LocalDateTime.of(2025,7,23,hour,0,0)),    /* Wed */
+                    computeCpuLimit(LocalDateTime.of(2025,7,24,hour,0,0)),    /* Thu */
+                    computeCpuLimit(LocalDateTime.of(2025,7,25,hour,0,0)),    /* Fri */
+                    computeCpuLimit(LocalDateTime.of(2025,7,26,hour,0,0)),    /* Sat */
+                    computeCpuLimit(LocalDateTime.of(2025,7,27,hour,0,0))));  /* Sun */
+            sb.append(System.lineSeparator());
+        }
+
+        sb.append("---------------------------------------------------------");
+        sb.append(System.lineSeparator());
+
+        return sb.toString();
+    };
+
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();

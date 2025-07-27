@@ -170,6 +170,9 @@ public class ClamdCpuLimiter {
         ClamdAdmin.deactivateClamdCpuLimit(clamdPID);
     }
 
+    public String formatProfilesAsTableByHour() {
+        return dynamicCpuLimit.formatProfilesAsTableByHour();
+    };
 
     @Override
     public String toString() {
