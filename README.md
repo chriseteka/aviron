@@ -510,24 +510,14 @@ public class ClamdCpuLimiterExample {
         final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
 
         // inital CPU limit after startup
-        limiter.activateClamdCpuLimit(clamdPID);
-        System.out.println(String.format(
-                            "Initial clamd CPU limit: %d%%",
-                            limiter.getLastSeenLimit()));
+        initialCpuLimit(limiter, clamdPID);
 
         // scan until we're killed
         while(true) {
             try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(filestoreDir.toPath())) {
                 dirStream.forEach(path -> {
                     // update clamd CPU limit 
-                    // note: applied only if the new limit differs from the last one
-                    final int lastSeenLimit = limiter.getLastSeenLimit();
-                    if (limiter.activateClamdCpuLimit(clamdPID)) {
-                        final int newLimit = limiter.getLastSeenLimit();
-                        System.out.println(String.format(
-                                            "Adjusted clamd CPU limit: %d%% -> %d%%",
-                                            lastSeenLimit, newLimit));
-                    }
+                    updateCpuLimit(limiter, clamdPID);
 
                     // Scan the next filestore directory
                     System.out.println(client.scan(path, false));
@@ -536,6 +526,24 @@ public class ClamdCpuLimiterExample {
             catch(Exception ex) {
                 System.out.println("Error: " + ex.getMessage());
             }
+        }
+    }
+
+    private void initialCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
+        limiter.activateClamdCpuLimit(clamdPID);
+        System.out.println(String.format(
+                            "Initial clamd CPU limit: %d%%",
+                            limiter.getLastSeenLimit()));
+    }
+
+    private void updateCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
+        // note: applied only if the new limit differs from the last one
+        final int lastSeenLimit = limiter.getLastSeenLimit();
+        if (limiter.activateClamdCpuLimit(clamdPID)) {
+            final int newLimit = limiter.getLastSeenLimit();
+            System.out.println(String.format(
+                                "Adjusted clamd CPU limit: %d%% -> %d%%",
+                                lastSeenLimit, newLimit));
         }
     }
 
