@@ -49,9 +49,9 @@ public class DynamicCpuLimitExample3 {
 
         final DynamicCpuLimit dynamicCpuLimit = new DynamicCpuLimit(limitFn);
 
-        // Event though the profile has resolution base on minutes the 
-        // 'formatProfilesAsTableByHour' function prints the overview table 
-        // for simplicity at an hour resolution!
+        // Even though the profile has a minute resolution the 
+        // 'formatProfilesAsTableByHour' function prints the overview
+        //  table at an hour resolution for simplicity!
         final String s = dynamicCpuLimit.formatProfilesAsTableByHour();
         System.out.println(s);
     }
