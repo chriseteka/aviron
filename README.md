@@ -16,7 +16,8 @@
 
 * Send documents via a socket from within a Java application to *clamd* for 
   on-the-fly virus scanning
-* Build virus scanners with support for quarantine
+* Build virus scanners with support for quarantine. Infected files can be
+  moved/copied to a quarantine directory
 * Dynamically limit *clamd* CPU usage through time-based CPU limit profiles
 
 The ClamAV tools (clamd, clamdscan, clamscan) are just simple virus scanners. They lack 
