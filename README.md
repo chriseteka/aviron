@@ -207,6 +207,12 @@ option. Aviron allows the definition of CPU profiles to control the clamd CPU
 usage.
 
 
+**Note:**
+
+A 100% CPU limit corresponds to a full load of a single core or a single *hyper-thread* on 
+*INTEL* CPUs.
+
+
 ### Simple day profile
 
 ```java
