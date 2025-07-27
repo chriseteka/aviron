@@ -423,6 +423,10 @@ Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
 ```
 
 
+## Controlling the Clamd CPU usage
+
+*documentation work in progress...*
+
 
 ## Getting the latest release
 
