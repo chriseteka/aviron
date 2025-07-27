@@ -18,7 +18,7 @@ All notable changes to this project will be documented in this file.
 ## [1.5.1] - 2025-07-27
 
 - Added method ClamdCpuLimiter::getLimitForTimestamp(ts)
-- Fixed ClamdCpuLimiter::activateClamdCpuLimit. Killing ow all cpulimit 
+- Fixed ClamdCpuLimiter::activateClamdCpuLimit. Killing now all cpulimit 
   processes controlling the clamd process prior to starting a new cpulimit 
   process.
 
