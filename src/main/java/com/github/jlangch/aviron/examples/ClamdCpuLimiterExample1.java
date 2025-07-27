@@ -98,10 +98,12 @@ public class ClamdCpuLimiterExample1 {
             try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(filestoreDir.toPath())) {
                 dirStream.forEach(path -> {
                     // update clamd CPU limit 
-                    updateCpuLimit(limiter, clamdPID);
+                    final int limit = updateCpuLimit(limiter, clamdPID);
 
-                    // Scan the next filestore directory
-                    System.out.println(client.scan(path, false));
+                    if (limit >= MIN_SCAN_LIMIT) {
+                        // Scan the next filestore directory
+                        System.out.println(client.scan(path, false));
+                    }
                 });
             }
             catch(Exception ex) {
@@ -117,7 +119,7 @@ public class ClamdCpuLimiterExample1 {
                             limiter.getLastSeenLimit()));
     }
 
-    private void updateCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
+    private int updateCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
         // note: applied only if the new limit differs from the last one
         final int lastSeenLimit = limiter.getLastSeenLimit();
         if (limiter.activateClamdCpuLimit(clamdPID)) {
@@ -125,6 +127,10 @@ public class ClamdCpuLimiterExample1 {
             System.out.println(String.format(
                                 "Adjusted clamd CPU limit: %d%% -> %d%%",
                                 lastSeenLimit, newLimit));
+            return newLimit;
+        }
+        else {
+            return lastSeenLimit;
         }
     }
 
@@ -136,4 +142,7 @@ public class ClamdCpuLimiterExample1 {
             System.out.println("File " + event.getInfectedFile() + " moved to quarantine");
         }
     }
+
+
+    private static final int MIN_SCAN_LIMIT = 20;
 }

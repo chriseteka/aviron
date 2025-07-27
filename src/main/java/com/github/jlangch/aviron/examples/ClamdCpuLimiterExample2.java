@@ -98,28 +98,30 @@ public class ClamdCpuLimiterExample2 {
         initialCpuLimit(limiter, clamdPID);
 
         try {
-        	// 
-        	ses = Executors.newScheduledThreadPool(1);
-        			
+            // 
+            ses = Executors.newScheduledThreadPool(1);
+                    
             // update CPU limit task, fired every 5 minutes
             final Runnable updateCpuLimitTask = () -> updateCpuLimit(limiter, clamdPID);
             ses.scheduleAtFixedRate(updateCpuLimitTask, 5, 5, TimeUnit.MINUTES);
 
             // scan until we're killed or stopped
-	        while(!stop.get()) {
-	            try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(filestoreDir.toPath())) {
-	                dirStream.forEach(path -> {
-	                    // Scan the next filestore directory
-	                    System.out.println(client.scan(path, false));
-	                });
-	            }
-	            catch(Exception ex) {
-	                System.out.println("Error: " + ex.getMessage());
-	            }
-	        }
+            while(!stop.get()) {
+                try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(filestoreDir.toPath())) {
+                    dirStream.forEach(path -> {
+                        if (limiter.getLastSeenLimit() >= MIN_SCAN_LIMIT) {
+                            // Scan the next filestore directory
+                            System.out.println(client.scan(path, false));
+                        }
+                    });
+                }
+                catch(Exception ex) {
+                    System.out.println("Error: " + ex.getMessage());
+                }
+            }
         }
         finally { 
-        	ses.shutdown();
+            ses.shutdown();
         }
     }
 
@@ -150,6 +152,8 @@ public class ClamdCpuLimiterExample2 {
         }
     }
     
+    
+    private static final int MIN_SCAN_LIMIT = 20;
     
     private final AtomicBoolean stop = new AtomicBoolean(false);
     

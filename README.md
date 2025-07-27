@@ -19,7 +19,7 @@
 * Send virus scan requests for files and directories to the *clamd* daemon
 * Build virus scanners with support for quarantine. Infected files can be
   moved/copied to a quarantine directory
-* Dynamically limit the *clamd* daemon CPU usage through time-based CPU
+* Dynamically limit the *clamd* daemon CPU usage through day/time-based CPU
   limit profiles
 * The quarantine and CPU limit features are optional
 * Available for Linux and MacOS (battle tested on Alma Linux)
@@ -270,6 +270,8 @@ public class DynamicCpuLimitExample1 {
     }
 ```
 
+CPU profile table:
+
 ```
 ---------------------------------------------------------
 Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
@@ -365,6 +367,8 @@ public class DynamicCpuLimitExample2 {
 }
 ```
 
+CPU profile table:
+
 ```
 ---------------------------------------------------------
 Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
@@ -434,6 +438,8 @@ public class DynamicCpuLimitExample3 {
     }
 }
 ```
+
+CPU profile table:
 
 ```
 ---------------------------------------------------------
@@ -558,10 +564,12 @@ public class ClamdCpuLimiterExample {
             try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(filestoreDir.toPath())) {
                 dirStream.forEach(path -> {
                     // update clamd CPU limit 
-                    updateCpuLimit(limiter, clamdPID);
+                    final int limit = updateCpuLimit(limiter, clamdPID);
 
-                    // Scan the next filestore directory
-                    System.out.println(client.scan(path, false));
+                    if (limit >= MIN_SCAN_LIMIT) {
+                        // Scan the next filestore directory
+                        System.out.println(client.scan(path, false));
+                    }
                 });
             }
             catch(Exception ex) {
@@ -577,7 +585,7 @@ public class ClamdCpuLimiterExample {
                             limiter.getLastSeenLimit()));
     }
 
-    private void updateCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
+    private int updateCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
         // note: applied only if the new limit differs from the last one
         final int lastSeenLimit = limiter.getLastSeenLimit();
         if (limiter.activateClamdCpuLimit(clamdPID)) {
@@ -585,6 +593,10 @@ public class ClamdCpuLimiterExample {
             System.out.println(String.format(
                                 "Adjusted clamd CPU limit: %d%% -> %d%%",
                                 lastSeenLimit, newLimit));
+            return newLimit;
+        }
+        else {
+            return lastSeenLimit;
         }
     }
 
@@ -596,6 +608,9 @@ public class ClamdCpuLimiterExample {
             System.out.println("File " + event.getInfectedFile() + " moved to quarantine");
         }
     }
+
+
+    private static final int MIN_SCAN_LIMIT = 20;
 }
 ```
 
