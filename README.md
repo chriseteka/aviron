@@ -209,8 +209,8 @@ usage.
 
 **Note:**
 
-A 100% CPU limit corresponds to a full load of a single core or a single *hyper-thread* on 
-*INTEL* CPUs.
+A 100% CPU limit corresponds to a full load of a single core *ARM* based CPU or a 
+single *hyper-thread* on *INTEL* CPUs.
 
 
 ### Simple day profile
