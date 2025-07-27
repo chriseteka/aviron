@@ -39,11 +39,11 @@ import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 
 
-public class ClamdCpuLimiterExample {
+public class ClamdCpuLimiterExample1 {
 
     public static void main(String[] args) {
         try {
-            new ClamdCpuLimiterExample().scan();
+            new ClamdCpuLimiterExample1().scan();
         }
         catch(Exception ex) {
             ex.printStackTrace();

@@ -432,11 +432,15 @@ Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
 
 ## Controlling the Clamd CPU usage
 
-Demonstrates how a demo filestore can be continously scanned honoring a *clamd*
+Demonstrates how a demo filestore can be continuously scanned honoring a *clamd*
 CPU profile.
 
+In the examples package you find two variants:
+* ClamdCpuLimiterExample1 (explicit cpu limit update)
+* ClamdCpuLimiterExample2 (scheduled cpu limit update)
 
-Our demo filestore looks like:
+
+Our demo filestore requiring virus scanning looks like:
 
 ```
 /data/filestore/
