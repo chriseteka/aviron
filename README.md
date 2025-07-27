@@ -16,7 +16,16 @@ Aviron is a zero dependency ClamAV Java client. It requires Java 8+.
 ## Table of Content
 
 * [Scan Examples](#scan-examples)
+    * [Simple scanning](#simple-scanning)
+    * [Scanning with quarantine support](#scanning-with-quarantine-support)
+
+
 * [Defining Clamd CPU profiles](#defining-clamd-cpu-profiles)
+    * [Simple day profile](#simple-day-profile)
+    * [Weekday/weekend profile](#weekday-weekend-profile)
+    * [Dynamic profile](#dynamic-profile)
+
+
 * [Controlling the Clamd CPU usage](#controlling-the-clamd-cpu-usage)
 
 
@@ -48,7 +57,7 @@ clamd --foreground
 ```
 
 
-### Simple scanning example:
+### Simple scanning
 
 ```java
 import java.io.*;
@@ -98,7 +107,7 @@ public class Scan {
 ```
 
 
-### Extended example with quarantine support:
+### Scanning with quarantine support
 
 Infected files can be moved/copied implicitly to a quarantine directory. 
 Whether an infected file is moved or copied can be controlled by the 
@@ -198,7 +207,7 @@ option. Aviron allows the definition of CPU profiles to control the clamd CPU
 usage.
 
 
-### A simply daily profile used for Mon - Sun
+### Simple day profile
 
 ```java
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
@@ -271,7 +280,7 @@ Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
 ```
 
 
-### A weekday/weekend profile
+### Weekday/weekend profile
 
 ```java
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
@@ -365,7 +374,7 @@ Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
 ---------------------------------------------------------
 ```
 
-### A dynamic profile
+### Dynamic profile
 
 ```java
 import java.time.LocalDateTime;
