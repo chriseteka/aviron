@@ -45,7 +45,7 @@ public class ScanQuarantineExample {
     }
 
     public void scan() throws Exception {
-       final String baseDir = "/data/files/";
+        final String baseDir = "/data/files/";
         final String quarantineDir = "/data/quarantine/";
 
         // Note: The file separator depends on the server's type (Unix, Windows)
@@ -89,7 +89,7 @@ public class ScanQuarantineExample {
         // remove all quarantine files
         client.removeAllQuarantineFiles();
     }
-    
+
     private void eventListener(final QuarantineEvent event) {
         if (event.getException() != null) {
             System.out.println("Error " + event.getException().getMessage());
