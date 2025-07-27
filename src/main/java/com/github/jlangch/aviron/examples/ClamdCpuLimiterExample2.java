@@ -106,8 +106,8 @@ public class ClamdCpuLimiterExample2 {
 
             // scan in an endless loop the filestore directories until we get killed or stopped
             while(!stop.get()) {
-                // scan next filestore directory
                 if (limiter.getLastSeenLimit() >= MIN_SCAN_LIMIT) {
+                    // scan next filestore directory
                     final File dir = fsMgr.nextDir();
                     System.out.println(client.scan(dir.toPath(), false));
                 }
