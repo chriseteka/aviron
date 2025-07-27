@@ -15,7 +15,7 @@ Aviron is a zero dependency ClamAV Java client. It requires Java 8+.
 
 ## Table of Content
 
-* [Examples](#examples)
+* [Scan Examples](#scan-examples)
 * [Defining Clamd CPU profiles](#defining-clamd-cpu-profiles)
 * [Controlling the Clamd CPU usage](#controlling-the-clamd-cpu-usage)
 
@@ -31,7 +31,7 @@ Aviron is a zero dependency ClamAV Java client. It requires Java 8+.
 * Support for a file watcher to pick up modified or newly created files for scanning.
 
 
-## Examples
+## Scan Examples
 
 Enable *TCPSocket* and *TCPAddr* configuration parameters in *clamd.conf*:
 
