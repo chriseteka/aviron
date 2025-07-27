@@ -89,6 +89,7 @@ public class ClamdCpuLimiterExample1 {
 
         final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
 
+        // create a FileStoreMgr to cycle through the file store directories
         final FileStoreMgr fsMgr = new FileStoreMgr(filestoreDir);
 
         // inital CPU limit after startup
