@@ -566,7 +566,7 @@ public class ClamdCpuLimiterExample {
         // inital CPU limit after startup
         initialCpuLimit(limiter, clamdPID);
 
-       // scan in an endless loop the filestore directories until we get killed or stopped
+        // scan in an endless loop the filestore directories until we get killed or stopped
         while(!stop.get()) {
             // update clamd CPU limit 
             final int limit = updateCpuLimit(limiter, clamdPID);
