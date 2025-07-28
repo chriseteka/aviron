@@ -36,25 +36,26 @@
 // Release Venice:
 //
 //   [1] Prepare Aviron
-//       - Verify that all unit tests pass: ./gradlew clean test
+//       - Verify that all unit tests pass: «./gradlew clean test»
 //       - Change version in 'gradle.properties' to '1.x.y' (remove the
 //         SNAPSHOT suffix)
 //       - Update the ChangeLog for the release version
 //       - Update the 'README.md'
 //       - Commit the 'README.md' change
-//       - Patch the release version number in:
+//       - Run «./gradlew updateReleaseVersion» to patch the release version 
+//         number in:
 //           {proj}/doc/maven-central.svg
 //           {proj}/README.md    (chapter Getting the latest release)
 //
 //   [2a] Publish manually to Maven
-//       - ./gradlew sonatypeBundle
+//       - Run «./gradlew sonatypeBundle»
 //       - Open https://central.sonatype.com/publishing and login
 //       - Choose deployment name: "com.github.jlangch:aviron:x.y.z"
 //       - Upload 'build/sonatype-bundle.zip' (scroll down publish dialog)
 //       - Publish the artifact
 //
 //   [2b] Publish automatically to Maven
-//       - ./gradlew -PsonatypeUsername=xxxx -PsonatypePassword=xxxx sonatypePublish
+//       - run: ./gradlew -PsonatypeUsername=xxxx -PsonatypePassword=xxxx sonatypePublish
 //       - Optionally check at:  https://central.sonatype.com/publishing and login
 //
 //   [3] Draft a GitHub Venice release
