@@ -112,9 +112,7 @@ public class FileWatcher implements Closeable {
 
             final WatchKey dirKey = normalizedDir.register(
                                         ws,
-                                        new WatchEvent.Kind[] { ENTRY_CREATE, 
-                                                                ENTRY_DELETE, 
-                                                                ENTRY_MODIFY });
+                                        ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
 
             keys.put(dirKey, normalizedDir);
 
@@ -162,7 +160,7 @@ public class FileWatcher implements Closeable {
         }
 
         try {
-            return mainDir.getFileSystem().newWatchService();
+        	return mainDir.getFileSystem().newWatchService();
         }
         catch(Exception ex) {
             throw new FileWatcherException(
