@@ -64,12 +64,12 @@ public class FileWatcherQueue {
         if (file != null) {
             synchronized(queue) {
                 queue.removeIf(it -> it.equals(file));
-                
-                // limit the size
+
+                // limit the size (discard oldest entries)
                 while(queue.size() >= maxSize) {
                     queue.removeFirst();
                 }
-                
+
                 queue.add(file);
             }
         }
@@ -84,14 +84,14 @@ public class FileWatcherQueue {
     public List<File> pop(final int n) {
         synchronized(queue) {
             final List<File> files = new ArrayList<>(n);
-            for(int ii=0; ii<n  && !queue.isEmpty(); ii++) {
+            for(int ii=0; ii<n && !queue.isEmpty(); ii++) {
                 files.add(queue.removeFirst());
             }
             return files;
         }
     }
 
-    
+
     public static int MIN_SIZE = 5;
 
     private final int maxSize;

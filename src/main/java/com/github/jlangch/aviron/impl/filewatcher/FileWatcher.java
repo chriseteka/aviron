@@ -58,6 +58,10 @@ public class FileWatcher implements Closeable {
             final Consumer<FileWatchErrorEvent> errorListener,
             final Consumer<FileWatchTerminationEvent> terminationListener
     ) {
+        if (dir == null) {
+            throw new IllegalArgumentException("A dir must not be null!");
+        }
+
         this.ws = createWatchService(dir);
         this.eventListener = eventListener;
         this.registerListener = registerListener;
@@ -70,6 +74,9 @@ public class FileWatcher implements Closeable {
     }
 
     public void register(final Path dir) {
+        if (dir == null) {
+            throw new IllegalArgumentException("A dir must not be null!");
+        }
         if (!dir.toFile().exists()) {
             throw new FileWatcherException("Folder " + dir + " does not exist");
         }
@@ -81,6 +88,10 @@ public class FileWatcher implements Closeable {
     }
 
     public void register(final List<Path> dirs) {
+        if (dirs == null) {
+            throw new IllegalArgumentException("A dirs list must not be null!");
+        }
+
         dirs.forEach(d -> register(ws, keys, d, false));
     }
 
@@ -91,13 +102,14 @@ public class FileWatcher implements Closeable {
     public boolean isRunning() {
         return !closed.get();
     }
-    
+
     @Override
     public void close() {
         closed.set(true);
         try {
             ws.close();
-        } catch(Exception ex) {
+        }
+        catch(Exception ex) {
             throw new FileWatcherException("Failed to close WatchService!", ex);
         }
     }
@@ -105,11 +117,13 @@ public class FileWatcher implements Closeable {
     private WatchService createWatchService(final Path mainDir) {
         if (!mainDir.toFile().exists()) {
             throw new FileWatcherException(
-                    "Failed to start WatchService! The main folder " + mainDir + " does not exist");
+                    "Failed to start WatchService! " +
+                    "The main folder " + mainDir + " does not exist");
         }
         if (!mainDir.toFile().isDirectory()) {
             throw new FileWatcherException(
-                    "Failed to start WatchService The main folder " + mainDir + " is not a directory");
+                    "Failed to start WatchService! " +
+                    "The main folder " + mainDir + " is not a directory");
         }
 
         try {
@@ -142,38 +156,45 @@ public class FileWatcher implements Closeable {
                            @SuppressWarnings("unchecked")
                            final Path p = ((WatchEvent<Path>)e).context();
                            final Path absPath = dirPath.resolve(p);
-                           if (absPath.toFile().isDirectory() && e.kind() == ENTRY_CREATE) {
+          
+                           if (absPath.toFile().isDirectory()
+                               && e.kind() == ENTRY_CREATE
+                           ) {
                                // register the new subdir
                                register(ws, keys, absPath, true);
                            }
+          
                            final FileWatchEventType type = convertEvent(e.kind());
                            if (type != null) {
-                               safeRun(() -> eventListener.accept(new FileWatchEvent(absPath, type)));
+                               safeRun(() -> eventListener.accept(
+                                                new FileWatchEvent(absPath, type)));
                            }
                          });
 
                     key.reset();
                 }
                 catch(ClosedWatchServiceException ex) {
-                    break;
+                    break; // stop watching
                 }
                 catch(InterruptedException ex) {
-                    // continue
+                    break; // stop watching
                 }
                 catch(Exception ex) {
                     if (errorListener != null) {
-                        safeRun(() -> errorListener.accept(new FileWatchErrorEvent(dir, ex)));
+                        safeRun(() -> errorListener.accept(
+                                          new FileWatchErrorEvent(dir, ex)));
                     }
-                    // continue
+                    // continue watching
                 }
             }
 
             if (!closed.get()) {
                 try { ws.close(); } catch(Exception e) {}
             }
-            
+
             if (terminationListener != null) {
-                safeRun(() -> terminationListener.accept(new FileWatchTerminationEvent(dir)));
+                safeRun(() -> terminationListener.accept(
+                                  new FileWatchTerminationEvent(dir)));
             }
         };
 
