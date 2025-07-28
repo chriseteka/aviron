@@ -42,6 +42,68 @@ import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.events.RealtimeScanEvent;
 
 
+/**
+ * 
+ * The filestore layout:
+ * 
+ * <pre>
+ * /data/filestore/
+ *   |
+ *   +-- 0000
+ *   |     \_ file1.doc
+ *   |     \_ file2.doc
+ *   |     :
+ *   |     \_ fileN.doc
+ *   +-- 0001
+ *   |     \_ file1.doc
+ *   |     :
+ *   |     \_ fileN.doc
+ *   :
+ *   +-- NNNN
+ *         \_ file1.doc
+ * </pre>
+ * 
+ * <p>A realtime file scanner that scans all newly created docx, xlsx, and pdf 
+ * files in filestore with the above layout.
+ * 
+ * <p>If any new directories appear in the filestore, the file watcher adds it
+ * implicitly to its list of watch dirs.
+ * 
+ * <pre>
+ * Client client = Client.builder()
+ *                       .serverHostname("localhost")
+ *                       .serverFileSeparator(FileSeparator.UNIX)
+ *                       .build();
+ *
+ * final Path filestoreDir = new File("/data/filestore/").toPath();
+ * final List<Path> dirs = Arrays.stream(rootDir.listFiles())
+ *                               .filter(f -> f.isDirectory())
+ *                               .map(f -> f.toPath())
+ *                               .collect(Collectors.toList());
+ *
+ * final Predicate<FileWatchEvent> scanApprover = 
+ *         (e) -> { final String filename = e.getPath().toFile().getName();
+ *                  return e.getType() == FileWatchEventType.CREATED
+ *                         && filename.matches(".*[.](docx|xlsx|pdf)")); };
+ *
+ * final Consumer<RealtimeScanEvent> scanListener =
+ *         (e) -> { if (e.hasVirus) {
+ *                     System.out.println("Infected -> " + e.getPath());
+ *                  } };
+ *
+ * final RealtimeScanner rts = new RealtimeScanner(
+ *                                      client,
+ *                                      filestoreDir,
+ *                                      dirs,
+ *                                      scanApprover,
+ *                                      scanListener,
+ *                                      10);
+ *
+ * rts.start();
+ * 
+ * rts.stop();
+ * </pre>
+ */
 public class RealtimeScanner {
 
     public RealtimeScanner(
@@ -151,7 +213,7 @@ public class RealtimeScanner {
     }
 
 
-    private void fileWatchEventListener(final FileWatchEvent event) {      
+    private void fileWatchEventListener(final FileWatchEvent event) {
         final FileWatcherQueue queue = fileWatcherQueue.get();
 
         switch(event.getType()) {

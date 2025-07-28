@@ -43,6 +43,14 @@ public class RealtimeScanEvent implements Event {
         return result;
     }
 
+    public boolean isOK() {
+        return result.isOK();
+    }
+  
+    public boolean hasVirus() {
+        return result.hasVirus();
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();

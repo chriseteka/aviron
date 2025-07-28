@@ -91,12 +91,20 @@ public class FileStoreMgr {
 
     public String getLastDirName() {
         return lastDirIdx < 0 || lastDirIdx >= subDirs.size()-1
-            ? null
-            : subDirs.get(lastDirIdx).getName();
+                ? null
+                : subDirs.get(lastDirIdx).getName();
     }
 
     public void restoreLastDirName(final String name) {
         lastDirIdx = getIndexOf(name);
+    }
+
+
+    private List<File> dirs() {
+        return Arrays.stream(rootDir.listFiles())
+                     .filter(f -> f.isDirectory())
+                     .sorted()
+                     .collect(Collectors.toList());
     }
 
     private int getIndexOf(final String name) {
@@ -108,12 +116,6 @@ public class FileStoreMgr {
         return -1;
     }
 
-    private List<File> dirs() {
-        return Arrays.stream(rootDir.listFiles())
-                     .filter(f -> f.isDirectory())
-                     .sorted()
-                     .collect(Collectors.toList());
-    }
 
     private final File rootDir;
 
