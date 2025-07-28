@@ -91,9 +91,14 @@ public class FileWatcher implements Closeable {
     }
 
     public void start() {
-    	startService();
+        try {
+            startService();
+        }
+        catch(Exception ex) {
+            throw new FileWatcherException("Failed to start FileWatcher");
+        }
     }
-    
+
     public void register(final Path dir) {
         if (dir == null) {
             throw new IllegalArgumentException("A dir must not be null!");

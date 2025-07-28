@@ -42,7 +42,7 @@ import com.github.jlangch.aviron.events.RealtimeScanEvent;
 
 /**
  * 
- * The filestore layout:
+ * The demo filestore layout:
  * 
  * <pre>
  * /data/filestore/
@@ -73,8 +73,6 @@ import com.github.jlangch.aviron.events.RealtimeScanEvent;
  *                       .serverFileSeparator(FileSeparator.UNIX)
  *                       .build();
  *
- * final Path filestoreDir = new File("/data/filestore/").toPath();
- *
  * final Predicate<FileWatchEvent> scanApprover = 
  *         (e) -> { final String filename = e.getPath().toFile().getName();
  *                  return e.getType() == FileWatchEventType.CREATED
@@ -87,15 +85,14 @@ import com.github.jlangch.aviron.events.RealtimeScanEvent;
  *
  * final RealtimeScanner rts = new RealtimeScanner(
  *                                      avClient,
- *                                      filestoreDir,
- *                                      true,
- *                                      dirs,
+ *                                      Paths.get("/data/filestore/"),
+ *                                      true, // include all subdirs
  *                                      scanApprover,
  *                                      scanListener,
  *                                      10);
  *
  * rts.start();
- * 
+ *
  * rts.stop();
  * </pre>
  */
@@ -140,13 +137,16 @@ public class RealtimeScanner {
             try {
                 fileWatcherQueue.set(new FileWatcherQueue(5_000));
 
-                watcher.set(new FileWatcher(
-                                    mainDir,
-                                    registerAllSubDirs,
-                                    this::fileWatchEventListener,
-                                    this::registerEventListener,
-                                    this::errorEventListener,
-                                    this::terminationEventListener));
+                final FileWatcher fw = new FileWatcher(
+                                              mainDir,
+                                              registerAllSubDirs,
+                                              this::fileWatchEventListener,
+                                              this::registerEventListener,
+                                              this::errorEventListener,
+                                              this::terminationEventListener);
+                fw.start();
+                
+                watcher.set(fw);
             }
             catch(Exception ex) {
                 running.set(false);
