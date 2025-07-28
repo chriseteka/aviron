@@ -4,6 +4,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.5.4] - 2025-08-xx
+
+- ...
+
+
+
 ## [1.5.3] - 2025-07-28
 
 - Added function `ClamdCpuLimiter::formatProfilesAsTableByHour()`
