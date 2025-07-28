@@ -26,7 +26,7 @@ client. It requires Java 8+.
 * Available for Linux and MacOS (battle tested on Alma Linux)
 
 The ClamAV tools ([clamd](https://linux.die.net/man/8/clamd), [clamdscan](https://linux.die.net/man/1/clamdscan), [clamscan](https://linux.die.net/man/1/clamscan)) 
-are just simple virus scanners. 
+are just virus scanners. 
 They lack support for putting infected files into quarantine and do not have 
 any CPU limiting features.
 
