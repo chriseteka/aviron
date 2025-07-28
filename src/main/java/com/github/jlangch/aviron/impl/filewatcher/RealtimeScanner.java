@@ -25,8 +25,6 @@ package com.github.jlangch.aviron.impl.filewatcher;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -70,16 +68,12 @@ import com.github.jlangch.aviron.events.RealtimeScanEvent;
  * implicitly to its list of watch dirs.
  * 
  * <pre>
- * Client client = Client.builder()
+ * Client avClient = Client.builder()
  *                       .serverHostname("localhost")
  *                       .serverFileSeparator(FileSeparator.UNIX)
  *                       .build();
  *
  * final Path filestoreDir = new File("/data/filestore/").toPath();
- * final List<Path> dirs = Arrays.stream(rootDir.listFiles())
- *                               .filter(f -> f.isDirectory())
- *                               .map(f -> f.toPath())
- *                               .collect(Collectors.toList());
  *
  * final Predicate<FileWatchEvent> scanApprover = 
  *         (e) -> { final String filename = e.getPath().toFile().getName();
@@ -92,8 +86,9 @@ import com.github.jlangch.aviron.events.RealtimeScanEvent;
  *                  } };
  *
  * final RealtimeScanner rts = new RealtimeScanner(
- *                                      client,
+ *                                      avClient,
  *                                      filestoreDir,
+ *                                      true,
  *                                      dirs,
  *                                      scanApprover,
  *                                      scanListener,
@@ -109,7 +104,7 @@ public class RealtimeScanner {
     public RealtimeScanner(
            final Client client,
            final Path mainDir,
-           final List<Path> secondaryDirs,
+           final boolean registerAllSubDirs,
            final Predicate<FileWatchEvent> scanApprover,
            final Consumer<RealtimeScanEvent> scanListener,
            final int sleepTimeOnIdle
@@ -127,9 +122,7 @@ public class RealtimeScanner {
 
         this.client = client;
         this.mainDir = mainDir;
-        if (secondaryDirs != null) {
-            this.secondaryDirs.addAll(secondaryDirs);
-        }
+        this.registerAllSubDirs = registerAllSubDirs;
         this.scanApprover = scanApprover;
         this.scanListener = scanListener;
         this.sleepTimeOnIdle = Math.max(1, sleepTimeOnIdle);
@@ -149,6 +142,7 @@ public class RealtimeScanner {
 
                 watcher.set(new FileWatcher(
                                     mainDir,
+                                    registerAllSubDirs,
                                     this::fileWatchEventListener,
                                     this::registerEventListener,
                                     this::errorEventListener,
@@ -159,8 +153,6 @@ public class RealtimeScanner {
                 throw ex;
             }
 
-            watcher.get().register(secondaryDirs);
-            
             final Runnable runnable = () -> {
                 while (running.get()) {
                     try {
@@ -274,7 +266,7 @@ public class RealtimeScanner {
 
     private final Client client;
     private final Path mainDir;
-    private final List<Path> secondaryDirs = new ArrayList<>();
+    private final boolean registerAllSubDirs;
     private final Predicate<FileWatchEvent> scanApprover;
     private final Consumer<RealtimeScanEvent> scanListener;
     private final int sleepTimeOnIdle;

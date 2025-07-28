@@ -29,6 +29,7 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
 import java.io.Closeable;
 import java.nio.file.ClosedWatchServiceException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
@@ -36,6 +37,7 @@ import java.nio.file.WatchService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -52,47 +54,74 @@ import com.github.jlangch.aviron.ex.FileWatcherException;
 public class FileWatcher implements Closeable {
 
     public FileWatcher(
-            final Path dir,
+            final Path mainDir,
+            final boolean registerAllSubDirs,
             final Consumer<FileWatchEvent> eventListener,
             final Consumer<FileWatchRegisterEvent> registerListener,
             final Consumer<FileWatchErrorEvent> errorListener,
             final Consumer<FileWatchTerminationEvent> terminationListener
     ) {
-        if (dir == null) {
+        if (mainDir == null) {
             throw new IllegalArgumentException("A dir must not be null!");
         }
 
-        this.ws = createWatchService(dir);
+        this.mainDir = mainDir.toAbsolutePath().normalize();
         this.eventListener = eventListener;
         this.registerListener = registerListener;
         this.errorListener = errorListener;
         this.terminationListener = terminationListener;
 
-        register(dir);
+        this.ws = createWatchService(mainDir);
 
-        start(dir);
+        if (registerAllSubDirs) {
+            try {
+                Files.walk(mainDir)
+                     .filter(Files::isDirectory)
+                     .forEach(this::register);
+            }
+            catch(Exception ex) {
+                throw new FileWatcherException(
+                        "Failed to register mainDir with all subdirs (recursively)!",
+                        ex);
+            }
+        }
+        else {
+            register(mainDir);
+        }
     }
 
+    public void start() {
+    	startService();
+    }
+    
     public void register(final Path dir) {
         if (dir == null) {
             throw new IllegalArgumentException("A dir must not be null!");
-        }
-        if (!dir.toFile().exists()) {
-            throw new FileWatcherException("Folder " + dir + " does not exist");
         }
         if (!dir.toFile().isDirectory()) {
             throw new FileWatcherException("Folder " + dir + " is not a directory");
         }
 
-        register(ws, keys, dir, false);
-    }
+        try {
+            final Path normalizedDir = dir.toAbsolutePath().normalize();
 
-    public void register(final List<Path> dirs) {
-        if (dirs == null) {
-            throw new IllegalArgumentException("A dirs list must not be null!");
+            final WatchKey dirKey = normalizedDir.register(
+                                        ws,
+                                        new WatchEvent.Kind[] { ENTRY_CREATE, 
+                                                                ENTRY_DELETE, 
+                                                                ENTRY_MODIFY });
+
+            keys.put(dirKey, normalizedDir);
+
+            if (registerListener != null) {
+                safeRun(() -> registerListener.accept(new FileWatchRegisterEvent(normalizedDir)));
+            }
         }
-
-        dirs.forEach(d -> register(ws, keys, d, false));
+        catch(Exception e) {
+            if (errorListener != null) {
+                safeRun(() -> errorListener.accept(new FileWatchErrorEvent(dir, e)));
+            }
+        }
     }
 
     public List<Path> getRegisteredPaths() {
@@ -105,21 +134,22 @@ public class FileWatcher implements Closeable {
 
     @Override
     public void close() {
-        closed.set(true);
-        try {
-            ws.close();
-        }
-        catch(Exception ex) {
-            throw new FileWatcherException("Failed to close WatchService!", ex);
+        if (closed.compareAndSet(false, true)) {
+            try {
+                ws.close();
+            }
+            catch(Exception ex) {
+                throw new FileWatcherException("Failed to close WatchService!", ex);
+            }
+            
+            if (terminationListener != null) {
+                safeRun(() -> terminationListener.accept(
+                                  new FileWatchTerminationEvent(mainDir)));
+            }
         }
     }
 
     private WatchService createWatchService(final Path mainDir) {
-        if (!mainDir.toFile().exists()) {
-            throw new FileWatcherException(
-                    "Failed to start WatchService! " +
-                    "The main folder " + mainDir + " does not exist");
-        }
         if (!mainDir.toFile().isDirectory()) {
             throw new FileWatcherException(
                     "Failed to start WatchService! " +
@@ -131,17 +161,17 @@ public class FileWatcher implements Closeable {
         }
         catch(Exception ex) {
             throw new FileWatcherException(
-                    "Failed to start WatchService! Folder " + mainDir + ".", ex);
+                    "Failed to start Java WatchService! Folder " + mainDir + ".", ex);
         }
     }
 
-    private void start(final Path dir) {
+    private void startService() {
         final Runnable runnable = () -> {
             while (!closed.get()) {
                 try {
-                    final WatchKey key = ws.take();
+                    final WatchKey key = ws.poll(1L, TimeUnit.SECONDS);
                     if (key == null) {
-                        break;
+                        continue;
                     }
 
                     final Path dirPath = keys.get(key);
@@ -151,19 +181,19 @@ public class FileWatcher implements Closeable {
 
                     key.pollEvents()
                        .stream()
-                       .filter(e -> (e.kind() != OVERFLOW))
+                       .filter(e -> e.kind() != OVERFLOW)
                        .forEach(e -> {
                            @SuppressWarnings("unchecked")
                            final Path p = ((WatchEvent<Path>)e).context();
                            final Path absPath = dirPath.resolve(p);
-          
+
                            if (absPath.toFile().isDirectory()
                                && e.kind() == ENTRY_CREATE
                            ) {
                                // register the new subdir
-                               register(ws, keys, absPath, true);
+                               register(absPath);
                            }
-          
+
                            final FileWatchEventType type = convertEvent(e.kind());
                            if (type != null) {
                                safeRun(() -> eventListener.accept(
@@ -182,20 +212,13 @@ public class FileWatcher implements Closeable {
                 catch(Exception ex) {
                     if (errorListener != null) {
                         safeRun(() -> errorListener.accept(
-                                          new FileWatchErrorEvent(dir, ex)));
+                                          new FileWatchErrorEvent(mainDir, ex)));
                     }
                     // continue watching
                 }
             }
 
-            if (!closed.get()) {
-                try { ws.close(); } catch(Exception e) {}
-            }
-
-            if (terminationListener != null) {
-                safeRun(() -> terminationListener.accept(
-                                  new FileWatchTerminationEvent(dir)));
-            }
+            close();
         };
 
         final Thread thread = new Thread(runnable);
@@ -203,7 +226,7 @@ public class FileWatcher implements Closeable {
         thread.setName("aviron-filewatcher-" + threadCounter.getAndIncrement());
         thread.start();
     }
-    
+
     private FileWatchEventType convertEvent(final WatchEvent.Kind<?> kind) {
         if (kind == null) {
             return null;
@@ -219,30 +242,6 @@ public class FileWatcher implements Closeable {
         }
     }
 
-    private void register(
-            final WatchService ws,
-            final Map<WatchKey,Path> keys,
-            final Path dir,
-            final boolean audit
-    ) {
-        try {
-            final WatchKey dirKey = dir.register(
-                    ws,
-                    new WatchEvent.Kind[] { ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY },
-                    new WatchEvent.Modifier[0]);
-
-            keys.put(dirKey, dir);
-
-            if (audit && registerListener != null) {
-                safeRun(() -> registerListener.accept(new FileWatchRegisterEvent(dir)));
-            }
-        }
-        catch(Exception e) {
-            if (errorListener != null) {
-                safeRun(() -> errorListener.accept(new FileWatchErrorEvent(dir, e)));
-            }
-        }
-    }
 
     private void safeRun(final Runnable r) {
         try {
@@ -256,6 +255,7 @@ public class FileWatcher implements Closeable {
 
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
+    private final Path mainDir;
     private final WatchService ws;
     private final Map<WatchKey,Path> keys = new HashMap<>();
     private final Consumer<FileWatchEvent> eventListener;
