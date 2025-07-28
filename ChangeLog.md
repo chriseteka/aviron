@@ -4,12 +4,12 @@
 All notable changes to this project will be documented in this file.
 
 
-## [1.5.3] - 2025-07-xx
+## [1.5.3] - 2025-07-28
 
 - Added function `ClamdCpuLimiter::formatProfilesAsTableByHour()`
-- The function `ClamdCpuLimiter::activateClamdCpuLimit(String)` returns
-  now also a boolean flag to indicate whether the *clamd* CPU limit has
-  been changed.
+- Changed the void function `ClamdCpuLimiter::activateClamdCpuLimit(String)` 
+  to return now a boolean flag to indicate whether the *clamd* CPU limit 
+  has been changed.
 
 
 
