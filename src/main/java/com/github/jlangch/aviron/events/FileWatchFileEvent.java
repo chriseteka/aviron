@@ -25,9 +25,9 @@ package com.github.jlangch.aviron.events;
 import java.nio.file.Path;
 
 
-public class FileWatchEvent implements Event {
+public class FileWatchFileEvent implements Event {
     
-    public FileWatchEvent(final Path path, final FileWatchEventType type) {
+    public FileWatchFileEvent(final Path path, final FileWatchFileEventType type) {
         this.path = path;
         this.type = type;
     }
@@ -37,7 +37,7 @@ public class FileWatchEvent implements Event {
         return path;
     }
 
-    public FileWatchEventType getType() {
+    public FileWatchFileEventType getType() {
         return type;
     }
 
@@ -57,5 +57,5 @@ public class FileWatchEvent implements Event {
 
     
     private final Path path;
-    private final FileWatchEventType type;
+    private final FileWatchFileEventType type;
 }

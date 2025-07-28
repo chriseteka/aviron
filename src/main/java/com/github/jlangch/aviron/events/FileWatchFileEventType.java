@@ -23,7 +23,7 @@
 package com.github.jlangch.aviron.events;
 
 
-public enum FileWatchEventType {
+public enum FileWatchFileEventType {
 
     CREATED,   // file created
 

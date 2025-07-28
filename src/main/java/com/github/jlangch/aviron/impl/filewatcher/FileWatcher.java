@@ -44,8 +44,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.github.jlangch.aviron.events.FileWatchErrorEvent;
-import com.github.jlangch.aviron.events.FileWatchEvent;
-import com.github.jlangch.aviron.events.FileWatchEventType;
+import com.github.jlangch.aviron.events.FileWatchFileEvent;
+import com.github.jlangch.aviron.events.FileWatchFileEventType;
 import com.github.jlangch.aviron.events.FileWatchRegisterEvent;
 import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.ex.FileWatcherException;
@@ -56,7 +56,7 @@ public class FileWatcher implements Closeable {
     public FileWatcher(
             final Path mainDir,
             final boolean registerAllSubDirs,
-            final Consumer<FileWatchEvent> eventListener,
+            final Consumer<FileWatchFileEvent> eventListener,
             final Consumer<FileWatchRegisterEvent> registerListener,
             final Consumer<FileWatchErrorEvent> errorListener,
             final Consumer<FileWatchTerminationEvent> terminationListener
@@ -71,22 +71,20 @@ public class FileWatcher implements Closeable {
         this.errorListener = errorListener;
         this.terminationListener = terminationListener;
 
-        this.ws = createWatchService(mainDir);
-
-        if (registerAllSubDirs) {
-            try {
-                Files.walk(mainDir)
-                     .filter(Files::isDirectory)
-                     .forEach(this::register);
+        try {
+            this.ws = createWatchService(mainDir);
+    
+            if (registerAllSubDirs) {
+                    Files.walk(mainDir)
+                         .filter(Files::isDirectory)
+                         .forEach(this::register);
             }
-            catch(Exception ex) {
-                throw new FileWatcherException(
-                        "Failed to register mainDir with all subdirs (recursively)!",
-                        ex);
+            else {
+                register(mainDir);
             }
         }
-        else {
-            register(mainDir);
+        catch(Exception ex) {
+            throw new FileWatcherException("Failed create FileWatcher!", ex);
         }
     }
 
@@ -160,7 +158,7 @@ public class FileWatcher implements Closeable {
         }
 
         try {
-        	return mainDir.getFileSystem().newWatchService();
+            return mainDir.getFileSystem().newWatchService();
         }
         catch(Exception ex) {
             throw new FileWatcherException(
@@ -197,10 +195,10 @@ public class FileWatcher implements Closeable {
                                register(absPath);
                            }
 
-                           final FileWatchEventType type = convertEvent(e.kind());
+                           final FileWatchFileEventType type = convertEvent(e.kind());
                            if (type != null) {
                                safeRun(() -> eventListener.accept(
-                                                new FileWatchEvent(absPath, type)));
+                                                new FileWatchFileEvent(absPath, type)));
                            }
                          });
 
@@ -230,16 +228,16 @@ public class FileWatcher implements Closeable {
         thread.start();
     }
 
-    private FileWatchEventType convertEvent(final WatchEvent.Kind<?> kind) {
+    private FileWatchFileEventType convertEvent(final WatchEvent.Kind<?> kind) {
         if (kind == null) {
             return null;
         }
         else {
             switch(kind.name()) {
-                case "ENTRY_CREATE": return FileWatchEventType.CREATED;
-                case "ENTRY_DELETE": return FileWatchEventType.DELETED;
-                case "ENTRY_MODIFY": return FileWatchEventType.MODIFIED;
-                case "OVERFLOW":     return FileWatchEventType.OVERFLOW;
+                case "ENTRY_CREATE": return FileWatchFileEventType.CREATED;
+                case "ENTRY_DELETE": return FileWatchFileEventType.DELETED;
+                case "ENTRY_MODIFY": return FileWatchFileEventType.MODIFIED;
+                case "OVERFLOW":     return FileWatchFileEventType.OVERFLOW;
                 default:             return null;
             }
         }
@@ -261,7 +259,7 @@ public class FileWatcher implements Closeable {
     private final Path mainDir;
     private final WatchService ws;
     private final Map<WatchKey,Path> keys = new HashMap<>();
-    private final Consumer<FileWatchEvent> eventListener;
+    private final Consumer<FileWatchFileEvent> eventListener;
     private final Consumer<FileWatchRegisterEvent> registerListener;
     private final Consumer<FileWatchErrorEvent> errorListener;
     private final Consumer<FileWatchTerminationEvent> terminationListener;

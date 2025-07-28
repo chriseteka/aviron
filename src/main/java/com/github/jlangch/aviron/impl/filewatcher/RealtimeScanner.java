@@ -34,7 +34,7 @@ import java.util.function.Predicate;
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.events.FileWatchErrorEvent;
-import com.github.jlangch.aviron.events.FileWatchEvent;
+import com.github.jlangch.aviron.events.FileWatchFileEvent;
 import com.github.jlangch.aviron.events.FileWatchRegisterEvent;
 import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.events.RealtimeScanEvent;
@@ -102,7 +102,7 @@ public class RealtimeScanner {
            final Client client,
            final Path mainDir,
            final boolean registerAllSubDirs,
-           final Predicate<FileWatchEvent> scanApprover,
+           final Predicate<FileWatchFileEvent> scanApprover,
            final Consumer<RealtimeScanEvent> scanListener,
            final int sleepTimeOnIdle
     ) {
@@ -205,7 +205,7 @@ public class RealtimeScanner {
     }
 
 
-    private void fileWatchEventListener(final FileWatchEvent event) {
+    private void fileWatchEventListener(final FileWatchFileEvent event) {
         final FileWatcherQueue queue = fileWatcherQueue.get();
 
         switch(event.getType()) {
@@ -267,7 +267,7 @@ public class RealtimeScanner {
     private final Client client;
     private final Path mainDir;
     private final boolean registerAllSubDirs;
-    private final Predicate<FileWatchEvent> scanApprover;
+    private final Predicate<FileWatchFileEvent> scanApprover;
     private final Consumer<RealtimeScanEvent> scanListener;
     private final int sleepTimeOnIdle;
 

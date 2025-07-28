@@ -123,7 +123,7 @@ class FileWatcherTest {
         }
     }
 
-    //@Disabled   // Java WatchService doesn't work on MacOS !?
+    @Disabled   // Java WatchService doesn't work on MacOS !?
     @Test 
     void testFileWatcherMainDirOnly() {
         final TempFS tempFS = new TempFS();
