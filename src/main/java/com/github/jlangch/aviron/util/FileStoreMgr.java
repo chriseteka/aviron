@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  * <pre>
  * /data/filestore/
  *   |
- *   +-- 0000        + <--+
+ *   +-- 0000        + &lt;--+
  *   +-- 0001        |    |
  *   :               |    |
  *   +-- NNNN        v ---+
