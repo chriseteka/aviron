@@ -13,6 +13,8 @@
 **Aviron** is a zero dependency [ClamAV](https://www.clamav.net/) Java 
 client. It requires Java 8+.
 
+ClamAV® is an open-source antivirus engine for detecting trojans, viruses, malware & other malicious threats.
+
 **Aviron** features:
 
 * Send documents through a socket from within a Java application to the 
