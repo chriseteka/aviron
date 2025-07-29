@@ -62,7 +62,10 @@ public class FileWatcher implements Closeable {
             final Consumer<FileWatchTerminationEvent> terminationListener
     ) {
         if (mainDir == null) {
-            throw new IllegalArgumentException("A dir must not be null!");
+            throw new IllegalArgumentException("The mainDir must not be null!");
+        }
+        if (!mainDir.toFile().isDirectory()) {
+            throw new RuntimeException("The main dir " + mainDir + " does not exist or is not a directory");
         }
 
         this.mainDir = mainDir.toAbsolutePath().normalize();
@@ -72,7 +75,7 @@ public class FileWatcher implements Closeable {
         this.terminationListener = terminationListener;
 
         try {
-            this.ws = createWatchService(mainDir);
+            this.ws = mainDir.getFileSystem().newWatchService();
     
             if (registerAllSubDirs) {
                     Files.walk(mainDir)
@@ -147,22 +150,6 @@ public class FileWatcher implements Closeable {
                 safeRun(() -> terminationListener.accept(
                                   new FileWatchTerminationEvent(mainDir)));
             }
-        }
-    }
-
-    private WatchService createWatchService(final Path mainDir) {
-        if (!mainDir.toFile().isDirectory()) {
-            throw new FileWatcherException(
-                    "Failed to start WatchService! " +
-                    "The main folder " + mainDir + " is not a directory");
-        }
-
-        try {
-            return mainDir.getFileSystem().newWatchService();
-        }
-        catch(Exception ex) {
-            throw new FileWatcherException(
-                    "Failed to start Java WatchService! Folder " + mainDir + ".", ex);
         }
     }
 
