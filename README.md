@@ -55,11 +55,6 @@ any CPU limiting features.
 [Change Log](ChangeLog.md)
 
 
-## What's coming next?
-
-* Support for a file watcher to pick up modified or newly created files for scanning.
-
-
 ## Scan Examples
 
 Enable *TCPSocket* and *TCPAddr* configuration parameters in *clamd.conf*:
