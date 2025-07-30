@@ -28,36 +28,35 @@ import java.nio.file.Path;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.github.jlangch.aviron.events.Event;
 import com.github.jlangch.aviron.impl.test.TempFS;
+import com.github.jlangch.aviron.util.junit.EnableOnMac;
 
 
 class FileWatcherTest {
 
     @Test 
+    @EnableOnMac
     void testFileWatcherMainDirOnly_NoFiles() {
         final TempFS tempFS = new TempFS();
         
         try {
-            tempFS.createScanFile("test1.data", "TEST");
-
-            final Queue<Event> events = new ConcurrentLinkedQueue<>();
-            final Queue<Event> registrations = new ConcurrentLinkedQueue<>();
+            final Queue<Event> files = new ConcurrentLinkedQueue<>();
             final Queue<Event> errors = new ConcurrentLinkedQueue<>();
             final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
  
             final Path mainDir = tempFS.getScanDir().toPath();
             
-            try(final FileWatcher fw = new FileWatcher(
+            try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                               mainDir,
                                               true,
-                                              e -> events.offer(e),
-                                              e -> registrations.offer(e),
+                                              e -> { if (e.isRegularFile()) files.offer(e); },
                                               e -> errors.offer(e),
-                                              e -> terminations.offer(e))) {
+                                              e -> terminations.offer(e),
+                                              null,
+                                              "/opt/homebrew/bin/fswatch")) {
 
                 fw.start();
 
@@ -69,8 +68,7 @@ class FileWatcherTest {
 
             // analyze the generated events
 
-            assertEquals(0, events.size());
-            assertEquals(1, registrations.size());
+            assertEquals(0, files.size());
             assertEquals(0, errors.size());
             assertEquals(1, terminations.size());
         }
@@ -80,32 +78,32 @@ class FileWatcherTest {
     }
 
     @Test 
+    @EnableOnMac
     void testFileWatcherMainDirWithSubDirs_NoFiles() {
         final TempFS tempFS = new TempFS();
         
         try {
             tempFS.createScanSubDir("0000");
             tempFS.createScanSubDir("0001");
-            tempFS.createScanFile("test1.data", "TEST");
 
-            final Queue<Event> events = new ConcurrentLinkedQueue<>();
-            final Queue<Event> registrations = new ConcurrentLinkedQueue<>();
+            final Queue<Event> files = new ConcurrentLinkedQueue<>();
             final Queue<Event> errors = new ConcurrentLinkedQueue<>();
             final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
  
             final Path mainDir = tempFS.getScanDir().toPath();
             
-            try(final FileWatcher fw = new FileWatcher(
-                                              mainDir,
-                                              true,
-                                              e -> events.offer(e),
-                                              e -> registrations.offer(e),
-                                              e -> errors.offer(e),
-                                              e -> terminations.offer(e))) {
+            try(final IFileWatcher fw = new FileWatcher_FsWatch(
+							                    mainDir,
+							                    true,
+	                                            e -> { if (e.isRegularFile()) files.offer(e); },
+							                    e -> errors.offer(e),
+							                    e -> terminations.offer(e),
+							                    null,
+							                    "/opt/homebrew/bin/fswatch")) {
 
                 fw.start();
 
-                assertEquals(3, fw.getRegisteredPaths().size());
+                assertEquals(1, fw.getRegisteredPaths().size());
                 assertEquals(mainDir, fw.getRegisteredPaths().get(0));
 
                 sleep(1);
@@ -113,8 +111,7 @@ class FileWatcherTest {
 
             // analyze the generated events
 
-            assertEquals(0, events.size());
-            assertEquals(3, registrations.size());
+            assertEquals(0, files.size());
             assertEquals(0, errors.size());
             assertEquals(1, terminations.size());
         }
@@ -123,28 +120,26 @@ class FileWatcherTest {
         }
     }
 
-    @Disabled   // Java WatchService doesn't work on MacOS !?
     @Test 
+    @EnableOnMac
     void testFileWatcherMainDirOnly() {
         final TempFS tempFS = new TempFS();
         
         try {
-            tempFS.createScanFile("test1.data", "TEST");
-            
-            final Queue<Event> events = new ConcurrentLinkedQueue<>();
-            final Queue<Event> registrations = new ConcurrentLinkedQueue<>();
+            final Queue<Event> files = new ConcurrentLinkedQueue<>();
             final Queue<Event> errors = new ConcurrentLinkedQueue<>();
             final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
 
             final Path mainDir = tempFS.getScanDir().toPath();
 
-            try(final FileWatcher fw = new FileWatcher(
-                                              mainDir,
-                                              true,  // include all subdirs
-                                              e -> events.offer(e),
-                                              e -> registrations.offer(e),
-                                              e -> errors.offer(e),
-                                              e -> terminations.offer(e))) {
+            try(final IFileWatcher fw = new FileWatcher_FsWatch(
+							                    mainDir,
+							                    true,
+	                                            e -> { if (e.isRegularFile()) files.offer(e); },
+							                    e -> errors.offer(e),
+							                    e -> terminations.offer(e),
+							                    null,
+							                    "/opt/homebrew/bin/fswatch")) {
 
                 fw.start();
 
@@ -159,10 +154,9 @@ class FileWatcherTest {
 
             // analyze the generated events
 
-            assertEquals(1, registrations.size());
+            assertEquals(3, files.size());
             assertEquals(0, errors.size());
             assertEquals(1, terminations.size());
-            assertEquals(3, events.size());
         }
         finally {
             tempFS.remove();

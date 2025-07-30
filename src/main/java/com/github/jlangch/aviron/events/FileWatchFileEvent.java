@@ -27,14 +27,27 @@ import java.nio.file.Path;
 
 public class FileWatchFileEvent implements Event {
     
-    public FileWatchFileEvent(final Path path, final FileWatchFileEventType type) {
+    public FileWatchFileEvent(
+            final Path path,
+            final boolean isDirectory,
+            final FileWatchFileEventType type
+    ) {
         this.path = path;
+        this.isDirectory = isDirectory;
         this.type = type;
     }
 
 
     public Path getPath() {
         return path;
+    }
+
+    public boolean isDirectory() {
+        return isDirectory;
+    }
+
+    public boolean isRegularFile() {
+        return !isDirectory;
     }
 
     public FileWatchFileEventType getType() {
@@ -49,13 +62,17 @@ public class FileWatchFileEvent implements Event {
         sb.append("Path: ");
         sb.append(path);
         sb.append(System.lineSeparator());
+        sb.append("Dir:  ");
+        sb.append(isDirectory);
+        sb.append(System.lineSeparator());
         sb.append("Type: ");
         sb.append(type);
 
         return sb.toString();
     }
 
-    
+
     private final Path path;
+    private final boolean isDirectory;
     private final FileWatchFileEventType type;
 }

@@ -38,6 +38,8 @@ import com.github.jlangch.aviron.events.FileWatchFileEvent;
 import com.github.jlangch.aviron.events.FileWatchRegisterEvent;
 import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.events.RealtimeScanEvent;
+import com.github.jlangch.aviron.ex.FileWatcherException;
+import com.github.jlangch.aviron.impl.util.OS;
 
 
 /**
@@ -135,57 +137,55 @@ public class RealtimeScanner {
             // start realtime scanner
 
             try {
-                fileWatcherQueue.set(new FileWatcherQueue(5_000));
+                fileWatcherQueue.set(new FileWatcherQueue(MAX_QUEUE_SIZE));
 
-                final FileWatcher fw = new FileWatcher(
-                                              mainDir,
-                                              registerAllSubDirs,
-                                              this::fileWatchEventListener,
-                                              this::registerEventListener,
-                                              this::errorEventListener,
-                                              this::terminationEventListener);
-                fw.start();
-                
-                watcher.set(fw);
+                if (OS.isLinux() || OS.isMacOSX()) {
+                    try {
+                        final IFileWatcher fw;
+
+                        if (OS.isLinux()) {
+                            fw = new FileWatcher_JavaWatchService(
+                                         mainDir,
+                                         registerAllSubDirs,
+                                         this::fileWatchEventListener,
+                                         this::errorEventListener,
+                                         this::terminationEventListener,
+                                         this::registerEventListener);
+                        }
+                        else {
+                            fw = new FileWatcher_FsWatch(
+                            		mainDir,
+                                         registerAllSubDirs,
+                                         this::fileWatchEventListener,
+                                         this::errorEventListener,
+                                         this::terminationEventListener,
+                                         this::registerEventListener,
+                                         "/opt/homebrew/bin/fswatch");
+                        }
+
+                        fw.start();
+
+                        watcher.set(fw);
+                    }
+                    catch(Exception ex) {
+                        throw new FileWatcherException(
+                                String.format(
+                                        "Failed to start file watcher on '%s'",
+                                        mainDir.toString()),
+                                ex);
+                    }
+                }
+                else {
+                    throw new FileWatcherException(
+                            "File watcher is not supported on this operating system!");
+                }
             }
             catch(Exception ex) {
                 running.set(false);
                 throw ex;
             }
 
-            final Runnable runnable = () -> {
-                while (running.get()) {
-                    try {
-                        final FileWatcherQueue queue = fileWatcherQueue.get();
-                        if (queue != null) {
-                            for(int ii=0; ii<BATCH_SIZE && running.get(); ii++) {
-                                final File file = queue.pop();
-                                if (file.isFile()) {
-                                    final Path path = file.toPath();
-                                    final ScanResult result = client.scan(path);
-                                    if (scanListener != null) {
-                                        safeRun(() -> scanListener.accept(
-                                                        new RealtimeScanEvent(path, result)));
-                                    }
-                                }
-                            }
-                            
-                            if (queue.isEmpty()) {
-                                for(int ii=0; ii<sleepTimeOnIdle && running.get(); ii++) {
-                                    sleep(1);
-                                }
-                            }
-                        }
-                        else {
-                            sleep(2);
-                        }
-                    }
-                    catch(Exception ex) {
-                        // prevent thread spinning in fatal error conditions
-                        sleep(2);
-                    }
-                }
-            };
+            final Runnable runnable = createWorker();
 
             final Thread thread = new Thread(runnable);
             thread.setDaemon(true);
@@ -193,12 +193,48 @@ public class RealtimeScanner {
             thread.start();
         }
     }
+    
+    private Runnable createWorker() {
+        return () -> {
+            while (running.get()) {
+                try {
+                    final FileWatcherQueue queue = fileWatcherQueue.get();
+                    if (queue != null) {
+                        for(int ii=0; ii<BATCH_SIZE && running.get(); ii++) {
+                            final File file = queue.pop();
+                            if (file.isFile()) {
+                                final Path path = file.toPath();
+                                final ScanResult result = client.scan(path);
+                                if (scanListener != null) {
+                                    safeRun(() -> scanListener.accept(
+                                                    new RealtimeScanEvent(path, result)));
+                                }
+                            }
+                        }
+                        
+                        if (queue.isEmpty()) {
+                            for(int ii=0; ii<sleepTimeOnIdle && running.get(); ii++) {
+                                sleep(1);
+                            }
+                        }
+                    }
+                    else {
+                        sleep(2);
+                    }
+                }
+                catch(Exception ex) {
+                    // prevent thread spinning in fatal error conditions
+                    sleep(2);
+                }
+            }
+        };
+    }
 
     public synchronized void stop() {
         if (running.compareAndSet(true, false)) {
             // stop realtime scanner
-            final FileWatcher fw = watcher.get();
-            if (fw != null && fw.isRunning()) {
+            final IFileWatcher fw = watcher.get();
+            if (fw != null && fw.getStatus() == FileWatcherStatus.RUNNING) {
                fw.close();
             }
         }
@@ -259,6 +295,7 @@ public class RealtimeScanner {
 
 
     private static final int BATCH_SIZE = 300;
+    private static final int MAX_QUEUE_SIZE = 5000;
 
     private static final AtomicLong threadCounter = new AtomicLong(1L);
 
@@ -271,6 +308,6 @@ public class RealtimeScanner {
     private final Consumer<RealtimeScanEvent> scanListener;
     private final int sleepTimeOnIdle;
 
-    private AtomicReference<FileWatcher> watcher = new AtomicReference<>();
+    private AtomicReference<IFileWatcher> watcher = new AtomicReference<>();
     private AtomicReference<FileWatcherQueue> fileWatcherQueue = new AtomicReference<>();
 }
