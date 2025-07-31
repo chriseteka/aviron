@@ -75,7 +75,7 @@ public class FileWatcher_FsWatch implements IFileWatcher {
             final Consumer<FileWatchErrorEvent> errorListener,
             final Consumer<FileWatchTerminationEvent> terminationListener,
             final Consumer<FileWatchRegisterEvent> registerListener,
-            final FsEventMonitor monitor,
+            final FsWatchMonitor monitor,
             final String fswatchProgram
     ) {
         if (mainDir == null) {
@@ -418,6 +418,6 @@ public class FileWatcher_FsWatch implements IFileWatcher {
     private final Consumer<FileWatchRegisterEvent> registerListener;
     private final Consumer<FileWatchErrorEvent> errorListener;
     private final Consumer<FileWatchTerminationEvent> terminationListener;
-    private final FsEventMonitor monitor;
+    private final FsWatchMonitor monitor;
     private final String fswatchProgram;
 }

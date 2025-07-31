@@ -31,7 +31,7 @@ package com.github.jlangch.aviron.impl.filewatcher;
  * <p>Run <code>fswatch --help</code> to get a list of the available monitors
  * for your platform
  */
-public enum FsEventMonitor {
+public enum FsWatchMonitor {
 
 	fsevents_monitor,
 
