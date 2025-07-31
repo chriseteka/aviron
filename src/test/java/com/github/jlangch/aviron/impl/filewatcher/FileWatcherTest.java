@@ -52,7 +52,7 @@ class FileWatcherTest {
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                               mainDir,
                                               true,
-                                              e -> { if (e.isRegularFile()) files.offer(e); },
+                                              e -> { if (e.isFile()) files.offer(e); },
                                               e -> errors.offer(e),
                                               e -> terminations.offer(e),
                                               null,
@@ -95,7 +95,7 @@ class FileWatcherTest {
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
 							                    mainDir,
 							                    true,
-	                                            e -> { if (e.isRegularFile()) files.offer(e); },
+	                                            e -> { if (e.isFile()) files.offer(e); },
 							                    e -> errors.offer(e),
 							                    e -> terminations.offer(e),
 							                    null,
@@ -122,10 +122,13 @@ class FileWatcherTest {
 
     @Test 
     @EnableOnMac
-    void testFileWatcherMainDirOnly() {
+    void testFileWatcherMainDir() {
         final TempFS tempFS = new TempFS();
         
         try {
+            tempFS.createScanSubDir("0000");
+            tempFS.createScanSubDir("0001");
+
             final Queue<Event> files = new ConcurrentLinkedQueue<>();
             final Queue<Event> errors = new ConcurrentLinkedQueue<>();
             final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
@@ -135,26 +138,110 @@ class FileWatcherTest {
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
 							                    mainDir,
 							                    true,
-	                                            e -> { if (e.isRegularFile()) files.offer(e); },
-							                    e -> errors.offer(e),
-							                    e -> terminations.offer(e),
+	                                            e -> { if (e.isFile()) {
+	                                            	    System.out.printf("File Event: %s %s%n", e.getPath(), e.getType());
+	                                            	    files.offer(e); 
+	                                                   }},
+							                    e -> { System.out.printf("Error:        %s%n", e.getPath());
+							                           errors.offer(e); },
+							                    e -> { System.out.printf("Terminated:   %s%n", e.getPath());
+							                           terminations.offer(e); },
 							                    null,
 							                    "/opt/homebrew/bin/fswatch")) {
 
                 fw.start();
 
                 sleep(1);
+                
+                tempFS.touchScanFile("test1.data");            // created
+                sleep(1);
+                tempFS.appendScanFile("test1.data", "TEST");   // modified
+                sleep(1);
+                tempFS.deleteScanFile("test1.data");           // deleted
+                sleep(1);
 
-                tempFS.createScanFile("test2.data", "TEST");
-                tempFS.createScanFile("test3.data", "TEST");
-                tempFS.createScanFile("test4.data", "TEST");
-
-                sleep(2);
+                
+                tempFS.createScanFile("test2.data", "TEST");   // modified
+                sleep(1);
+                tempFS.appendScanFile("test2.data", "TEST");   // modified
+                sleep(1);
+                tempFS.deleteScanFile("test2.data");           // deleted
+                
+                // wait for all events to be processed before closing the watcher
+                sleep(3);
             }
+            
+            // wait to receive the termination even
+            sleep(1);
 
             // analyze the generated events
 
-            assertEquals(3, files.size());
+            assertEquals(6, files.size());
+            assertEquals(0, errors.size());
+            assertEquals(1, terminations.size());
+        }
+        finally {
+            tempFS.remove();
+        }
+    }
+
+    @Test 
+    @EnableOnMac
+    void testFileWatcherSubDirOnly() {
+        final TempFS tempFS = new TempFS();
+        
+        try {
+            tempFS.createScanSubDir("0000");
+            tempFS.createScanSubDir("0001");
+
+            final Queue<Event> files = new ConcurrentLinkedQueue<>();
+            final Queue<Event> errors = new ConcurrentLinkedQueue<>();
+            final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
+
+            final Path mainDir = tempFS.getScanDir().toPath();
+
+            try(final IFileWatcher fw = new FileWatcher_FsWatch(
+							                    mainDir,
+							                    true,
+	                                            e -> { if (e.isFile()) {
+	                                            	    System.out.printf("File Event: %s %s%n", e.getPath(), e.getType());
+	                                            	    files.offer(e); 
+	                                                   }},
+							                    e -> { System.out.printf("Error:        %s%n", e.getPath());
+							                           errors.offer(e); },
+							                    e -> { System.out.printf("Terminated:   %s%n", e.getPath());
+							                           terminations.offer(e); },
+							                    null,
+							                    "/opt/homebrew/bin/fswatch")) {
+
+                fw.start();
+
+                sleep(1);
+                
+                tempFS.touchScanFile("0000", "test1.data");            // created
+                sleep(1);
+                tempFS.appendScanFile("0000", "test1.data", "TEST");   // modified
+                sleep(1);
+                tempFS.deleteScanFile("0000", "test1.data");           // deleted
+                sleep(1);
+
+                
+                tempFS.createScanFile("0001", "test2.data", "TEST");   // modified
+                sleep(1);
+                tempFS.appendScanFile("0001", "test2.data", "TEST");   // modified
+                sleep(1);
+                tempFS.deleteScanFile("0001", "test2.data");           // deleted
+                
+                // wait for all events to be processed before closing the watcher
+                sleep(3);
+            }
+            
+            // wait to receive the termination even
+            sleep(1);
+
+            // analyze the generated events
+
+            assertEquals(6, files.size());
             assertEquals(0, errors.size());
             assertEquals(1, terminations.size());
         }

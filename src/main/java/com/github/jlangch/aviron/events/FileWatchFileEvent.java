@@ -26,14 +26,16 @@ import java.nio.file.Path;
 
 
 public class FileWatchFileEvent implements Event {
-    
+
     public FileWatchFileEvent(
             final Path path,
-            final boolean isDirectory,
+            final boolean isDir,
+            final boolean isFile,
             final FileWatchFileEventType type
     ) {
         this.path = path;
-        this.isDirectory = isDirectory;
+        this.isDir = isDir;
+        this.isFile = isFile;
         this.type = type;
     }
 
@@ -42,12 +44,12 @@ public class FileWatchFileEvent implements Event {
         return path;
     }
 
-    public boolean isDirectory() {
-        return isDirectory;
+    public boolean isDir() {
+        return isDir;
     }
 
-    public boolean isRegularFile() {
-        return !isDirectory;
+    public boolean isFile() {
+        return isFile;
     }
 
     public FileWatchFileEventType getType() {
@@ -62,10 +64,9 @@ public class FileWatchFileEvent implements Event {
         sb.append("Path: ");
         sb.append(path);
         sb.append(System.lineSeparator());
-        sb.append("Dir:  ");
-        sb.append(isDirectory);
+        sb.append("File Type: " + (isDir ? "dir" : (isFile ? "file" : "unknown")));
         sb.append(System.lineSeparator());
-        sb.append("Type: ");
+        sb.append("Event Type: ");
         sb.append(type);
 
         return sb.toString();
@@ -73,6 +74,7 @@ public class FileWatchFileEvent implements Event {
 
 
     private final Path path;
-    private final boolean isDirectory;
+    private final boolean isDir;
+    private final boolean isFile;
     private final FileWatchFileEventType type;
 }
