@@ -20,21 +20,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.impl.filewatcher;
+package com.github.jlangch.aviron.impl.service;
 
 import java.io.Closeable;
-import java.nio.file.Path;
-import java.util.List;
-
-import com.github.jlangch.aviron.impl.service.IService;
 
 
-public interface IFileWatcher extends IService, Closeable {
+public interface IService extends Closeable {
 
-    Path getMainDir();
-
-    void register(final Path dir);
-
-    List<Path> getRegisteredPaths();
-
+    void start();
+    
+    void close();
+    
+    ServiceStatus getStatus();
+    
 }

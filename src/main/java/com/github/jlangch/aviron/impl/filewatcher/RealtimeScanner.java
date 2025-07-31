@@ -25,7 +25,6 @@ package com.github.jlangch.aviron.impl.filewatcher;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -39,6 +38,8 @@ import com.github.jlangch.aviron.events.FileWatchRegisterEvent;
 import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.events.RealtimeScanEvent;
 import com.github.jlangch.aviron.ex.FileWatcherException;
+import com.github.jlangch.aviron.impl.service.Service;
+import com.github.jlangch.aviron.impl.service.ServiceStatus;
 import com.github.jlangch.aviron.impl.util.OS;
 
 
@@ -98,7 +99,7 @@ import com.github.jlangch.aviron.impl.util.OS;
  * rts.stop();
  * </pre>
  */
-public class RealtimeScanner {
+public class RealtimeScanner extends Service {
 
     public RealtimeScanner(
            final Client client,
@@ -128,80 +129,76 @@ public class RealtimeScanner {
     }
 
 
-    public boolean isRunning() {
-        return running.get();
+    protected String name() {
+        return "RealtimeScanner";
     }
 
-    public synchronized void start() {
-        if (running.compareAndSet(false, true)) {
-            // start realtime scanner
+    protected void onStart() {
+        fileWatcherQueue.set(new FileWatcherQueue(MAX_QUEUE_SIZE));
 
-            try {
-                fileWatcherQueue.set(new FileWatcherQueue(MAX_QUEUE_SIZE));
+        try {
+            final IFileWatcher fw = createPlatformFileWatcher();
+            fw.start();
+            watcher.set(fw);
+        }
+        catch(Exception ex) {
+            throw new FileWatcherException(
+                    String.format(
+                            "Failed to start FileWatcher on dir '%s'",
+                            mainDir.toString()),
+                    ex);
+        }
 
-                if (OS.isLinux() || OS.isMacOSX()) {
-                    try {
-                        final IFileWatcher fw;
+        final Runnable runnable = createWorker();
 
-                        if (OS.isLinux()) {
-                            fw = new FileWatcher_JavaWatchService(
-                                         mainDir,
-                                         registerAllSubDirs,
-                                         this::fileWatchEventListener,
-                                         this::errorEventListener,
-                                         this::terminationEventListener,
-                                         this::registerEventListener);
-                        }
-                        else {
-                            fw = new FileWatcher_FsWatch(
-                                         mainDir,
-                                         registerAllSubDirs,
-                                         this::fileWatchEventListener,
-                                         this::errorEventListener,
-                                         this::terminationEventListener,
-                                         this::registerEventListener,
-                                         null, // default platform monitor
-                                         "/opt/homebrew/bin/fswatch");
-                        }
+        final Thread thread = new Thread(runnable);
+        thread.setDaemon(true);
+        thread.setName("aviron-rtscan-" + threadCounter.getAndIncrement());
+        thread.start();
+    }
 
-                        fw.start();
-
-                        watcher.set(fw);
-                    }
-                    catch(Exception ex) {
-                        throw new FileWatcherException(
-                                String.format(
-                                        "Failed to start file watcher on '%s'",
-                                        mainDir.toString()),
-                                ex);
-                    }
-                }
-                else {
-                    throw new FileWatcherException(
-                            "File watcher is not supported on this operating system!");
-                }
-            }
-            catch(Exception ex) {
-                running.set(false);
-                throw ex;
-            }
-
-            final Runnable runnable = createWorker();
-
-            final Thread thread = new Thread(runnable);
-            thread.setDaemon(true);
-            thread.setName("aviron-rtscan-" + threadCounter.getAndIncrement());
-            thread.start();
+    protected void onClose() throws Exception{
+        // stop realtime scanner
+        final IFileWatcher fw = watcher.get();
+        if (fw != null && fw.getStatus() == ServiceStatus.RUNNING) {
+           fw.close();
         }
     }
-    
+
+    private IFileWatcher createPlatformFileWatcher() {
+        if (OS.isLinux()) {
+            return new FileWatcher_JavaWatchService(
+                         mainDir,
+                         registerAllSubDirs,
+                         this::fileWatchEventListener,
+                         this::errorEventListener,
+                         this::terminationEventListener,
+                         this::registerEventListener);
+        }
+        else if (OS.isMacOSX()) {
+            return new FileWatcher_FsWatch(
+                         mainDir,
+                         registerAllSubDirs,
+                         this::fileWatchEventListener,
+                         this::errorEventListener,
+                         this::terminationEventListener,
+                         this::registerEventListener,
+                         null, // default platform monitor
+                         "/opt/homebrew/bin/fswatch");
+        }
+        else {
+            throw new FileWatcherException(
+                    "FileWatcher is not supported on platforms other than Linux/MacOS!");
+        }
+    }
+
     private Runnable createWorker() {
         return () -> {
-            while (running.get()) {
+            while (isInRunningState()) {
                 try {
                     final FileWatcherQueue queue = fileWatcherQueue.get();
                     if (queue != null) {
-                        for(int ii=0; ii<BATCH_SIZE && running.get(); ii++) {
+                        for(int ii=0; ii<BATCH_SIZE && isInRunningState(); ii++) {
                             final File file = queue.pop();
                             if (file.isFile()) {
                                 final Path path = file.toPath();
@@ -214,7 +211,7 @@ public class RealtimeScanner {
                         }
                         
                         if (queue.isEmpty()) {
-                            for(int ii=0; ii<sleepTimeOnIdle && running.get(); ii++) {
+                            for(int ii=0; ii<sleepTimeOnIdle && isInRunningState(); ii++) {
                                 sleep(1);
                             }
                         }
@@ -230,17 +227,6 @@ public class RealtimeScanner {
             }
         };
     }
-
-    public synchronized void stop() {
-        if (running.compareAndSet(true, false)) {
-            // stop realtime scanner
-            final IFileWatcher fw = watcher.get();
-            if (fw != null && fw.getStatus() == FileWatcherStatus.RUNNING) {
-               fw.close();
-            }
-        }
-    }
-
 
     private void fileWatchEventListener(final FileWatchFileEvent event) {
         final FileWatcherQueue queue = fileWatcherQueue.get();
@@ -299,8 +285,6 @@ public class RealtimeScanner {
     private static final int MAX_QUEUE_SIZE = 5000;
 
     private static final AtomicLong threadCounter = new AtomicLong(1L);
-
-    private final AtomicBoolean running = new AtomicBoolean(false);
 
     private final Client client;
     private final Path mainDir;

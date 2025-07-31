@@ -46,6 +46,7 @@ import com.github.jlangch.aviron.events.FileWatchFileEvent;
 import com.github.jlangch.aviron.events.FileWatchFileEventType;
 import com.github.jlangch.aviron.events.FileWatchRegisterEvent;
 import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
+import com.github.jlangch.aviron.impl.service.Service;
 import com.github.jlangch.aviron.impl.util.CollectionUtils;
 
 
@@ -66,7 +67,7 @@ import com.github.jlangch.aviron.impl.util.CollectionUtils;
  * @see <a href="https://emcrisostomo.github.io/fswatch/doc/1.17.1/fswatch.html/">fswatch Manual</a>
  * @see <a href="https://formulae.brew.sh/formula/fswatch">fswatch Installation</a>
  */
-public class FileWatcher_FsWatch implements IFileWatcher {
+public class FileWatcher_FsWatch extends Service implements IFileWatcher {
 
     public FileWatcher_FsWatch(
             final Path mainDir,
@@ -104,20 +105,6 @@ public class FileWatcher_FsWatch implements IFileWatcher {
     }
 
     @Override
-    public void start() {
-        if (status.compareAndSet(
-                    FileWatcherStatus.CREATED,
-                    FileWatcherStatus.INITIALISING)
-        ) {
-             startService();
-        }
-        else {
-            throw new RuntimeException(
-                    "Rejected to start the FileWatcher in status " + status.get());
-        }
-    }
-
-    @Override
     public void register(final Path dir) {
         throw new RuntimeException(
                 "Registering additional FileWatcher directories is not support on "
@@ -129,81 +116,65 @@ public class FileWatcher_FsWatch implements IFileWatcher {
         return CollectionUtils.toList(mainDir);
     }
 
-    @Override
-    public FileWatcherStatus getStatus() {
-        return status.get();
+
+    protected String name() {
+        return "FileWatcher_FsWatch";
     }
 
-    @Override
-    public void close() {
-        if (status.compareAndSet(
-                FileWatcherStatus.RUNNING,
-                FileWatcherStatus.CLOSED)
-        ) {
-            try {
-                final Process process = fswatchProcess.get();
-                if (process != null && process.isAlive()) {
-                    process.destroyForcibly();
-                }
-            }
-            catch(Exception ex) {
-                throw new RuntimeException("Failed to close FileWatcher!", ex);
-            }
+    protected void onStart() {
+        // fswatch options:
+        // -0                  null-separated output
+        // -r                  recursive
+        // --fire-idle-event   fire idle events
+        // --allow-overflow    allow a monitor to overflow and report it as a change event
+        // --event-flags       include event flags like Created, Updated, etc
 
-            if (terminationListener != null) {
-                safeRun(() -> terminationListener.accept(
-                                new FileWatchTerminationEvent(mainDir)));
-            }
-        }
-        else {
-            throw new RuntimeException(
-                    "Rejected to close the FileWatcher in status " + status.get());
-        }
-    }
+        final List<String> options = new ArrayList<>();
+        options.add(fswatchProgram);
+        options.add("--format=%p" + SEPARATOR + "%f");
+        if (monitor != null) options.add("--monitor=" + monitor.name());
+        if (recursive) options.add("-r");
+        options.add(mainDir.toString());
 
+        final ProcessBuilder pb = new ProcessBuilder(options.toArray(new String[] {}));
+        pb.redirectErrorStream(true);
 
-    private void startService() {
         try {
-            // fswatch options:
-            // -0                  null-separated output
-            // -r                  recursive
-            // --fire-idle-event   fire idle events
-            // --allow-overflow    allow a monitor to overflow and report it as a change event
-            // --event-flags       include event flags like Created, Updated, etc
-
-            final List<String> options = new ArrayList<>();
-            options.add(fswatchProgram);
-            options.add("--format=%p" + SEPARATOR + "%f");
-            if (monitor != null) options.add("--monitor=" + monitor.name());
-            if (recursive) options.add("-r");
-            options.add(mainDir.toString());
-
-            final ProcessBuilder pb = new ProcessBuilder(options.toArray(new String[] {}));
-            pb.redirectErrorStream(true);
-
             // start the fswatch process
             fswatchProcess.set(pb.start());
-
-            final Runnable runnable = createWorker();
-
-            final Thread thread = new Thread(runnable);
-            thread.setDaemon(true);
-            thread.setName("aviron-filewatcher-" + threadCounter.getAndIncrement());
-            thread.start();
-
-            // spin wait max 5s for service to be ready or closed
-            final long ts = System.currentTimeMillis();
-            while(System.currentTimeMillis() < ts + 5_000) {
-                if (status.get() == FileWatcherStatus.RUNNING) break;
-                if (status.get() == FileWatcherStatus.CLOSED) break;
-                try { Thread.sleep(100); } catch(Exception ex) {}
-            }
         }
         catch(Exception ex) {
-            status.set(FileWatcherStatus.CLOSED);
-            throw new RuntimeException("Failed to start FileWatcher!", ex);
+            throw new RuntimeException("Failed to start 'fswatch' process", ex);
+        }
+
+        final Runnable runnable = createWorker();
+
+        final Thread thread = new Thread(runnable);
+        thread.setDaemon(true);
+        thread.setName("aviron-filewatcher-" + threadCounter.getAndIncrement());
+        thread.start();
+
+        // spin wait max 5s for service to be ready or closed
+        final long ts = System.currentTimeMillis();
+        while(System.currentTimeMillis() < ts + 5_000) {
+            if (isInRunningState()) break;
+            if (isInClosedState()) break;
+            try { Thread.sleep(100); } catch(Exception ex) {}
         }
     }
+
+    protected void onClose() throws Exception{
+        final Process process = fswatchProcess.get();
+        if (process != null && process.isAlive()) {
+            process.destroyForcibly();
+        }
+
+        if (terminationListener != null) {
+            safeRun(() -> terminationListener.accept(
+                            new FileWatchTerminationEvent(mainDir)));
+        }
+    }
+
 
     private Runnable createWorker() {
         return () -> {
@@ -215,10 +186,10 @@ public class FileWatcher_FsWatch implements IFileWatcher {
 
                     final StringBuilder buffer = new StringBuilder();
 
-                    status.set(FileWatcherStatus.RUNNING);
+                    enteredRunningState();
 
                     int ch;
-                    while ((ch = reader.read()) != -1 && status.get() == FileWatcherStatus.RUNNING) {
+                    while ((ch = reader.read()) != -1 && isInRunningState()) {
                         if (ch == '\n') { // event terminator
                             final String line = buffer.toString();
                             buffer.setLength(0);
@@ -266,19 +237,11 @@ public class FileWatcher_FsWatch implements IFileWatcher {
                 }
             }
 
-            if (status.get() != FileWatcherStatus.CLOSED) {
+            if (!isInClosedState()) {
                 close();
             }
         };
     }
-
-    private static void safeRun(final Runnable r) {
-        try {
-            r.run();
-        }
-        catch(Exception e) { }
-    }
-
 
     private void fireFileEvents(
             final Path path,
@@ -404,13 +367,19 @@ public class FileWatcher_FsWatch implements IFileWatcher {
         }
     }
 
+    private static void safeRun(final Runnable r) {
+        try {
+            r.run();
+        }
+        catch(Exception e) { }
+    }
+
 
     // any reasonable string that does not appear in file names
     private static final String SEPARATOR = "|#|";
 
     private static final AtomicLong threadCounter = new AtomicLong(1L);
 
-    private final AtomicReference<FileWatcherStatus> status = new AtomicReference<>(FileWatcherStatus.CREATED);
     private final AtomicReference<Process> fswatchProcess = new AtomicReference<>();
 
     private final Path mainDir;

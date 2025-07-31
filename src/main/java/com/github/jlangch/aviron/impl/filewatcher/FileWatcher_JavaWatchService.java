@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -46,12 +45,13 @@ import com.github.jlangch.aviron.events.FileWatchFileEvent;
 import com.github.jlangch.aviron.events.FileWatchFileEventType;
 import com.github.jlangch.aviron.events.FileWatchRegisterEvent;
 import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
+import com.github.jlangch.aviron.impl.service.Service;
 
 
 /**
  * A FileWatcher based on the Java WatchService
  */
-public class FileWatcher_JavaWatchService implements IFileWatcher {
+public class FileWatcher_JavaWatchService extends Service implements IFileWatcher {
 
     public FileWatcher_JavaWatchService(
             final Path mainDir,
@@ -97,23 +97,7 @@ public class FileWatcher_JavaWatchService implements IFileWatcher {
     }
 
     @Override
-    public void start() {
-        if (status.compareAndSet(
-                FileWatcherStatus.CREATED,
-                FileWatcherStatus.INITIALISING)
-        ) {
-            try {
-                startService();
-            }
-            catch(Exception ex) {
-                throw new RuntimeException(
-                        "Rejected to start the FileWatcher in status " + status.get());
-            }
-        }
-    }
-
-    @Override
-   public void register(final Path dir) {
+    public void register(final Path dir) {
         if (!Files.isDirectory(dir)) {
             throw new RuntimeException("The path " + dir + " does not exist or is not a directory");
         }
@@ -128,32 +112,33 @@ public class FileWatcher_JavaWatchService implements IFileWatcher {
         return keys.values().stream().sorted().collect(Collectors.toList());
     }
 
-    @Override
-    public FileWatcherStatus getStatus() {
-        return status.get();
+    protected String name() {
+        return "FileWatcher_JavaWatchService";
     }
 
-    @Override
-    public void close() {
-        if (status.compareAndSet(
-                FileWatcherStatus.RUNNING,
-                FileWatcherStatus.CLOSED)
-        ) {
-            try {
-                ws.close();
-            }
-            catch(Exception ex) {
-                throw new RuntimeException("Failed to close FileWatcher!", ex);
-            }
+    protected void onStart() {
+        final Runnable runnable = createWorker();
 
-            if (terminationListener != null) {
-                safeRun(() -> terminationListener.accept(
-                                new FileWatchTerminationEvent(mainDir)));
-            }
+        final Thread thread = new Thread(runnable);
+        thread.setDaemon(true);
+        thread.setName("aviron-filewatcher-" + threadCounter.getAndIncrement());
+        thread.start();
+
+        // spin wait max 5s for service to be ready or closed
+        final long ts = System.currentTimeMillis();
+        while(System.currentTimeMillis() < ts + 5_000) {
+            if (isInRunningState()) break;
+            if (isInClosedState()) break;
+            try { Thread.sleep(100); } catch(Exception ex) {}
         }
-        else {
-            throw new RuntimeException(
-                    "Rejected to close the FileWatcher in status " + status.get());
+    }
+
+    protected void onClose() throws Exception {
+        ws.close();
+
+        if (terminationListener != null) {
+            safeRun(() -> terminationListener.accept(
+                            new FileWatchTerminationEvent(mainDir)));
         }
     }
 
@@ -177,34 +162,11 @@ public class FileWatcher_JavaWatchService implements IFileWatcher {
         }
     }
 
-    private void startService() {
-        try {
-            final Runnable runnable = createWorker();
-
-            final Thread thread = new Thread(runnable);
-            thread.setDaemon(true);
-            thread.setName("aviron-filewatcher-" + threadCounter.getAndIncrement());
-            thread.start();
-
-            // spin wait max 5s for service to be ready or closed
-            final long ts = System.currentTimeMillis();
-            while(System.currentTimeMillis() < ts + 5_000) {
-                if (status.get() == FileWatcherStatus.RUNNING) break;
-                if (status.get() == FileWatcherStatus.CLOSED) break;
-                try { Thread.sleep(100); } catch(Exception ex) {}
-            }
-        }
-        catch(Exception ex) {
-            status.set(FileWatcherStatus.CLOSED);
-            throw new RuntimeException("Failed to start FileWatcher!", ex);
-        }
-    }
-
     private Runnable createWorker() {
         return () -> {
-            status.set(FileWatcherStatus.RUNNING);
+            enteredRunningState();
 
-            while (status.get() == FileWatcherStatus.RUNNING) {
+            while (isInRunningState()) {
                 try {
                     final WatchKey key = ws.take();
                     if (key == null) {
@@ -261,7 +223,7 @@ public class FileWatcher_JavaWatchService implements IFileWatcher {
                 }
             }
 
-            if (status.get() != FileWatcherStatus.CLOSED) {
+            if (!isInClosedState()) {
                 close();
             }
         };
@@ -289,10 +251,8 @@ public class FileWatcher_JavaWatchService implements IFileWatcher {
         }
     }
 
-    
-    private static final AtomicLong threadCounter = new AtomicLong(1L);
 
-    private final AtomicReference<FileWatcherStatus> status = new AtomicReference<>(FileWatcherStatus.CREATED);
+    private static final AtomicLong threadCounter = new AtomicLong(1L);
 
     private final Path mainDir;
     private final WatchService ws;
