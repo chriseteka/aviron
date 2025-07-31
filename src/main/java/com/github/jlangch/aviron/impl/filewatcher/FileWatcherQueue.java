@@ -119,8 +119,8 @@ public class FileWatcherQueue {
     }
 
 
-    public static int DEFAULT_SIZE = 1000;
-    public static int MIN_SIZE = 5;
+    public static final int DEFAULT_SIZE = 1000;
+    public static final int MIN_SIZE = 5;
 
     private final int maxSize;
     private final LinkedList<File> queue = new LinkedList<>();
