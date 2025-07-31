@@ -83,7 +83,7 @@ public class FileWatcher_FsWatch implements IFileWatcher {
             throw new RuntimeException("The main dir " + mainDir + " does not exist or is not a directory");
         }
         if (fswatchProgram != null && !Files.isExecutable(Paths.get(fswatchProgram))) {
-            throw new IllegalArgumentException("The fswatchProgram does not exist or is not executable!");
+            throw new IllegalArgumentException("The fswatch Program does not exist or is not executable!");
         }
 
         this.mainDir = mainDir.toAbsolutePath().normalize();
