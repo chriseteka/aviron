@@ -154,7 +154,7 @@ public class RealtimeScanner {
                         }
                         else {
                             fw = new FileWatcher_FsWatch(
-                            		mainDir,
+                                         mainDir,
                                          registerAllSubDirs,
                                          this::fileWatchEventListener,
                                          this::errorEventListener,
