@@ -28,6 +28,7 @@ import static com.github.jlangch.aviron.events.FileWatchFileEventType.MODIFIED;
 import static com.github.jlangch.aviron.events.FileWatchFileEventType.OVERFLOW;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -163,7 +164,7 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
         }
     }
 
-    protected void onClose() throws Exception{
+    protected void onClose() throws IOException{
         final Process process = fswatchProcess.get();
         if (process != null && process.isAlive()) {
             process.destroyForcibly();

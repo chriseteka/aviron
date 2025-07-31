@@ -23,6 +23,7 @@
 package com.github.jlangch.aviron.impl.filewatcher;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicLong;
@@ -157,7 +158,7 @@ public class RealtimeScanner extends Service {
         thread.start();
     }
 
-    protected void onClose() throws Exception{
+    protected void onClose() throws IOException{
         // stop realtime scanner
         final IFileWatcher fw = watcher.get();
         if (fw != null && fw.getStatus() == ServiceStatus.RUNNING) {

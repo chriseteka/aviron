@@ -1,6 +1,7 @@
 package com.github.jlangch.aviron.impl.service;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 
@@ -10,7 +11,7 @@ public abstract class Service implements IService, Closeable {
 
     protected abstract void onStart();
 
-    protected abstract void onClose() throws Exception;
+    protected abstract void onClose() throws IOException;
 
 
     @Override

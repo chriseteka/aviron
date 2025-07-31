@@ -27,6 +27,7 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
+import java.io.IOException;
 import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -133,7 +134,7 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
         }
     }
 
-    protected void onClose() throws Exception {
+    protected void onClose() throws IOException {
         ws.close();
 
         if (terminationListener != null) {
