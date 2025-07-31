@@ -160,6 +160,7 @@ public class RealtimeScanner {
                                          this::errorEventListener,
                                          this::terminationEventListener,
                                          this::registerEventListener,
+                                         null, // default platform monitor
                                          "/opt/homebrew/bin/fswatch");
                         }
 

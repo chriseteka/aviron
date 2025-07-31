@@ -61,6 +61,7 @@ class FileWatcherTest {
                                               e -> { printf("Terminated:   %s%n", e.getPath());
                                                      terminations.offer(e); },
                                               null,
+                                              null, // default platform monitor
                                               "/opt/homebrew/bin/fswatch")) {
 
                 fw.start();
@@ -109,6 +110,7 @@ class FileWatcherTest {
                                                 e -> { printf("Terminated:   %s%n", e.getPath());
                                                        terminations.offer(e); },
                                                 null,
+                                                null, // default platform monitor
                                                 "/opt/homebrew/bin/fswatch")) {
 
                 fw.start();
@@ -157,6 +159,7 @@ class FileWatcherTest {
                                                 e -> { printf("Terminated:   %s%n", e.getPath());
                                                        terminations.offer(e); },
                                                 null,
+                                                null, // default platform monitor
                                                 "/opt/homebrew/bin/fswatch")) {
 
                 fw.start();
@@ -222,6 +225,7 @@ class FileWatcherTest {
                                                 e -> { printf("Terminated:   %s%n", e.getPath());
                                                        terminations.offer(e); },
                                                 null,
+                                                null, // default platform monitor
                                                 "/opt/homebrew/bin/fswatch")) {
 
                 fw.start();
