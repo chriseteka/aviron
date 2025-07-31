@@ -52,9 +52,14 @@ class FileWatcherTest {
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                               mainDir,
                                               true,
-                                              e -> { if (e.isFile()) files.offer(e); },
-                                              e -> errors.offer(e),
-                                              e -> terminations.offer(e),
+                                              e -> { if (e.isFile()) {
+                                                        printf("File Event: %s %s%n", e.getPath(), e.getType());
+                                                        files.offer(e); 
+                                                   }},
+                                              e -> { printf("Error:        %s%n", e.getPath());
+                                                     errors.offer(e); },
+                                              e -> { printf("Terminated:   %s%n", e.getPath());
+                                                     terminations.offer(e); },
                                               null,
                                               "/opt/homebrew/bin/fswatch")) {
 
@@ -93,13 +98,18 @@ class FileWatcherTest {
             final Path mainDir = tempFS.getScanDir().toPath();
             
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
-							                    mainDir,
-							                    true,
-	                                            e -> { if (e.isFile()) files.offer(e); },
-							                    e -> errors.offer(e),
-							                    e -> terminations.offer(e),
-							                    null,
-							                    "/opt/homebrew/bin/fswatch")) {
+                                                mainDir,
+                                                true,
+                                                e -> { if (e.isFile()) {
+                                                          printf("File Event: %s %s%n", e.getPath(), e.getType());
+                                                          files.offer(e); 
+                                                    }},
+                                                e -> { printf("Error:        %s%n", e.getPath());
+                                                       errors.offer(e); },
+                                                e -> { printf("Terminated:   %s%n", e.getPath());
+                                                       terminations.offer(e); },
+                                                null,
+                                                "/opt/homebrew/bin/fswatch")) {
 
                 fw.start();
 
@@ -136,18 +146,18 @@ class FileWatcherTest {
             final Path mainDir = tempFS.getScanDir().toPath();
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
-							                    mainDir,
-							                    true,
-	                                            e -> { if (e.isFile()) {
-	                                            	    System.out.printf("File Event: %s %s%n", e.getPath(), e.getType());
-	                                            	    files.offer(e); 
-	                                                   }},
-							                    e -> { System.out.printf("Error:        %s%n", e.getPath());
-							                           errors.offer(e); },
-							                    e -> { System.out.printf("Terminated:   %s%n", e.getPath());
-							                           terminations.offer(e); },
-							                    null,
-							                    "/opt/homebrew/bin/fswatch")) {
+                                                mainDir,
+                                                true,
+                                                e -> { if (e.isFile()) {
+                                                           printf("File Event: %s %s%n", e.getPath(), e.getType());
+                                                           files.offer(e); 
+                                                       }},
+                                                e -> { printf("Error:        %s%n", e.getPath());
+                                                       errors.offer(e); },
+                                                e -> { printf("Terminated:   %s%n", e.getPath());
+                                                       terminations.offer(e); },
+                                                null,
+                                                "/opt/homebrew/bin/fswatch")) {
 
                 fw.start();
 
@@ -201,18 +211,18 @@ class FileWatcherTest {
             final Path mainDir = tempFS.getScanDir().toPath();
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
-							                    mainDir,
-							                    true,
-	                                            e -> { if (e.isFile()) {
-	                                            	    System.out.printf("File Event: %s %s%n", e.getPath(), e.getType());
-	                                            	    files.offer(e); 
-	                                                   }},
-							                    e -> { System.out.printf("Error:        %s%n", e.getPath());
-							                           errors.offer(e); },
-							                    e -> { System.out.printf("Terminated:   %s%n", e.getPath());
-							                           terminations.offer(e); },
-							                    null,
-							                    "/opt/homebrew/bin/fswatch")) {
+                                                mainDir,
+                                                true,
+                                                e -> { if (e.isFile()) {
+                                                           printf("File Event: %s %s%n", e.getPath(), e.getType());
+                                                           files.offer(e); 
+                                                       }},
+                                                e -> { printf("Error:        %s%n", e.getPath());
+                                                       errors.offer(e); },
+                                                e -> { printf("Terminated:   %s%n", e.getPath());
+                                                       terminations.offer(e); },
+                                                null,
+                                                "/opt/homebrew/bin/fswatch")) {
 
                 fw.start();
 
@@ -250,9 +260,18 @@ class FileWatcherTest {
         }
     }
 
+    
+    private void printf(final String format, final Object... args) {
+        synchronized(lock) {
+            System.out.printf(format, args);
+        }
+    }
+
 
     private void sleep(final int seconds) {
         try { Thread.sleep(seconds * 1000); } catch(Exception ex) {}
     }
 
+    
+    private final Object lock = new Object();
 }
