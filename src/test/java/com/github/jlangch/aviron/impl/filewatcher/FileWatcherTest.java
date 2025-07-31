@@ -41,14 +41,14 @@ class FileWatcherTest {
     @EnableOnMac
     void testFileWatcherMainDirOnly_NoFiles() {
         final TempFS tempFS = new TempFS();
-        
+
         try {
             final Queue<Event> files = new ConcurrentLinkedQueue<>();
             final Queue<Event> errors = new ConcurrentLinkedQueue<>();
             final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
- 
+
             final Path mainDir = tempFS.getScanDir().toPath();
-            
+
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                               mainDir,
                                               true,
@@ -87,7 +87,7 @@ class FileWatcherTest {
     @EnableOnMac
     void testFileWatcherMainDirWithSubDirs_NoFiles() {
         final TempFS tempFS = new TempFS();
-        
+
         try {
             tempFS.createScanSubDir("0000");
             tempFS.createScanSubDir("0001");
@@ -95,9 +95,9 @@ class FileWatcherTest {
             final Queue<Event> files = new ConcurrentLinkedQueue<>();
             final Queue<Event> errors = new ConcurrentLinkedQueue<>();
             final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
- 
+
             final Path mainDir = tempFS.getScanDir().toPath();
-            
+
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                                 mainDir,
                                                 true,
@@ -165,7 +165,7 @@ class FileWatcherTest {
                 fw.start();
 
                 sleep(1);
-                
+
                 tempFS.touchScanFile("test1.data");            // created
                 sleep(1);
                 tempFS.appendScanFile("test1.data", "TEST");   // modified
@@ -173,17 +173,17 @@ class FileWatcherTest {
                 tempFS.deleteScanFile("test1.data");           // deleted
                 sleep(1);
 
-                
+
                 tempFS.createScanFile("test2.data", "TEST");   // modified
                 sleep(1);
                 tempFS.appendScanFile("test2.data", "TEST");   // modified
                 sleep(1);
                 tempFS.deleteScanFile("test2.data");           // deleted
-                
+
                 // wait for all events to be processed before closing the watcher
                 sleep(3);
             }
-            
+
             // wait to receive the termination even
             sleep(1);
 
@@ -202,7 +202,7 @@ class FileWatcherTest {
     @EnableOnMac
     void testFileWatcherSubDirOnly() {
         final TempFS tempFS = new TempFS();
-        
+
         try {
             tempFS.createScanSubDir("0000");
             tempFS.createScanSubDir("0001");
@@ -231,7 +231,7 @@ class FileWatcherTest {
                 fw.start();
 
                 sleep(1);
-                
+
                 tempFS.touchScanFile("0000", "test1.data");            // created
                 sleep(1);
                 tempFS.appendScanFile("0000", "test1.data", "TEST");   // modified
@@ -239,7 +239,7 @@ class FileWatcherTest {
                 tempFS.deleteScanFile("0000", "test1.data");           // deleted
                 sleep(1);
 
-                
+
                 tempFS.createScanFile("0001", "test2.data", "TEST");   // modified
                 sleep(1);
                 tempFS.appendScanFile("0001", "test2.data", "TEST");   // modified
@@ -249,7 +249,7 @@ class FileWatcherTest {
                 // wait for all events to be processed before closing the watcher
                 sleep(3);
             }
-            
+
             // wait to receive the termination even
             sleep(1);
 
@@ -264,18 +264,17 @@ class FileWatcherTest {
         }
     }
 
-    
+
     private void printf(final String format, final Object... args) {
         synchronized(lock) {
             System.out.printf(format, args);
         }
     }
 
-
     private void sleep(final int seconds) {
         try { Thread.sleep(seconds * 1000); } catch(Exception ex) {}
     }
 
-    
+
     private final Object lock = new Object();
 }

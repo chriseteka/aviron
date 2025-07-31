@@ -28,7 +28,34 @@ import java.util.LinkedList;
 import java.util.List;
 
 
+/**
+ * The FileWatcherQueue is buffering file watching events received from a file 
+ * watcher and asynchronously processed by an AV scanner.
+ * 
+ * <pre>
+ * 
+ * +------------+    +-------------+                   +-----------+    +-------+
+ * | Filesystem |--->| FileWatcher |--->|  Queue  |--->| AV Client |--->| Clamd |
+ * +------------+    +-------------+    +---------+    +-----------+    +-------+
+ * 
+ * </pre>
+ * 
+ * <p> The FileWatcherQueue has overflow protection to keep a all operation non 
+ * blocking. If the queue grows beyond the max size the oldest entries will be 
+ * removed that the entries fit into the queue.
+ * 
+ * <p>The FileWatcherQueue never blocks and never grows beyond limits to protect
+ * the system!
+ * 
+ * <p>File watchers (like the Java WatchService or the 'fswatch' tool) have the 
+ * same behavior. If they get overrun with file change events they discard events 
+ * and signal it by sending an 'OVERFLOW' event to their clients.
+ */
 public class FileWatcherQueue {
+
+    public FileWatcherQueue() {
+        this(1000);
+    }
 
     public FileWatcherQueue(final int maxSize) {
         this.maxSize = Math.max(MIN_SIZE, maxSize);
@@ -65,7 +92,7 @@ public class FileWatcherQueue {
             synchronized(queue) {
                 queue.removeIf(it -> it.equals(file));
 
-                // limit the size (discard oldest entries)
+                // overflow: limit the size (discard oldest entries)
                 while(queue.size() >= maxSize) {
                     queue.removeFirst();
                 }
@@ -92,6 +119,7 @@ public class FileWatcherQueue {
     }
 
 
+    public static int DEFAULT_SIZE = 1000;
     public static int MIN_SIZE = 5;
 
     private final int maxSize;
