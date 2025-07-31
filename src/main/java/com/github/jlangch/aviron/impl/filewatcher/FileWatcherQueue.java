@@ -54,7 +54,7 @@ import java.util.List;
 public class FileWatcherQueue {
 
     public FileWatcherQueue() {
-        this(1000);
+        this(DEFAULT_SIZE);
     }
 
     public FileWatcherQueue(final int maxSize) {
