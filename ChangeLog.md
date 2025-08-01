@@ -7,7 +7,8 @@ All notable changes to this project will be documented in this file.
 
 ## [1.6.1] - 2025-08-xx
 
-- ...
+- Enhanced the FileWatcherQueue with an overflow count (added two methods: 
+  `overflowCount` and `resetOverflowCount`)
 
 
 
