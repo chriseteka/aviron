@@ -45,7 +45,8 @@ import java.util.List;
  * removed that the new entries fit into the queue.
  * 
  * <p>The FileWatcherQueue never blocks and never grows beyond limits to protect
- * the system!
+ * the system! Therefore the queue is non blocking and has max capacity. As a
+ * consequence it must discard old events if overrun. 
  * 
  * <p>File watchers (like the Java WatchService or the 'fswatch' tool) have the 
  * same behavior. If they get overrun with file change events they discard events 
@@ -140,6 +141,11 @@ public class FileWatcherQueue {
      * <p>Whenever pushing a file to a full queue the queue's head
      * element is discarded in favor of pushing the new file. The
      * overflow count is incremented in this case.
+     * 
+     * <p>The FileWatcherQueue never blocks and never grows beyond 
+     * limits to protect the system! Therefore the queue is non 
+     * blocking and has max capacity. As a consequence it must discard 
+     * old events if overrun. 
      *
      * @param file the file to push
      * 
@@ -282,6 +288,11 @@ public class FileWatcherQueue {
      * <p>Whenever pushing a file to a full queue the queue's head
      * element is discarded in favor of pushing the new file. The
      * overflow count is incremented in this case.
+     * 
+     * <p>The FileWatcherQueue never blocks and never grows beyond 
+     * limits to protect the system! Therefore the queue is non 
+     * blocking and has max capacity. As a consequence it must discard 
+     * old events if overrun.
      * 
      * @return the overflow count
      */
