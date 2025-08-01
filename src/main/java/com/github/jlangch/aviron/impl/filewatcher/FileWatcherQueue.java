@@ -90,6 +90,14 @@ public class FileWatcherQueue {
     public void push(final File file) {
         if (file != null) {
             synchronized(queue) {
+            	// we're only interested in the last file 'event', so we
+            	// can do some optimizations (b.tw 'fswatch' is doing the
+            	// same on a shorter time horizon)
+            	//
+            	// e.g.:   file create -> push  -> discard
+            	//         file modify -> push  -> discard
+            	//         file modify -> push  -> discard
+            	//         file modify -> push  -> interested in
                 queue.removeIf(it -> it.equals(file));
 
                 // overflow: limit the size (discard oldest entries)
@@ -108,6 +116,21 @@ public class FileWatcherQueue {
         }
     }
 
+    public File pop(final boolean existingFilesOnly) {
+        if (existingFilesOnly) {
+            synchronized(queue) {
+                while(!queue.isEmpty()) {
+                    final File file = queue.removeFirst();
+                    if (file.exists()) return file;
+                }
+                return null;
+            }
+        }
+        else {
+            return pop();
+        }
+    }
+
     public List<File> pop(final int n) {
         synchronized(queue) {
             final List<File> files = new ArrayList<>(n);
@@ -115,6 +138,22 @@ public class FileWatcherQueue {
                 files.add(queue.removeFirst());
             }
             return files;
+        }
+    }
+
+    public List<File> pop(final int n, final boolean existingFilesOnly) {
+        if (existingFilesOnly) {
+            synchronized(queue) {
+                final List<File> files = new ArrayList<>(n);
+                while(files.size() < n && !queue.isEmpty()) {
+                    final File file = queue.removeFirst();
+                    if (file.exists()) files.add(file);
+                }
+                return files;
+            }
+        }
+        else {
+            return pop(n);
         }
     }
 
