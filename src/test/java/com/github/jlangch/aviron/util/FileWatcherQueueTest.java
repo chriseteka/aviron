@@ -32,6 +32,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.github.jlangch.aviron.impl.test.TempFS;
+
 
 class FileWatcherQueueTest {
 
@@ -183,5 +185,70 @@ class FileWatcherQueueTest {
 
         assertTrue(queue.isEmpty());
         assertEquals(0, queue.size());
+    }
+
+    @Test 
+    void testPopExistingFilesOnly() {
+        final TempFS tempFS = new TempFS();
+ 
+        try {
+            tempFS.createScanSubDir("0000");
+
+            final File f1 = tempFS.createScanFile("1.txt", "TEST");
+            final File f2 = tempFS.createScanFile("2.txt", "TEST");
+            final File f3 = tempFS.createScanFile("3.txt", "TEST");
+            
+            final FileWatcherQueue queue = new FileWatcherQueue(5);
+
+            queue.push(f1);
+            queue.push(f2);
+            queue.push(f3);
+            
+            f2.delete();
+            
+            assertEquals(f1, queue.pop(true));
+            assertEquals(f3, queue.pop(true));
+            assertNull(queue.pop());
+
+            assertTrue(queue.isEmpty());
+            assertEquals(0, queue.size());
+        }
+        finally {
+            tempFS.remove();
+        }
+    }
+
+    @Test 
+    void testPopNExistingFilesOnly() {
+        final TempFS tempFS = new TempFS();
+ 
+        try {
+            tempFS.createScanSubDir("0000");
+
+            final File f1 = tempFS.createScanFile("1.txt", "TEST");
+            final File f2 = tempFS.createScanFile("2.txt", "TEST");
+            final File f3 = tempFS.createScanFile("3.txt", "TEST");
+            
+            final FileWatcherQueue queue = new FileWatcherQueue(5);
+
+            queue.push(f1);
+            queue.push(f2);
+            queue.push(f3);
+            
+            f2.delete();
+            
+            List<File> list = queue.pop(10, true);
+            assertEquals(2, list.size());
+
+            assertEquals(f1, list.get(0));
+            assertEquals(f3, list.get(1));
+            assertNull(queue.pop());
+
+            assertTrue(queue.isEmpty());
+            assertEquals(0, queue.size());
+        }
+        finally {
+            tempFS.remove();
+        }
     }
 }
