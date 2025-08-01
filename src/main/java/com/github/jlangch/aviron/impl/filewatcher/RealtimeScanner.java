@@ -195,35 +195,31 @@ public class RealtimeScanner extends Service {
 
     private Runnable createWorker() {
         return () -> {
+            final FileWatcherQueue queue = fileWatcherQueue.get();
+
             while (isInRunningState()) {
                 try {
-                    final FileWatcherQueue queue = fileWatcherQueue.get();
-                    if (queue != null) {
-                        for(int ii=0; ii<BATCH_SIZE && isInRunningState(); ii++) {
-                            final File file = queue.pop();
-                            if (file.isFile()) {
-                                final Path path = file.toPath();
-                                final ScanResult result = client.scan(path);
-                                if (scanListener != null) {
-                                    safeRun(() -> scanListener.accept(
-                                                    new RealtimeScanEvent(path, result)));
-                                }
-                            }
-                        }
-                        
-                        if (queue.isEmpty()) {
-                            for(int ii=0; ii<sleepTimeOnIdle && isInRunningState(); ii++) {
-                                sleep(1);
+                    for(int ii=0; ii<BATCH_SIZE && isInRunningState(); ii++) {
+                        final File file = queue.pop();
+                        if (file.isFile()) {
+                            final Path path = file.toPath();
+                            final ScanResult result = client.scan(path);
+                            if (scanListener != null) {
+                                safeRun(() -> scanListener.accept(
+                                                new RealtimeScanEvent(path, result)));
                             }
                         }
                     }
-                    else {
-                        sleep(2);
+
+                    if (queue.isEmpty()) {
+                        for(int ii=0; ii<sleepTimeOnIdle && isInRunningState(); ii++) {
+                            sleep(500);
+                        }
                     }
                 }
                 catch(Exception ex) {
                     // prevent thread spinning in fatal error conditions
-                    sleep(2);
+                    sleep(5_000);
                 }
             }
         };
@@ -265,13 +261,6 @@ public class RealtimeScanner extends Service {
 
     private void terminationEventListener(final FileWatchTerminationEvent event) {
         
-    }
-
-    private void sleep(int seconds) {
-        try { 
-            Thread.sleep(seconds * 1000L); 
-        } 
-        catch(Exception ex) { }
     }
 
     private void safeRun(final Runnable r) {

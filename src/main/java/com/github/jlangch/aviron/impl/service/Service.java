@@ -1,7 +1,13 @@
 package com.github.jlangch.aviron.impl.service;
 
+import static com.github.jlangch.aviron.impl.service.ServiceStatus.CLOSED;
+import static com.github.jlangch.aviron.impl.service.ServiceStatus.CREATED;
+import static com.github.jlangch.aviron.impl.service.ServiceStatus.INITIALISING;
+import static com.github.jlangch.aviron.impl.service.ServiceStatus.RUNNING;
+
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 
@@ -16,15 +22,13 @@ public abstract class Service implements IService, Closeable {
 
     @Override
     public void start() {
-        if (status.compareAndSet(
-                ServiceStatus.CREATED,
-                ServiceStatus.INITIALISING)
+        if (status.compareAndSet(CREATED, INITIALISING)
         ) {
             try {
                 onStart();
             }
             catch(Exception ex) {
-                status.set(ServiceStatus.CLOSED);
+                status.set(CLOSED);
                 throw new RuntimeException(
                         "Failed to start the service '" +  name() + "'!",
                         ex);
@@ -39,15 +43,13 @@ public abstract class Service implements IService, Closeable {
 
     @Override
     public void close() {
-        if (status.compareAndSet(
-                ServiceStatus.RUNNING,
-                ServiceStatus.CLOSED)
+        if (status.compareAndSet(RUNNING, CLOSED)
         ) {
             try {
                 onClose();
             }
             catch(Exception ex) {
-                status.set(ServiceStatus.CLOSED);
+                status.set(CLOSED);
                 throw new RuntimeException(
                         "Failed to close the service '" +  name() + "'!",
                         ex);
@@ -66,18 +68,40 @@ public abstract class Service implements IService, Closeable {
     }
 
     protected void enteredRunningState() {
-        status.set(ServiceStatus.RUNNING);
+        status.set(RUNNING);
     }
 
     protected boolean isInRunningState() {
-        return status.get() == ServiceStatus.RUNNING;
+        return status.get() == RUNNING;
     }
 
     protected boolean isInClosedState() {
-        return status.get() == ServiceStatus.CLOSED;
+        return status.get() == CLOSED;
+    }
+
+    protected void waitForServiceStarted(final int maxSeconds) {
+        final long tsLimitEnd = System.currentTimeMillis() + maxSeconds * 1_000;
+
+        // spin wait service to be ready or closed
+        while(System.currentTimeMillis() < tsLimitEnd) {
+            if (isInRunningState() || isInClosedState()) break;
+            sleep(100);
+        }
+    }
+
+    protected void startServiceThread(final Runnable runnable) {
+        final Thread thread = new Thread(runnable);
+        thread.setDaemon(true);
+        thread.setName("aviron-service-" + threadCounter.getAndIncrement());
+        thread.start();
+    }
+
+    protected void sleep(final int millis) {
+        try { Thread.sleep(millis); } catch(Exception ex) {}
     }
 
 
-    private final AtomicReference<ServiceStatus> status = 
-            new AtomicReference<>(ServiceStatus.CREATED);
+    private static final AtomicLong threadCounter = new AtomicLong(1L);
+
+    private final AtomicReference<ServiceStatus> status = new AtomicReference<>(CREATED);
 }

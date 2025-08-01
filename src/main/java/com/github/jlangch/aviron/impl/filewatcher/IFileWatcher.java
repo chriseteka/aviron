@@ -33,8 +33,6 @@ public interface IFileWatcher extends IService, Closeable {
 
     Path getMainDir();
 
-    void register(final Path dir);
-
     List<Path> getRegisteredPaths();
 
 }

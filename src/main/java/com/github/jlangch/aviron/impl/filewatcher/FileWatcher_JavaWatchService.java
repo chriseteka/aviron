@@ -37,7 +37,6 @@ import java.nio.file.WatchService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -81,10 +80,10 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
             if (registerAllSubDirs) {
                 Files.walk(mainDir)
                      .filter(Files::isDirectory)
-                     .forEach(this::register);
+                     .forEach(d -> register(d, false));
             }
             else {
-                register(mainDir);
+                register(mainDir, false);
             }
         }
         catch(Exception ex) {
@@ -98,17 +97,6 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
     }
 
     @Override
-    public void register(final Path dir) {
-        if (!Files.isDirectory(dir)) {
-            throw new RuntimeException("The path " + dir + " does not exist or is not a directory");
-        }
-
-        final Path normalizedDir = dir.toAbsolutePath().normalize();
-
-        register(normalizedDir, false);
-    }
-
-    @Override
     public List<Path> getRegisteredPaths() {
         return keys.values().stream().sorted().collect(Collectors.toList());
     }
@@ -118,20 +106,10 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
     }
 
     protected void onStart() {
-        final Runnable runnable = createWorker();
-
-        final Thread thread = new Thread(runnable);
-        thread.setDaemon(true);
-        thread.setName("aviron-filewatcher-" + threadCounter.getAndIncrement());
-        thread.start();
+        startServiceThread(createWorker());
 
         // spin wait max 5s for service to be ready or closed
-        final long ts = System.currentTimeMillis();
-        while(System.currentTimeMillis() < ts + 5_000) {
-            if (isInRunningState()) break;
-            if (isInClosedState()) break;
-            try { Thread.sleep(100); } catch(Exception ex) {}
-        }
+        waitForServiceStarted(5);
     }
 
     protected void onClose() throws IOException {
@@ -146,14 +124,17 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
 
     private void register(final Path dir, final boolean sendEvent) {
         try {
-            final WatchKey dirKey = dir.register(
+            final Path normalizedDir = dir.toAbsolutePath().normalize();
+
+            final WatchKey dirKey = normalizedDir.register(
                                       ws,
                                       ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
 
-            keys.put(dirKey, dir);
+            keys.put(dirKey, normalizedDir);
 
             if (sendEvent && registerListener != null) {
-                safeRun(() -> registerListener.accept(new FileWatchRegisterEvent(dir)));
+                safeRun(() -> registerListener.accept(
+                                   new FileWatchRegisterEvent(normalizedDir)));
             }
         }
         catch(Exception e) {
@@ -252,8 +233,6 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
         }
     }
 
-
-    private static final AtomicLong threadCounter = new AtomicLong(1L);
 
     private final Path mainDir;
     private final WatchService ws;

@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -106,13 +105,6 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
     }
 
     @Override
-    public void register(final Path dir) {
-        throw new RuntimeException(
-                "Registering additional FileWatcher directories is not support on "
-                + "this FileWatcher!");
-    }
-
-    @Override
     public List<Path> getRegisteredPaths() {
         return CollectionUtils.toList(mainDir);
     }
@@ -148,20 +140,10 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
             throw new RuntimeException("Failed to start 'fswatch' process", ex);
         }
 
-        final Runnable runnable = createWorker();
-
-        final Thread thread = new Thread(runnable);
-        thread.setDaemon(true);
-        thread.setName("aviron-filewatcher-" + threadCounter.getAndIncrement());
-        thread.start();
+        startServiceThread(createWorker());
 
         // spin wait max 5s for service to be ready or closed
-        final long ts = System.currentTimeMillis();
-        while(System.currentTimeMillis() < ts + 5_000) {
-            if (isInRunningState()) break;
-            if (isInClosedState()) break;
-            try { Thread.sleep(100); } catch(Exception ex) {}
-        }
+        waitForServiceStarted(5);
     }
 
     protected void onClose() throws IOException{
@@ -378,8 +360,6 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
 
     // any reasonable string that does not appear in file names
     private static final String SEPARATOR = "|#|";
-
-    private static final AtomicLong threadCounter = new AtomicLong(1L);
 
     private final AtomicReference<Process> fswatchProcess = new AtomicReference<>();
 
