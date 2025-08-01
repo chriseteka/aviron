@@ -34,9 +34,9 @@ import java.util.List;
  * 
  * <pre>
  * 
- * +------------+    +-------------+                   +-----------+    +-------+
- * | Filesystem |--->| FileWatcher |--->|  Queue  |--->| AV Client |--->| Clamd |
- * +------------+    +-------------+    +---------+    +-----------+    +-------+
+ * +------------+   +-------------+                 +-----------+   +-------+
+ * | Filesystem | ⇨ | FileWatcher | ⇨ |  Queue  | ⇨ | AV Client | ⇨ | Clamd |
+ * +------------+   +-------------+   +---------+   +-----------+   +-------+
  * 
  * </pre>
  * 
@@ -53,32 +53,66 @@ import java.util.List;
  */
 public class FileWatcherQueue {
 
+    /**
+     * Create a new queue with the default max size of 1000 items
+     * 
+     * @see #QUEUE_DEFAULT_SIZE
+     * @see #QUEUE_MIN_SIZE
+     * @see #QUEUE_MAX_SIZE
+     */
     public FileWatcherQueue() {
-        this(DEFAULT_SIZE);
+        this(QUEUE_DEFAULT_SIZE);
     }
 
+    /**
+     * Create a new queue with a max size
+     * 
+     * @param maxSize the queue's max size
+      * 
+     * @see #QUEUE_DEFAULT_SIZE
+     * @see #QUEUE_MIN_SIZE
+     * @see #QUEUE_MAX_SIZE
+    */
     public FileWatcherQueue(final int maxSize) {
-        this.maxSize = Math.max(MIN_SIZE, maxSize);
+        this.maxSize = Math.max(QUEUE_MIN_SIZE, Math.min(QUEUE_MAX_SIZE, maxSize));
     }
 
+    /**
+     * Returns the queue size
+     * 
+     * @return the queue size
+     */
     public int size() {
         synchronized(queue) {
             return queue.size();
         }
     }
 
+    /**
+     * Checks if the queue is empty
+     * 
+     * @return <code>true</code> if the queue is empty else <code>false</code>
+     */
     public boolean isEmpty() {
         synchronized(queue) {
             return queue.isEmpty();
         }
     }
 
+    /**
+     * Clears the queue
+     */
     public void clear() {
         synchronized(queue) {
             queue.clear();
         }
     }
 
+    /**
+     * Removes a file form the queue.
+     * 
+     * @param file the file to be removed
+     */
     public void remove(final File file) {
         if (file != null) {
             synchronized(queue) {
@@ -87,6 +121,16 @@ public class FileWatcherQueue {
         }
     }
 
+    /**
+     * Adds a new file to the queue
+     * 
+     * @param file the file to add
+     * 
+     * @see #pop()
+     * @see #pop(int)
+     * @see #pop(boolean)
+     * @see #pop(int, boolean)
+     */
     public void push(final File file) {
         if (file != null) {
             synchronized(queue) {
@@ -110,12 +154,38 @@ public class FileWatcherQueue {
         }
     }
 
+    /**
+     * Takes the next file from the queue
+     * 
+     * @return the next file from the queue or <code>null</code> if the queue
+     *         is empty
+     * 
+     * @see #push(File)
+     * @see #pop(int)
+     * @see #pop(boolean)
+     * @see #pop(int, boolean)
+     */
     public File pop() {
         synchronized(queue) {
             return queue.isEmpty() ? null : queue.removeFirst();
         }
     }
 
+    /**
+     * Takes the next file from the queue.
+     * 
+     * <p>Discards any queue head files that are not existing if the parameter 
+     * 'existingFilesOnly' is <code>true</code>.
+     * 
+     * @param existingFilesOnly if <code>true</code> returns only existing files
+     * @return the next file from the queue or <code>null</code> if the queue
+     *         is empty
+     * 
+     * @see #push(File)
+     * @see #pop()
+     * @see #pop(int)
+     * @see #pop(int, boolean)
+     */
     public File pop(final boolean existingFilesOnly) {
         if (existingFilesOnly) {
             synchronized(queue) {
@@ -131,6 +201,18 @@ public class FileWatcherQueue {
         }
     }
 
+    /**
+     * Takes the next n files from the queue
+     * 
+     * @param n the number of files to take from the queue
+     * @return the next n files from the queue. Reads only as many
+     *         files from the queue as are available. 
+     * 
+     * @see #push(File)
+     * @see #pop()
+     * @see #pop(boolean)
+     * @see #pop(int, boolean)
+     */
     public List<File> pop(final int n) {
         synchronized(queue) {
             final List<File> files = new ArrayList<>(n);
@@ -141,6 +223,22 @@ public class FileWatcherQueue {
         }
     }
 
+    /**
+     * Takes the next n files from the queue
+     * 
+     * <p>Discards any queue head files that are not existing if the parameter 
+     * 'existingFilesOnly' is <code>true</code>.
+     * 
+     * @param n the number of files to take from the queue
+     * @param existingFilesOnly if <code>true</code> returns only existing files
+     * @return the next n files from the queue. Reads only as many
+     *         files from the queue as are available. 
+     * 
+     * @see #push(File)
+     * @see #pop()
+     * @see #pop(int)
+     * @see #pop(boolean)
+     */
     public List<File> pop(final int n, final boolean existingFilesOnly) {
         if (existingFilesOnly) {
             synchronized(queue) {
@@ -158,8 +256,9 @@ public class FileWatcherQueue {
     }
 
 
-    public static final int DEFAULT_SIZE = 1000;
-    public static final int MIN_SIZE = 5;
+    public static final int QUEUE_DEFAULT_SIZE = 1_000;
+    public static final int QUEUE_MIN_SIZE = 5;
+    public static final int QUEUE_MAX_SIZE = 100_000;
 
     private final int maxSize;
     private final LinkedList<File> queue = new LinkedList<>();

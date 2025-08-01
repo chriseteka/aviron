@@ -78,14 +78,14 @@ import com.github.jlangch.aviron.util.FileWatcherQueue;
  *                       .serverFileSeparator(FileSeparator.UNIX)
  *                       .build();
  *
- * final Predicate<FileWatchEvent> scanApprover = 
- *         (e) -> { final String filename = e.getPath().toFile().getName();
+ * final Predicate-&lt;FileWatchFileEvent-&gt; scanApprover = 
+ *         (e) -&gt; { final String filename = e.getPath().toFile().getName();
  *                  return e.getType() == FileWatchEventType.CREATED
- *                         && filename.matches(".*[.](docx|xlsx|pdf)")); };
+ *                         &amp;&amp; filename.matches(".*[.](docx|xlsx|pdf)")); };
  *
- * final Consumer<RealtimeScanEvent> scanListener =
- *         (e) -> { if (e.hasVirus) {
- *                     System.out.println("Infected -> " + e.getPath());
+ * final Consumer-&lt;RealtimeScanEvent-&gt; scanListener =
+ *         (e) -&gt; { if (e.hasVirus) {
+ *                     System.out.println("Infected -&gt; " + e.getPath());
  *                  } };
  *
  * final RealtimeScanner rts = new RealtimeScanner(
