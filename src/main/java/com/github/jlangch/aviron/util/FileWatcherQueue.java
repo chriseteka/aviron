@@ -91,7 +91,7 @@ public class FileWatcherQueue {
         if (file != null) {
             synchronized(queue) {
             	// we're only interested in the last file 'event', so we
-            	// can do some optimizations (b.tw 'fswatch' is doing the
+            	// can do some optimizations (btw 'fswatch' is doing the
             	// same on a shorter time horizon)
             	//
             	// e.g.:   file create -> push  -> discard
