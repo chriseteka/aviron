@@ -32,6 +32,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.github.jlangch.aviron.util.FileWatcherQueue;
+
 
 class FileWatcherQueueTest {
 

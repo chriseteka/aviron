@@ -39,10 +39,10 @@ import com.github.jlangch.aviron.events.FileWatchRegisterEvent;
 import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.events.RealtimeScanEvent;
 import com.github.jlangch.aviron.ex.FileWatcherException;
-import com.github.jlangch.aviron.filewatcher.FileWatcherQueue;
 import com.github.jlangch.aviron.impl.service.Service;
 import com.github.jlangch.aviron.impl.service.ServiceStatus;
 import com.github.jlangch.aviron.impl.util.OS;
+import com.github.jlangch.aviron.util.FileWatcherQueue;
 
 
 /**
