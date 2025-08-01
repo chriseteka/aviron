@@ -46,6 +46,16 @@ class FileWatcherQueueTest {
     }
 
     @Test 
+    void testSize() {
+        assertEquals(FileWatcherQueue.QUEUE_DEFAULT_CAPACITY, new FileWatcherQueue().capacity());
+        
+        assertEquals(FileWatcherQueue.QUEUE_MIN_CAPACITY, new FileWatcherQueue(-1).capacity());
+        assertEquals(FileWatcherQueue.QUEUE_MIN_CAPACITY, new FileWatcherQueue(0).capacity());
+        
+        assertEquals(FileWatcherQueue.QUEUE_MAX_CAPACITY, new FileWatcherQueue(Integer.MAX_VALUE).capacity());
+    }
+
+    @Test 
     void testPushPop() {
         final FileWatcherQueue queue = new FileWatcherQueue();
 

@@ -54,27 +54,27 @@ import java.util.List;
 public class FileWatcherQueue {
 
     /**
-     * Create a new queue with the default max size of 1000 items
+     * Create a new queue with the default capacity of 1000 files
      * 
-     * @see #QUEUE_DEFAULT_SIZE
-     * @see #QUEUE_MIN_SIZE
-     * @see #QUEUE_MAX_SIZE
+     * @see #QUEUE_DEFAULT_CAPACITY
+     * @see #QUEUE_MIN_CAPACITY
+     * @see #QUEUE_MAX_CAPACITY
      */
     public FileWatcherQueue() {
-        this(QUEUE_DEFAULT_SIZE);
+        this(QUEUE_DEFAULT_CAPACITY);
     }
 
     /**
-     * Create a new queue with a max size
+     * Create a new queue with a capacity
      * 
-     * @param maxSize the queue's max size
+     * @param capacity the queue's capacity
       * 
-     * @see #QUEUE_DEFAULT_SIZE
-     * @see #QUEUE_MIN_SIZE
-     * @see #QUEUE_MAX_SIZE
+     * @see #QUEUE_DEFAULT_CAPACITY
+     * @see #QUEUE_MIN_CAPACITY
+     * @see #QUEUE_MAX_CAPACITY
     */
-    public FileWatcherQueue(final int maxSize) {
-        this.maxSize = Math.max(QUEUE_MIN_SIZE, Math.min(QUEUE_MAX_SIZE, maxSize));
+    public FileWatcherQueue(final int capacity) {
+        this.capacity = Math.max(QUEUE_MIN_CAPACITY, Math.min(QUEUE_MAX_CAPACITY, capacity));
     }
 
     /**
@@ -85,6 +85,17 @@ public class FileWatcherQueue {
     public int size() {
         synchronized(queue) {
             return queue.size();
+        }
+    }
+
+    /**
+     * Returns the queue's capacity
+     * 
+     * @return the queue capacity
+     */
+    public int capacity() {
+        synchronized(queue) {
+            return capacity;
         }
     }
 
@@ -145,7 +156,7 @@ public class FileWatcherQueue {
                 queue.removeIf(it -> it.equals(file));
 
                 // overflow: limit the size (discard oldest entries)
-                while(queue.size() >= maxSize) {
+                while(queue.size() >= capacity) {
                     queue.removeFirst();
                 }
 
@@ -256,10 +267,10 @@ public class FileWatcherQueue {
     }
 
 
-    public static final int QUEUE_DEFAULT_SIZE = 1_000;
-    public static final int QUEUE_MIN_SIZE = 5;
-    public static final int QUEUE_MAX_SIZE = 100_000;
+    public static final int QUEUE_DEFAULT_CAPACITY = 1_000;
+    public static final int QUEUE_MIN_CAPACITY = 5;
+    public static final int QUEUE_MAX_CAPACITY = 100_000;
 
-    private final int maxSize;
+    private final int capacity;
     private final LinkedList<File> queue = new LinkedList<>();
 }
