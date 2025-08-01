@@ -42,6 +42,8 @@ class FileWatcherTest {
     @Test 
     @EnableOnMac
     void testFileWatcherMainDirOnly_NoFiles() {
+        printf("testFileWatcherMainDirOnly_NoFiles%n");
+
         try(TempFS tempFS = new TempFS()) {
             final Queue<Event> files = new ConcurrentLinkedQueue<>();
             final Queue<Event> errors = new ConcurrentLinkedQueue<>();
@@ -83,6 +85,8 @@ class FileWatcherTest {
     @Test 
     @EnableOnMac
     void testFileWatcherMainDirWithSubDirs_NoFiles() {
+        printf("testFileWatcherMainDirWithSubDirs_NoFiles%n");
+
         try(TempFS tempFS = new TempFS()) {
             tempFS.createScanSubDir("0000");
             tempFS.createScanSubDir("0001");
@@ -127,6 +131,8 @@ class FileWatcherTest {
     @Test 
     @EnableOnMac
     void testFileWatcherMainDir() {
+        printf("testFileWatcherMainDir%n");
+
         try(TempFS tempFS = new TempFS()) {
             tempFS.createScanSubDir("0000");
             tempFS.createScanSubDir("0001");
@@ -190,6 +196,8 @@ class FileWatcherTest {
     @Test 
     @EnableOnMac
     void testFileWatcherSubDir() {
+        printf("testFileWatcherSubDir%n");
+
         try(TempFS tempFS = new TempFS()) {
             tempFS.createScanSubDir("0000");
             tempFS.createScanSubDir("0001");
@@ -253,6 +261,8 @@ class FileWatcherTest {
     @Test 
     @EnableOnMac
     void testFileWatcherSubDir_DynaicallyAdded() {
+        printf("testFileWatcherSubDir_DynaicallyAdded%n");
+
         try(TempFS tempFS = new TempFS()) {
             tempFS.createScanSubDir("0000");
             tempFS.createScanSubDir("0001");

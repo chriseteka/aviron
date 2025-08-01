@@ -249,17 +249,17 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
         }
         else if (isFile) {
             if (Files.isRegularFile(path)) {
-                if (types.contains(MODIFIED)) {
+                if (types.contains(DELETED)) {
+                    safeRun(() -> fileListener.accept(
+                                    new FileWatchFileEvent(path, isDir, isFile, DELETED)));
+                }
+                else if (types.contains(MODIFIED)) {
                     safeRun(() -> fileListener.accept(
                                     new FileWatchFileEvent(path, isDir, isFile, MODIFIED)));
                 }
                 else if (types.contains(CREATED)) {
                    safeRun(() -> fileListener.accept(
                                     new FileWatchFileEvent(path, isDir, isFile, CREATED)));
-                }
-                else if (types.contains(DELETED)) {
-                    safeRun(() -> fileListener.accept(
-                                    new FileWatchFileEvent(path, isDir, isFile, DELETED)));
                 }
             }
             else {
