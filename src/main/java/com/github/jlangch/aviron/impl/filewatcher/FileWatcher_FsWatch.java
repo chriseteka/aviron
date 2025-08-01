@@ -187,7 +187,7 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
                                 final String filePath = line.substring(0, separatorIdx);
                                 final Path path = Paths.get(filePath).normalize();
 
-                                // fswatch is not really helpful with the flags:
+                                // fswatch flags for create/update/delete files:
                                 //
                                 // Flags dir  created: Created IsDir AttributeModified
                                 // Flags file created: Created IsFile Updated AttributeModified

@@ -163,34 +163,34 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
                     }
 
                     key.pollEvents()
-                    .stream()
-                    .filter(e -> e.kind() != OVERFLOW)
-                    .forEach(e -> {
-                        @SuppressWarnings("unchecked")
-                        final Path p = ((WatchEvent<Path>)e).context();
-                        final Path absPath = dirPath.resolve(p);
-                        final FileWatchFileEventType eventType = convertToEventType(e.kind());
-                        if (Files.isDirectory(absPath)) {
-                            if (eventType == FileWatchFileEventType.CREATED) {
-                                register(absPath, true);  // register the new subdir
-                            }
+                       .stream()
+                       .filter(e -> e.kind() != OVERFLOW)
+                       .forEach(e -> {
+                            @SuppressWarnings("unchecked")
+                            final Path p = ((WatchEvent<Path>)e).context();
+                            final Path absPath = dirPath.resolve(p);
+                            final FileWatchFileEventType eventType = convertToEventType(e.kind());
+                            if (Files.isDirectory(absPath)) {
+                                if (eventType == FileWatchFileEventType.CREATED) {
+                                    register(absPath, true);  // register the new subdir
+                                }
 
-                            if (eventType != FileWatchFileEventType.MODIFIED) {
+                                if (eventType != FileWatchFileEventType.MODIFIED) {
+                                    safeRun(() -> fileListener.accept(
+                                                    new FileWatchFileEvent(absPath, true, false, eventType)));
+                                }
+                            }
+                            else if (Files.isRegularFile(absPath)) {
                                 safeRun(() -> fileListener.accept(
-                                                new FileWatchFileEvent(absPath, true, false, eventType)));
+                                                new FileWatchFileEvent(absPath, false, true, eventType)));
                             }
-                        }
-                        else if (Files.isRegularFile(absPath)) {
-                            safeRun(() -> fileListener.accept(
-                                            new FileWatchFileEvent(absPath, false, true, eventType)));
-                        }
-                        else {
-                            // if the file has been deleted its type cannot be checked
-                            safeRun(() -> fileListener.accept(
-                                            new FileWatchFileEvent(absPath, false, false, eventType)));
-                        }});
+                            else {
+                                // if the file has been deleted its type cannot be checked
+                                safeRun(() -> fileListener.accept(
+                                                new FileWatchFileEvent(absPath, false, false, eventType)));
+                            }});
 
-                 key.reset();
+                    key.reset();
                 }
                 catch(ClosedWatchServiceException ex) {
                     break; // stop watching
@@ -203,7 +203,7 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
                         safeRun(() -> errorListener.accept(
                                             new FileWatchErrorEvent(mainDir, ex)));
                     }
-                    // continue
+                    // continue processing events
                 }
             }
 
