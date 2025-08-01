@@ -41,10 +41,6 @@ import java.util.List;
  * 
  * </pre>
  * 
- * <p> The FileWatcherQueue has overflow protection to keep all operations non 
- * blocking. If the queue grows beyond the max size the oldest entries will be 
- * removed that the new entries fit into the queue.
- * 
  * <p>The FileWatcherQueue never blocks and never grows beyond limits to protect
  * the system! Therefore the queue is non blocking and has a fix capacity. As a
  * consequence it must discard old events if overrun. 
