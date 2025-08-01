@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.impl.filewatcher;
+package com.github.jlangch.aviron.filewatcher;
 
 import java.io.File;
 import java.util.ArrayList;
