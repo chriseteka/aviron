@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.util;
+package com.github.jlangch.aviron.filewatcher;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -32,8 +32,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.junit.jupiter.api.Test;
 
 import com.github.jlangch.aviron.events.Event;
-import com.github.jlangch.aviron.impl.filewatcher.FileWatcher_FsWatch;
-import com.github.jlangch.aviron.impl.filewatcher.IFileWatcher;
 import com.github.jlangch.aviron.impl.test.TempFS;
 import com.github.jlangch.aviron.util.junit.EnableOnMac;
 

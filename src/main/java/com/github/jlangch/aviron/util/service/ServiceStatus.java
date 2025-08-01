@@ -20,42 +20,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.events;
-
-import java.nio.file.Path;
+package com.github.jlangch.aviron.util.service;
 
 
-public class FileWatchErrorEvent implements Event {
+/**
+ * Service status
+ *
+ * <pre>
+ *            _
+ *           (_)
+ *            |
+ *            | new()
+ *            v
+ *     +--------------+
+ *     |   CREATED    |
+ *     +--------------+
+ *            |
+ *            | start()
+ *            v
+ *     +--------------+
+ *     | INITIALISING |
+ *     +--------------+
+ *            |
+ *            | startup finished
+ *            v
+ *     +--------------+
+ *     |   RUNNING    |
+ *     +--------------+
+ *            |
+ *            | close()
+ *            v
+ *     +--------------+
+ *     |    CLOSED    |
+ *     +--------------+
+ * </pre>
+ */
+public enum ServiceStatus {
 
-    public FileWatchErrorEvent(final Path path, final Exception ex) {
-        this.path = path;
-        this.ex = ex;
-    }
+    CREATED,
 
+    INITIALISING,
 
-    public Path getPath() {
-        return path;
-    }
+    RUNNING,
 
-    public Exception getException() {
-        return ex;
-    }
+    CLOSED;
 
-    
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-
-        sb.append("Path: ");
-        sb.append(path);
-        sb.append(System.lineSeparator());
-        sb.append("Exception: ");
-        sb.append(ex == null ? "" : ex.getMessage());
-
-        return sb.toString();
-    }
-
-    
-    private final Path path;
-    private final Exception ex;
 }

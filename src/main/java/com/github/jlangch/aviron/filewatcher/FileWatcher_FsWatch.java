@@ -20,12 +20,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.impl.filewatcher;
+package com.github.jlangch.aviron.filewatcher;
 
-import static com.github.jlangch.aviron.events.FileWatchFileEventType.CREATED;
-import static com.github.jlangch.aviron.events.FileWatchFileEventType.DELETED;
-import static com.github.jlangch.aviron.events.FileWatchFileEventType.MODIFIED;
-import static com.github.jlangch.aviron.events.FileWatchFileEventType.OVERFLOW;
+import static com.github.jlangch.aviron.filewatcher.events.FileWatchFileEventType.CREATED;
+import static com.github.jlangch.aviron.filewatcher.events.FileWatchFileEventType.DELETED;
+import static com.github.jlangch.aviron.filewatcher.events.FileWatchFileEventType.MODIFIED;
+import static com.github.jlangch.aviron.filewatcher.events.FileWatchFileEventType.OVERFLOW;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -41,12 +41,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import com.github.jlangch.aviron.events.FileWatchErrorEvent;
-import com.github.jlangch.aviron.events.FileWatchFileEvent;
-import com.github.jlangch.aviron.events.FileWatchFileEventType;
-import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
-import com.github.jlangch.aviron.impl.service.Service;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchErrorEvent;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEvent;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEventType;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.impl.util.CollectionUtils;
+import com.github.jlangch.aviron.util.service.Service;
 
 
 /**
@@ -350,6 +350,10 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
     }
 
 
+    // fswatch binary installed under homebrew on MacOS
+    public static final String HOMEBREW_FSWATCH_PROGRAM = "/opt/homebrew/bin/fswatch";
+    
+    
     // any reasonable string that does not appear in file names
     private static final String SEPARATOR = "|#|";
 

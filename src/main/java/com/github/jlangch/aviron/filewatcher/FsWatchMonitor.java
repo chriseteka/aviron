@@ -20,49 +20,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.impl.service;
+package com.github.jlangch.aviron.filewatcher;
 
 
 /**
- * Service status
+ * fswatch event monitor
  *
- * <pre>
- *            _
- *           (_)
- *            |
- *            | new()
- *            v
- *     +--------------+
- *     |   CREATED    |
- *     +--------------+
- *            |
- *            | start()
- *            v
- *     +--------------+
- *     | INITIALISING |
- *     +--------------+
- *            |
- *            | startup finished
- *            v
- *     +--------------+
- *     |   RUNNING    |
- *     +--------------+
- *            |
- *            | close()
- *            v
- *     +--------------+
- *     |    CLOSED    |
- *     +--------------+
- * </pre>
+ * <p>Note: the available monitors are platform dependent!
+ *
+ * <p>Run <code>fswatch --help</code> to get a list of the available monitors
+ * for your platform
  */
-public enum ServiceStatus {
+public enum FsWatchMonitor {
 
-    CREATED,
+	fsevents_monitor,
 
-    INITIALISING,
+	kqueue_monitor,
 
-    RUNNING,
-
-    CLOSED;
+	poll_monitor;
 
 }

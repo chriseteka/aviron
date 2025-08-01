@@ -32,15 +32,17 @@ import java.util.function.Predicate;
 
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.dto.ScanResult;
-import com.github.jlangch.aviron.events.FileWatchErrorEvent;
-import com.github.jlangch.aviron.events.FileWatchFileEvent;
-import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
-import com.github.jlangch.aviron.events.RealtimeScanEvent;
 import com.github.jlangch.aviron.ex.FileWatcherException;
-import com.github.jlangch.aviron.impl.service.Service;
-import com.github.jlangch.aviron.impl.service.ServiceStatus;
+import com.github.jlangch.aviron.filewatcher.FileWatcher_FsWatch;
+import com.github.jlangch.aviron.filewatcher.FileWatcher_JavaWatchService;
+import com.github.jlangch.aviron.filewatcher.IFileWatcher;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchErrorEvent;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEvent;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.impl.util.OS;
 import com.github.jlangch.aviron.util.FileWatcherQueue;
+import com.github.jlangch.aviron.util.service.Service;
+import com.github.jlangch.aviron.util.service.ServiceStatus;
 
 
 /**
@@ -96,7 +98,7 @@ import com.github.jlangch.aviron.util.FileWatcherQueue;
  *
  * rts.start();
  *
- * rts.stop();
+ * rts.close();
  * </pre>
  */
 public class RealtimeScanner extends Service {
@@ -176,8 +178,8 @@ public class RealtimeScanner extends Service {
                          this::fileWatchEventListener,
                          this::errorEventListener,
                          this::terminationEventListener,
-                         null, // default platform monitor
-                         "/opt/homebrew/bin/fswatch");
+                         null, // default monitor for MacOS platform
+                         FileWatcher_FsWatch.HOMEBREW_FSWATCH_PROGRAM);
         }
         else {
             throw new FileWatcherException(

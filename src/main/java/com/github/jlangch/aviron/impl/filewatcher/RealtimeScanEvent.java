@@ -20,11 +20,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.events;
+package com.github.jlangch.aviron.impl.filewatcher;
 
 import java.nio.file.Path;
 
 import com.github.jlangch.aviron.dto.ScanResult;
+import com.github.jlangch.aviron.events.Event;
 
 
 public class RealtimeScanEvent implements Event {

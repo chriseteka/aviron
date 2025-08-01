@@ -20,23 +20,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.impl.filewatcher;
+package com.github.jlangch.aviron.util.service;
+
+import java.io.Closeable;
 
 
-/**
- * fswatch event monitor
- *
- * <p>Note: the available monitors are platform dependent!
- *
- * <p>Run <code>fswatch --help</code> to get a list of the available monitors
- * for your platform
- */
-public enum FsWatchMonitor {
+public interface IService extends Closeable {
 
-	fsevents_monitor,
+    /**
+     * Start the service
+     */
+    void start();
 
-	kqueue_monitor,
+    /**
+     * Close (stop) the service
+     */
+    void close();
 
-	poll_monitor;
+    /**
+     * Returns the service's run status
+     * 
+     * @return the service's status
+     */
+    ServiceStatus getStatus();
+
+    /**
+     * Start the runnable in a new thread.
+     * 
+     * <p>Override this method to run the runnable in threads the caller controls.
+     * 
+     * <p>The default implementation creates a new daemon thread and runs the runnable
+     * in this thread.
+     * 
+     * @param runnable A runnable
+     */
+    void startServiceThread(Runnable runnable);
 
 }

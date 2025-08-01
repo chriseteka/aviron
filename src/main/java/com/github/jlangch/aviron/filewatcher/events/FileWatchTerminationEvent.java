@@ -20,9 +20,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.events;
+package com.github.jlangch.aviron.filewatcher.events;
 
 import java.nio.file.Path;
+
+import com.github.jlangch.aviron.events.Event;
 
 
 public class FileWatchTerminationEvent implements Event {

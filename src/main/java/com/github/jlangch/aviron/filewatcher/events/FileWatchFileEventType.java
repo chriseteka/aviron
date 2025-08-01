@@ -20,19 +20,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.impl.filewatcher;
-
-import java.io.Closeable;
-import java.nio.file.Path;
-import java.util.List;
-
-import com.github.jlangch.aviron.impl.service.IService;
+package com.github.jlangch.aviron.filewatcher.events;
 
 
-public interface IFileWatcher extends IService, Closeable {
+public enum FileWatchFileEventType {
 
-    Path getMainDir();
+    CREATED,   // file created
 
-    List<Path> getRegisteredPaths();
+    MODIFIED,  // file modified
+
+    DELETED,   // file deleted
+
+    OVERFLOW;  // a special event to indicate that events may have been 
+	           // lost or discarded.
 
 }

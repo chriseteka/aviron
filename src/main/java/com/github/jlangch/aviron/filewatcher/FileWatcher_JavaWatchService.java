@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.impl.filewatcher;
+package com.github.jlangch.aviron.filewatcher;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
@@ -40,11 +40,11 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import com.github.jlangch.aviron.events.FileWatchErrorEvent;
-import com.github.jlangch.aviron.events.FileWatchFileEvent;
-import com.github.jlangch.aviron.events.FileWatchFileEventType;
-import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
-import com.github.jlangch.aviron.impl.service.Service;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchErrorEvent;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEvent;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEventType;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchTerminationEvent;
+import com.github.jlangch.aviron.util.service.Service;
 
 
 /**

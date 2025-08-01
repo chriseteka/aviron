@@ -20,40 +20,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.impl.service;
+package com.github.jlangch.aviron.filewatcher;
 
 import java.io.Closeable;
+import java.nio.file.Path;
+import java.util.List;
+
+import com.github.jlangch.aviron.util.service.IService;
 
 
-public interface IService extends Closeable {
+public interface IFileWatcher extends IService, Closeable {
 
-    /**
-     * Start the service
-     */
-    void start();
+    Path getMainDir();
 
-    /**
-     * Close (stop) the service
-     */
-    void close();
-
-    /**
-     * Returns the service's run status
-     * 
-     * @return the service's status
-     */
-    ServiceStatus getStatus();
-
-    /**
-     * Start the runnable in a new thread.
-     * 
-     * <p>Override this method to run the runnable in threads the caller controls.
-     * 
-     * <p>The default implementation creates a new daemon thread and runs the runnable
-     * in this thread.
-     * 
-     * @param runnable A runnable
-     */
-    void startServiceThread(Runnable runnable);
+    List<Path> getRegisteredPaths();
 
 }

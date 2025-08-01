@@ -1,9 +1,9 @@
-package com.github.jlangch.aviron.impl.service;
+package com.github.jlangch.aviron.util.service;
 
-import static com.github.jlangch.aviron.impl.service.ServiceStatus.CLOSED;
-import static com.github.jlangch.aviron.impl.service.ServiceStatus.CREATED;
-import static com.github.jlangch.aviron.impl.service.ServiceStatus.INITIALISING;
-import static com.github.jlangch.aviron.impl.service.ServiceStatus.RUNNING;
+import static com.github.jlangch.aviron.util.service.ServiceStatus.CLOSED;
+import static com.github.jlangch.aviron.util.service.ServiceStatus.CREATED;
+import static com.github.jlangch.aviron.util.service.ServiceStatus.INITIALISING;
+import static com.github.jlangch.aviron.util.service.ServiceStatus.RUNNING;
 
 import java.io.Closeable;
 import java.io.IOException;
