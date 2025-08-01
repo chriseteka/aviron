@@ -108,7 +108,7 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
     protected void onStart() {
         startServiceThread(createWorker());
 
-        // spin wait max 5s for service to be ready or closed
+        // spin wait max 5s for service after creation to be ready or closed
         waitForServiceStarted(5);
     }
 
