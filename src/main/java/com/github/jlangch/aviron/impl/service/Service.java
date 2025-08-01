@@ -22,8 +22,7 @@ public abstract class Service implements IService, Closeable {
 
     @Override
     public final void start() {
-        if (status.compareAndSet(CREATED, INITIALISING)
-        ) {
+        if (status.compareAndSet(CREATED, INITIALISING)) {
             try {
                 onStart();
             }
@@ -43,8 +42,7 @@ public abstract class Service implements IService, Closeable {
 
     @Override
     public final void close() {
-        if (status.compareAndSet(RUNNING, CLOSED)
-        ) {
+        if (status.compareAndSet(RUNNING, CLOSED)) {
             try {
                 onClose();
             }
