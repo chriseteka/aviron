@@ -47,12 +47,17 @@ class FileWatcherQueueTest {
 
     @Test 
     void testSize() {
-        assertEquals(FileWatcherQueue.QUEUE_DEFAULT_CAPACITY, new FileWatcherQueue().capacity());
-        
-        assertEquals(FileWatcherQueue.QUEUE_MIN_CAPACITY, new FileWatcherQueue(-1).capacity());
-        assertEquals(FileWatcherQueue.QUEUE_MIN_CAPACITY, new FileWatcherQueue(0).capacity());
-        
-        assertEquals(FileWatcherQueue.QUEUE_MAX_CAPACITY, new FileWatcherQueue(Integer.MAX_VALUE).capacity());
+        assertEquals(FileWatcherQueue.QUEUE_DEFAULT_CAPACITY, 
+                     new FileWatcherQueue().capacity());
+
+        assertEquals(FileWatcherQueue.QUEUE_MIN_CAPACITY, 
+                     new FileWatcherQueue(-1).capacity());
+
+        assertEquals(FileWatcherQueue.QUEUE_MIN_CAPACITY,
+                     new FileWatcherQueue(0).capacity());
+
+        assertEquals(FileWatcherQueue.QUEUE_MAX_CAPACITY, 
+                     new FileWatcherQueue(Integer.MAX_VALUE).capacity());
     }
 
     @Test 
@@ -200,7 +205,7 @@ class FileWatcherQueueTest {
     @Test 
     void testPopExistingFilesOnly() {
         final TempFS tempFS = new TempFS();
- 
+
         try {
             tempFS.createScanSubDir("0000");
 
@@ -231,7 +236,7 @@ class FileWatcherQueueTest {
     @Test 
     void testPopNExistingFilesOnly() {
         final TempFS tempFS = new TempFS();
- 
+
         try {
             tempFS.createScanSubDir("0000");
 

@@ -54,7 +54,7 @@ import java.util.List;
 public class FileWatcherQueue {
 
     /**
-     * Create a new queue with the default capacity of 1000 files
+     * Create a new queue with a capacity of 1000 files
      * 
      * @see #QUEUE_DEFAULT_CAPACITY
      * @see #QUEUE_MIN_CAPACITY
@@ -67,14 +67,16 @@ public class FileWatcherQueue {
     /**
      * Create a new queue with a capacity
      * 
-     * @param capacity the queue's capacity
-      * 
+     * @param capacity the queue's capacity (limited to the range 
+     *                 QUEUE_MIN_CAPACITY ... QUEUE_MAX_CAPACITY)
+     * 
      * @see #QUEUE_DEFAULT_CAPACITY
      * @see #QUEUE_MIN_CAPACITY
      * @see #QUEUE_MAX_CAPACITY
-    */
+     */
     public FileWatcherQueue(final int capacity) {
-        this.capacity = Math.max(QUEUE_MIN_CAPACITY, Math.min(QUEUE_MAX_CAPACITY, capacity));
+        this.capacity = Math.max(QUEUE_MIN_CAPACITY, 
+                                 Math.min(QUEUE_MAX_CAPACITY, capacity));
     }
 
     /**
@@ -145,14 +147,14 @@ public class FileWatcherQueue {
     public void push(final File file) {
         if (file != null) {
             synchronized(queue) {
-            	// we're only interested in the last file 'event', so we
-            	// can do some optimizations (btw 'fswatch' is doing the
-            	// same on a shorter time horizon)
-            	//
-            	// e.g.:   file create -> push  -> discard
-            	//         file modify -> push  -> discard
-            	//         file modify -> push  -> discard
-            	//         file modify -> push  -> interested in
+                // we're only interested in the last file 'event', so we
+                // can do some optimizations (btw 'fswatch' is doing the
+                // same on a shorter time horizon)
+                //
+                // e.g.:   file create -> push  -> discard
+                //         file modify -> push  -> discard
+                //         file modify -> push  -> discard
+                //         file modify -> push  -> interested in
                 queue.removeIf(it -> it.equals(file));
 
                 // overflow: limit the size (discard oldest entries)
