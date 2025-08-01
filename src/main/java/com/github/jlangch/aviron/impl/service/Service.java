@@ -21,7 +21,7 @@ public abstract class Service implements IService, Closeable {
 
 
     @Override
-    public void start() {
+    public final void start() {
         if (status.compareAndSet(CREATED, INITIALISING)
         ) {
             try {
@@ -42,7 +42,7 @@ public abstract class Service implements IService, Closeable {
     }
 
     @Override
-    public void close() {
+    public final void close() {
         if (status.compareAndSet(RUNNING, CLOSED)
         ) {
             try {
@@ -63,8 +63,16 @@ public abstract class Service implements IService, Closeable {
     }
 
     @Override
-    public ServiceStatus getStatus() {
+    public final ServiceStatus getStatus() {
         return status.get();
+    }
+
+    @Override
+    public void startServiceThread(final Runnable runnable) {
+        final Thread thread = new Thread(runnable);
+        thread.setDaemon(true);
+        thread.setName("aviron-service-" + threadCounter.getAndIncrement());
+        thread.start();
     }
 
     protected void enteredRunningState() {
@@ -87,13 +95,6 @@ public abstract class Service implements IService, Closeable {
             if (isInRunningState() || isInClosedState()) break;
             sleep(100);
         }
-    }
-
-    protected void startServiceThread(final Runnable runnable) {
-        final Thread thread = new Thread(runnable);
-        thread.setDaemon(true);
-        thread.setName("aviron-service-" + threadCounter.getAndIncrement());
-        thread.start();
     }
 
     protected void sleep(final int millis) {

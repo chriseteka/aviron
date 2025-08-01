@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -151,12 +150,7 @@ public class RealtimeScanner extends Service {
                     ex);
         }
 
-        final Runnable runnable = createWorker();
-
-        final Thread thread = new Thread(runnable);
-        thread.setDaemon(true);
-        thread.setName("aviron-rtscan-" + threadCounter.getAndIncrement());
-        thread.start();
+        startServiceThread(createWorker());
     }
 
     protected void onClose() throws IOException{
@@ -274,8 +268,6 @@ public class RealtimeScanner extends Service {
 
     private static final int BATCH_SIZE = 300;
     private static final int MAX_QUEUE_SIZE = 5000;
-
-    private static final AtomicLong threadCounter = new AtomicLong(1L);
 
     private final Client client;
     private final Path mainDir;

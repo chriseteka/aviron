@@ -27,10 +27,33 @@ import java.io.Closeable;
 
 public interface IService extends Closeable {
 
+    /**
+     * Start the service
+     */
     void start();
-    
+
+    /**
+     * Close (stop) the service
+     */
     void close();
-    
+
+    /**
+     * Returns the service's run status
+     * 
+     * @return the service's status
+     */
     ServiceStatus getStatus();
-    
+
+    /**
+     * Start the runnable in a new thread.
+     * 
+     * <p>Override this method to run the runnable in threads the caller controls.
+     * 
+     * <p>The default implementation creates a new daemon thread and runs the runnable
+     * in this thread.
+     * 
+     * @param runnable A runnable
+     */
+    void startServiceThread(Runnable runnable);
+
 }
