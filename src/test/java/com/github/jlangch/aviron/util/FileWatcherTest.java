@@ -42,9 +42,7 @@ class FileWatcherTest {
     @Test 
     @EnableOnMac
     void testFileWatcherMainDirOnly_NoFiles() {
-        final TempFS tempFS = new TempFS();
-
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final Queue<Event> files = new ConcurrentLinkedQueue<>();
             final Queue<Event> errors = new ConcurrentLinkedQueue<>();
             final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
@@ -80,17 +78,12 @@ class FileWatcherTest {
             assertEquals(0, errors.size());
             assertEquals(1, terminations.size());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     @EnableOnMac
     void testFileWatcherMainDirWithSubDirs_NoFiles() {
-        final TempFS tempFS = new TempFS();
-
-        try {
+        try(TempFS tempFS = new TempFS()) {
             tempFS.createScanSubDir("0000");
             tempFS.createScanSubDir("0001");
 
@@ -129,17 +122,12 @@ class FileWatcherTest {
             assertEquals(0, errors.size());
             assertEquals(1, terminations.size());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     @EnableOnMac
     void testFileWatcherMainDir() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             tempFS.createScanSubDir("0000");
             tempFS.createScanSubDir("0001");
 
@@ -197,17 +185,12 @@ class FileWatcherTest {
             assertEquals(0, errors.size());
             assertEquals(1, terminations.size());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     @EnableOnMac
     void testFileWatcherSubDir() {
-        final TempFS tempFS = new TempFS();
-
-        try {
+        try(TempFS tempFS = new TempFS()) {
             tempFS.createScanSubDir("0000");
             tempFS.createScanSubDir("0001");
 
@@ -265,17 +248,12 @@ class FileWatcherTest {
             assertEquals(0, errors.size());
             assertEquals(1, terminations.size());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     @EnableOnMac
     void testFileWatcherSubDir_DynaicallyAdded() {
-        final TempFS tempFS = new TempFS();
-
-        try {
+        try(TempFS tempFS = new TempFS()) {
             tempFS.createScanSubDir("0000");
             tempFS.createScanSubDir("0001");
 
@@ -335,9 +313,6 @@ class FileWatcherTest {
             assertEquals(6, files.size());
             assertEquals(0, errors.size());
             assertEquals(1, terminations.size());
-        }
-        finally {
-            tempFS.remove();
         }
     }
 

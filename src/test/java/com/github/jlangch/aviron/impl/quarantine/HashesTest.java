@@ -48,9 +48,7 @@ class HashesTest {
 
     @Test
     void testFileHash() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final File file1 = tempFS.createScanFile("test1.data", "TEST1");
             final File file2 = tempFS.createScanFile("test2.data", "TEST2");
             
@@ -61,9 +59,6 @@ class HashesTest {
             assertNotNull(hashFile2);
 
             assertNotEquals(hashFile1, hashFile2);
-        }
-        finally {
-            tempFS.remove();
         }
      }
 

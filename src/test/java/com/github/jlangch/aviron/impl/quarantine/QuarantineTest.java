@@ -58,7 +58,7 @@ class QuarantineTest {
 
         assertEquals(0, tempFS.countQuarantineFiles());
 
-        tempFS.remove();
+        tempFS.close();
         
         assertFalse(tempFS.getRoot().isDirectory());
     }
@@ -76,16 +76,14 @@ class QuarantineTest {
         assertEquals(1, tempFS.countScanFiles());
         assertEquals(1, tempFS.countQuarantineFiles());
 
-        tempFS.remove();
+        tempFS.close();
         
         assertFalse(tempFS.getRoot().isDirectory());
     }
 
     @Test 
     void testQuarantineNone_1a() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
 
             assertTrue(scanFile1.isFile());
@@ -99,16 +97,11 @@ class QuarantineTest {
             assertEquals(1, tempFS.countScanFiles());
             assertEquals(0, tempFS.countQuarantineFiles());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     void testQuarantineNone_1b() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
 
             assertTrue(scanFile1.isFile());
@@ -122,16 +115,11 @@ class QuarantineTest {
             assertEquals(1, tempFS.countScanFiles());
             assertEquals(0, tempFS.countQuarantineFiles());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     void testQuarantineNone_2() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final File scanFile1 = tempFS.createScanFile("test1.data", "TEST1");
             final File scanFile2 = tempFS.createScanFile("test2.data", "TEST2");
 
@@ -147,16 +135,11 @@ class QuarantineTest {
             assertEquals(2, tempFS.countScanFiles());
             assertEquals(0, tempFS.countQuarantineFiles());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     void testQuarantineListenerNone_1a() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final EventSink events = new EventSink();
             
             final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
@@ -173,17 +156,12 @@ class QuarantineTest {
             assertEquals(0, tempFS.countQuarantineFiles());
             
             assertEquals(0, events.size());
-            }
-        finally {
-            tempFS.remove();
         }
     }
 
     @Test 
     void testQuarantineCopy_1a() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final File scanFile1 = tempFS.createScanFile("test1.data", "TEST1");
  
             assertTrue(scanFile1.isFile());
@@ -197,16 +175,11 @@ class QuarantineTest {
             assertEquals(1, tempFS.countScanFiles());
             assertEquals(0, tempFS.countQuarantineFiles());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     void testQuarantineCopy_1b() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
 
             assertTrue(scanFile1.isFile());
@@ -220,16 +193,11 @@ class QuarantineTest {
             assertEquals(1, tempFS.countScanFiles());
             assertEquals(0, tempFS.countQuarantineFiles());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     void testQuarantineCopy_2a() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final File scanFile1 = tempFS.createScanFile("test1.data", "TEST1");
             final File scanFile2 = tempFS.createScanFile("test2.data", "TEST2");
 
@@ -261,16 +229,11 @@ class QuarantineTest {
             assertEquals(COPY, qf.getAction());
             assertNotNull(qf.getQuarantinedAt());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     void testQuarantineCopy_2b() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final File scanFile1 = tempFS.createScanFile("test1.data", "TEST1");
             final File scanFile2 = tempFS.createScanFile("test2.data", "TEST2");
 
@@ -303,16 +266,11 @@ class QuarantineTest {
             assertEquals(COPY, qf1.getAction());
             assertNotNull(qf1.getQuarantinedAt());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     void testQuarantineListenerCopy_1() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final EventSink events = new EventSink();
 
             final File scanFile1 = tempFS.createScanFile("test1.data", "TEST1");
@@ -355,16 +313,11 @@ class QuarantineTest {
             assertEquals(quarantineFile, event.getQuarantineFile());
             assertNull(event.getException());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     void testQuarantineMove_1a() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final File scanFile1 = tempFS.createScanFile("test1.data", "TEST1");
  
             assertTrue(scanFile1.isFile());
@@ -378,16 +331,11 @@ class QuarantineTest {
             assertEquals(1, tempFS.countScanFiles());
             assertEquals(0, tempFS.countQuarantineFiles());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     void testQuarantineMove_1b() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final File scanFile1 = tempFS.createScanFile("test.data", "TEST");
 
             assertTrue(scanFile1.isFile());
@@ -401,16 +349,11 @@ class QuarantineTest {
             assertEquals(1, tempFS.countScanFiles());
             assertEquals(0, tempFS.countQuarantineFiles());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     void testQuarantineMove_2a() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final File scanFile1 = tempFS.createScanFile("test1.data", "TEST1");
             final File scanFile2 = tempFS.createScanFile("test2.data", "TEST2");
 
@@ -442,16 +385,11 @@ class QuarantineTest {
             assertEquals(MOVE, qf.getAction());
             assertNotNull(qf.getQuarantinedAt());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     void testQuarantineMove_2b() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final File scanFile1 = tempFS.createScanFile("test1.data", "TEST1");
             final File scanFile2 = tempFS.createScanFile("test2.data", "TEST2");
 
@@ -502,16 +440,11 @@ class QuarantineTest {
             assertEquals(MOVE, qf2.getAction());
             assertNotNull(qf2.getQuarantinedAt());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     void testQuarantineListenerMove_1() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final EventSink events = new EventSink();
 
             final File scanFile1 = tempFS.createScanFile("test1.data", "TEST1");
@@ -555,16 +488,11 @@ class QuarantineTest {
             assertEquals(quarantineFile, event.getQuarantineFile());
             assertNull(event.getException());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     void testQuarantineList() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final File scanFile1 = tempFS.createScanFile("test1.data", "TEST1");
             final File scanFile2 = tempFS.createScanFile("test2.data", "TEST2");
 
@@ -589,16 +517,11 @@ class QuarantineTest {
             final List<QuarantineFile> files = quarantine.listQuarantineFiles();
             assertEquals(1, files.size());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     void testQuarantineRemove() {
-        final TempFS tempFS = new TempFS();
-        
-        try {
+        try(TempFS tempFS = new TempFS()) {
             final File scanFile1 = tempFS.createScanFile("test1.data", "TEST1");
             final File scanFile2 = tempFS.createScanFile("test2.data", "TEST2");
 
@@ -627,9 +550,6 @@ class QuarantineTest {
             
             files = quarantine.listQuarantineFiles();
             assertEquals(0, files.size());          
-        }
-        finally {
-            tempFS.remove();
         }
     }
 

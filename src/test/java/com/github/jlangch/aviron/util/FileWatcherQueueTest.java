@@ -204,9 +204,7 @@ class FileWatcherQueueTest {
 
     @Test 
     void testPopExistingFilesOnly() {
-        final TempFS tempFS = new TempFS();
-
-        try {
+        try(TempFS tempFS = new TempFS()) {
             tempFS.createScanSubDir("0000");
 
             final File f1 = tempFS.createScanFile("1.txt", "TEST");
@@ -228,16 +226,11 @@ class FileWatcherQueueTest {
             assertTrue(queue.isEmpty());
             assertEquals(0, queue.size());
         }
-        finally {
-            tempFS.remove();
-        }
     }
 
     @Test 
     void testPopNExistingFilesOnly() {
-        final TempFS tempFS = new TempFS();
-
-        try {
+        try(TempFS tempFS = new TempFS()) {
             tempFS.createScanSubDir("0000");
 
             final File f1 = tempFS.createScanFile("1.txt", "TEST");
@@ -261,9 +254,6 @@ class FileWatcherQueueTest {
 
             assertTrue(queue.isEmpty());
             assertEquals(0, queue.size());
-        }
-        finally {
-            tempFS.remove();
         }
     }
 }

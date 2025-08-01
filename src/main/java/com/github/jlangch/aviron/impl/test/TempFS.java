@@ -22,6 +22,7 @@
  */
 package com.github.jlangch.aviron.impl.test;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -32,7 +33,10 @@ import java.nio.file.attribute.FileTime;
 import java.util.Comparator;
 
 
-public class TempFS {
+/**
+ * A temporary filestore to support unit tests
+ */
+public class TempFS implements Closeable {
 
     public TempFS() {
         this.root = createTempDir();
@@ -106,7 +110,8 @@ public class TempFS {
         return scanDir;
     }
 
-    public void remove() {
+    @Override
+    public void close() {
         try {
             Files.walk(root.toPath())
                  .sorted(Comparator.reverseOrder())
@@ -117,6 +122,7 @@ public class TempFS {
             throw new RuntimeException("Failed to remove tempFS", ex);
         }
     }
+
 
     private File touchFile(final File dir, final String name) {
         final File file = new File(dir, name);

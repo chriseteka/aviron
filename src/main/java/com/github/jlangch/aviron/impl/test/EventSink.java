@@ -29,6 +29,9 @@ import java.util.List;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 
 
+/**
+ * An Event sink to support unit tests
+ */
 public class EventSink {
 
     public EventSink() {
