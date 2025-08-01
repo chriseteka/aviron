@@ -168,6 +168,10 @@ class FileWatcherQueueTest {
 
         assertEquals(5, queue.size());
 
+        assertEquals(2, queue.overflowCount());
+        queue.resetOverflowCount();
+        assertEquals(0, queue.overflowCount());
+
         assertEquals(new File("3.txt"), queue.pop());
         assertEquals(new File("4.txt"), queue.pop());
         assertEquals(new File("5.txt"), queue.pop());

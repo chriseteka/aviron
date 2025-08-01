@@ -40,9 +40,9 @@ import java.util.List;
  * 
  * </pre>
  * 
- * <p> The FileWatcherQueue has overflow protection to keep a all operation non 
+ * <p> The FileWatcherQueue has overflow protection to keep a all operations non 
  * blocking. If the queue grows beyond the max size the oldest entries will be 
- * removed that the entries fit into the queue.
+ * removed that the new entries fit into the queue.
  * 
  * <p>The FileWatcherQueue never blocks and never grows beyond limits to protect
  * the system!
@@ -135,9 +135,13 @@ public class FileWatcherQueue {
     }
 
     /**
-     * Adds a new file to the queue
+     * Push a file to the tail of the queue
      * 
-     * @param file the file to add
+     * <p>Whenever pushing a file to a full queue the queue's head
+     * element is discarded in favor of pushing the new file. The
+     * overflow count is incremented in this case.
+     *
+     * @param file the file to push
      * 
      * @see #pop()
      * @see #pop(int)
@@ -158,8 +162,11 @@ public class FileWatcherQueue {
                 queue.removeIf(it -> it.equals(file));
 
                 // overflow: limit the size (discard oldest entries)
-                while(queue.size() >= capacity) {
-                    queue.removeFirst();
+                if (queue.size() >= capacity) {
+                    overflowCount++;
+                    while(queue.size() >= capacity) {
+                       queue.removeFirst();
+                   }
                 }
 
                 queue.add(file);
@@ -168,7 +175,7 @@ public class FileWatcherQueue {
     }
 
     /**
-     * Takes the next file from the queue
+     * Pops the next file from the head of the queue
      * 
      * @return the next file from the queue or <code>null</code> if the queue
      *         is empty
@@ -185,7 +192,7 @@ public class FileWatcherQueue {
     }
 
     /**
-     * Takes the next file from the queue.
+     * Pops the next file from the head of the queue.
      * 
      * <p>Discards any queue head files that are not existing if the parameter 
      * 'existingFilesOnly' is <code>true</code>.
@@ -215,9 +222,9 @@ public class FileWatcherQueue {
     }
 
     /**
-     * Takes the next n files from the queue
+     * Pops the next n files from the head of the queue
      * 
-     * @param n the number of files to take from the queue
+     * @param n the number of files to pop from the queue
      * @return the next n files from the queue. Reads only as many
      *         files from the queue as are available. 
      * 
@@ -237,7 +244,7 @@ public class FileWatcherQueue {
     }
 
     /**
-     * Takes the next n files from the queue
+     * Pops the next n files from the head of the queue
      * 
      * <p>Discards any queue head files that are not existing if the parameter 
      * 'existingFilesOnly' is <code>true</code>.
@@ -269,10 +276,37 @@ public class FileWatcherQueue {
     }
 
 
+    /**
+     * Returns the overflow event count.
+     * 
+     * <p>Whenever pushing a file to a full queue the queue's head
+     * element is discarded in favor of pushing the new file. The
+     * overflow count is incremented in this case.
+     * 
+     * @return the overflow count
+     */
+    public int overflowCount() {
+        synchronized(queue) {
+            return overflowCount;
+        }
+    }
+
+    /**
+     * Resets the overflow count
+     */
+    public void resetOverflowCount() {
+        synchronized(queue) {
+            overflowCount = 0;
+        }
+    }
+
+
     public static final int QUEUE_DEFAULT_CAPACITY = 1_000;
     public static final int QUEUE_MIN_CAPACITY = 5;
     public static final int QUEUE_MAX_CAPACITY = 100_000;
 
     private final int capacity;
     private final LinkedList<File> queue = new LinkedList<>();
+
+    private int overflowCount;
 }
