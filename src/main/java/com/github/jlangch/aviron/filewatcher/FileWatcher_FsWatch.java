@@ -50,7 +50,7 @@ import com.github.jlangch.aviron.util.service.Service;
 
 
 /**
- * FileWatcher implementation based on top of the <i>fswatch</i> tool.
+ * FileWatcher implementation based on the <i>fswatch</i> tool.
  *
  * <p>The Java WatchService does not work properly on MacOS. This FileWatcher
  * solves the problem on MacOS.

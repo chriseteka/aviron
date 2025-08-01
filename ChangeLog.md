@@ -4,9 +4,10 @@
 All notable changes to this project will be documented in this file.
 
 
-## [1.5.4] - 2025-08-xx
+## [1.6.0] - 2025-08-xx
 
-- Improved and corrected JavaDoc
+- Added a file watcher based on the Java `WatchService`
+- Added a file watcher based on the `fswatch` tool
 
 
 
