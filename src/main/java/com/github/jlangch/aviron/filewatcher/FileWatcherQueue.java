@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * The FileWatcherQueue is buffering file watching events. It asynchronously 
  * decouples the event producing FileWatcher from the event 
- * consuming AV scanner.
+ * consuming AV scanner client.
  * 
  * <pre>
  * 
