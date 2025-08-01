@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.filewatcher;
+package com.github.jlangch.aviron.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -31,8 +31,6 @@ import java.io.File;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-
-import com.github.jlangch.aviron.util.FileWatcherQueue;
 
 
 class FileWatcherQueueTest {
@@ -158,6 +156,29 @@ class FileWatcherQueueTest {
         assertEquals(new File("5.txt"), queue.pop());
         assertEquals(new File("6.txt"), queue.pop());
         assertEquals(new File("7.txt"), queue.pop());
+        assertNull(queue.pop());
+
+        assertTrue(queue.isEmpty());
+        assertEquals(0, queue.size());
+    }
+
+    @Test 
+    void testDuplicateDiscardOptimizations() {
+        final FileWatcherQueue queue = new FileWatcherQueue(5);
+
+        queue.push(new File("1.txt"));  // discarded
+        queue.push(new File("2.txt"));  // discarded
+        queue.push(new File("3.txt"));  // discarded
+        queue.push(new File("2.txt"));  // discarded
+        queue.push(new File("3.txt"));
+        queue.push(new File("2.txt"));
+        queue.push(new File("1.txt"));
+
+        assertEquals(3, queue.size());
+
+        assertEquals(new File("3.txt"), queue.pop());
+        assertEquals(new File("2.txt"), queue.pop());
+        assertEquals(new File("1.txt"), queue.pop());
         assertNull(queue.pop());
 
         assertTrue(queue.isEmpty());
