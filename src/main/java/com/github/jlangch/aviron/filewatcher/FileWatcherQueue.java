@@ -41,7 +41,7 @@ import java.util.List;
  * 
  * </pre>
  * 
- * <p> The FileWatcherQueue has overflow protection to keep a all operations non 
+ * <p> The FileWatcherQueue has overflow protection to keep all operations non 
  * blocking. If the queue grows beyond the max size the oldest entries will be 
  * removed that the new entries fit into the queue.
  * 
