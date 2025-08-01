@@ -43,7 +43,6 @@ import java.util.stream.Collectors;
 import com.github.jlangch.aviron.events.FileWatchErrorEvent;
 import com.github.jlangch.aviron.events.FileWatchFileEvent;
 import com.github.jlangch.aviron.events.FileWatchFileEventType;
-import com.github.jlangch.aviron.events.FileWatchRegisterEvent;
 import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.impl.service.Service;
 
@@ -60,8 +59,7 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
             final boolean registerAllSubDirs,
             final Consumer<FileWatchFileEvent> fileListener,
             final Consumer<FileWatchErrorEvent> errorListener,
-            final Consumer<FileWatchTerminationEvent> terminationListener,
-            final Consumer<FileWatchRegisterEvent> registerListener
+            final Consumer<FileWatchTerminationEvent> terminationListener
     ) {
         if (mainDir == null) {
             throw new IllegalArgumentException("The mainDir must not be null!");
@@ -73,7 +71,6 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
         this.mainDir = mainDir.toAbsolutePath().normalize();
         this.fileListener = fileListener;
         this.errorListener = errorListener;
-        this.registerListener = registerListener;
         this.terminationListener = terminationListener;
 
         try {
@@ -82,10 +79,10 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
             if (registerAllSubDirs) {
                 Files.walk(mainDir)
                      .filter(Files::isDirectory)
-                     .forEach(d -> register(d, false));
+                     .forEach(this::register);
             }
             else {
-                register(mainDir, false);
+                register(mainDir);
             }
         }
         catch(Exception ex) {
@@ -124,7 +121,7 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
     }
 
 
-    private void register(final Path dir, final boolean sendEvent) {
+    private void register(final Path dir) {
         try {
             final Path normalizedDir = dir.toAbsolutePath().normalize();
 
@@ -133,11 +130,6 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
                                       ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
 
             keys.put(dirKey, normalizedDir);
-
-            if (sendEvent && registerListener != null) {
-                safeRun(() -> registerListener.accept(
-                                   new FileWatchRegisterEvent(normalizedDir)));
-            }
         }
         catch(Exception e) {
             if (errorListener != null) {
@@ -172,10 +164,12 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
                             final FileWatchFileEventType eventType = convertToEventType(e.kind());
                             if (Files.isDirectory(absPath)) {
                                 if (eventType == FileWatchFileEventType.CREATED) {
-                                    register(absPath, true);  // register the new subdir
+                                    // dynamically register the new subdir with the Java WatchService
+                                    register(absPath);
                                 }
 
-                                if (eventType != FileWatchFileEventType.MODIFIED) {
+                                // send a dir created event
+                                if (eventType != FileWatchFileEventType.CREATED) {
                                     safeRun(() -> fileListener.accept(
                                                     new FileWatchFileEvent(absPath, true, false, eventType)));
                                 }
@@ -241,6 +235,5 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
     private final Map<WatchKey,Path> keys = new HashMap<>();
     private final Consumer<FileWatchFileEvent> fileListener;
     private final Consumer<FileWatchErrorEvent> errorListener;
-    private final Consumer<FileWatchRegisterEvent> registerListener;
     private final Consumer<FileWatchTerminationEvent> terminationListener;
 }

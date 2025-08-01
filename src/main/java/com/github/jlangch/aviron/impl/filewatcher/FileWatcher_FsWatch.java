@@ -44,7 +44,6 @@ import java.util.stream.Collectors;
 import com.github.jlangch.aviron.events.FileWatchErrorEvent;
 import com.github.jlangch.aviron.events.FileWatchFileEvent;
 import com.github.jlangch.aviron.events.FileWatchFileEventType;
-import com.github.jlangch.aviron.events.FileWatchRegisterEvent;
 import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.impl.service.Service;
 import com.github.jlangch.aviron.impl.util.CollectionUtils;
@@ -75,7 +74,6 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
             final Consumer<FileWatchFileEvent> fileListener,
             final Consumer<FileWatchErrorEvent> errorListener,
             final Consumer<FileWatchTerminationEvent> terminationListener,
-            final Consumer<FileWatchRegisterEvent> registerListener,
             final FsWatchMonitor monitor,
             final String fswatchProgram
     ) {
@@ -92,7 +90,6 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
         this.mainDir = mainDir.toAbsolutePath().normalize();
         this.recursive = recursive;
         this.fileListener = fileListener;
-        this.registerListener = registerListener;
         this.errorListener = errorListener;
         this.terminationListener = terminationListener;
         this.monitor = monitor;
@@ -233,18 +230,13 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
             final Set<FileWatchFileEventType> types
     ) {
         if (isDir) {
-            if (types.contains(CREATED)) {
-                safeRun(() -> registerListener.accept(
-                                    new FileWatchRegisterEvent(path)));
-            }
-
-            if (types.contains(CREATED)) {
-                safeRun(() -> fileListener.accept(
-                                 new FileWatchFileEvent(path, isDir, isFile, CREATED)));
-            }
-            else if (types.contains(DELETED)) {
+            if (types.contains(DELETED)) {
                 safeRun(() -> fileListener.accept(
                                 new FileWatchFileEvent(path, isDir, isFile, DELETED)));
+            }
+            else if (types.contains(CREATED)) {
+                safeRun(() -> fileListener.accept(
+                                new FileWatchFileEvent(path, isDir, isFile, CREATED)));
             }
         }
         else if (isFile) {
@@ -366,7 +358,6 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
     private final Path mainDir;
     private final boolean recursive;
     private final Consumer<FileWatchFileEvent> fileListener;
-    private final Consumer<FileWatchRegisterEvent> registerListener;
     private final Consumer<FileWatchErrorEvent> errorListener;
     private final Consumer<FileWatchTerminationEvent> terminationListener;
     private final FsWatchMonitor monitor;

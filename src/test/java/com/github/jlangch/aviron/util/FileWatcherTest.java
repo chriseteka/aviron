@@ -24,6 +24,7 @@ package com.github.jlangch.aviron.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -42,7 +43,7 @@ class FileWatcherTest {
     @Test 
     @EnableOnMac
     void testFileWatcherMainDirOnly_NoFiles() {
-        printf("testFileWatcherMainDirOnly_NoFiles%n");
+        printf("%n%n[testFileWatcherMainDirOnly_NoFiles]%n%n");
 
         try(TempFS tempFS = new TempFS()) {
             final Queue<Event> files = new ConcurrentLinkedQueue<>();
@@ -55,14 +56,16 @@ class FileWatcherTest {
                                               mainDir,
                                               true,
                                               e -> { if (e.isFile()) {
-                                                        printf("File Event: %s %s%n", e.getPath(), e.getType());
-                                                        files.offer(e); 
-                                                   }},
-                                              e -> { printf("Error:        %s%n", e.getPath());
+                                                        printf("File Event: %-8s %s%n", e.getType(), e.getPath());
+                                                        files.offer(e);
+                                                     }
+                                                     else if (e.isDir()) {
+                                                         printf("Dir Event:  %-8s %s%n", e.getType(), e.getPath());
+                                                     }},
+                                              e -> { printf("Error:      %s%n", e.getPath());
                                                      errors.offer(e); },
-                                              e -> { printf("Terminated:   %s%n", e.getPath());
+                                              e -> { printf("Terminated: %s%n", e.getPath());
                                                      terminations.offer(e); },
-                                              null,
                                               null, // default platform monitor
                                               "/opt/homebrew/bin/fswatch")) {
 
@@ -72,6 +75,8 @@ class FileWatcherTest {
                 assertEquals(mainDir, fw.getRegisteredPaths().get(0));
 
                 sleep(1);
+
+                printf("Ready to watch%n%n");
             }
 
             // analyze the generated events
@@ -85,7 +90,7 @@ class FileWatcherTest {
     @Test 
     @EnableOnMac
     void testFileWatcherMainDirWithSubDirs_NoFiles() {
-        printf("testFileWatcherMainDirWithSubDirs_NoFiles%n");
+        printf("%n%n[testFileWatcherMainDirWithSubDirs_NoFiles]%n%n");
 
         try(TempFS tempFS = new TempFS()) {
             tempFS.createScanSubDir("0000");
@@ -101,14 +106,16 @@ class FileWatcherTest {
                                                 mainDir,
                                                 true,
                                                 e -> { if (e.isFile()) {
-                                                          printf("File Event: %s %s%n", e.getPath(), e.getType());
-                                                          files.offer(e); 
-                                                    }},
-                                                e -> { printf("Error:        %s%n", e.getPath());
+                                                        printf("File Event: %-8s %s%n", e.getType(), e.getPath());
+                                                        files.offer(e);
+                                                     }
+                                                     else if (e.isDir()) {
+                                                         printf("Dir Event:  %-8s %s%n", e.getType(), e.getPath());
+                                                     }},
+                                                e -> { printf("Error:      %s%n", e.getPath());
                                                        errors.offer(e); },
-                                                e -> { printf("Terminated:   %s%n", e.getPath());
+                                                e -> { printf("Terminated: %s%n", e.getPath());
                                                        terminations.offer(e); },
-                                                null,
                                                 null, // default platform monitor
                                                 "/opt/homebrew/bin/fswatch")) {
 
@@ -118,7 +125,9 @@ class FileWatcherTest {
                 assertEquals(mainDir, fw.getRegisteredPaths().get(0));
 
                 sleep(1);
-            }
+
+                printf("Ready to watch%n%n");
+           }
 
             // analyze the generated events
 
@@ -131,7 +140,7 @@ class FileWatcherTest {
     @Test 
     @EnableOnMac
     void testFileWatcherMainDir() {
-        printf("testFileWatcherMainDir%n");
+        printf("%n%n[testFileWatcherMainDir]%n%n");
 
         try(TempFS tempFS = new TempFS()) {
             tempFS.createScanSubDir("0000");
@@ -147,20 +156,24 @@ class FileWatcherTest {
                                                 mainDir,
                                                 true,
                                                 e -> { if (e.isFile()) {
-                                                           printf("File Event: %s %s%n", e.getPath(), e.getType());
-                                                           files.offer(e); 
-                                                       }},
-                                                e -> { printf("Error:        %s%n", e.getPath());
+                                                        printf("File Event: %-8s %s%n", e.getType(), e.getPath());
+                                                        files.offer(e);
+                                                     }
+                                                     else if (e.isDir()) {
+                                                         printf("Dir Event:  %-8s %s%n", e.getType(), e.getPath());
+                                                     }},
+                                                e -> { printf("Error:      %s%n", e.getPath());
                                                        errors.offer(e); },
-                                                e -> { printf("Terminated:   %s%n", e.getPath());
+                                                e -> { printf("Terminated: %s%n", e.getPath());
                                                        terminations.offer(e); },
-                                                null,
                                                 null, // default platform monitor
                                                 "/opt/homebrew/bin/fswatch")) {
 
                 fw.start();
 
                 sleep(1);
+
+                printf("Ready to watch%n%n");
 
                 // wait a bit between actions, otherwise fswatch discards event
                 // due to optimizations in regard of the file delete at the end!
@@ -182,7 +195,7 @@ class FileWatcherTest {
                 sleep(3);
             }
 
-            // wait to receive the termination even
+            // wait to receive the termination event
             sleep(1);
 
             // analyze the generated events
@@ -196,7 +209,7 @@ class FileWatcherTest {
     @Test 
     @EnableOnMac
     void testFileWatcherSubDir() {
-        printf("testFileWatcherSubDir%n");
+        printf("%n%n[testFileWatcherSubDir]%n%n");
 
         try(TempFS tempFS = new TempFS()) {
             tempFS.createScanSubDir("0000");
@@ -212,20 +225,24 @@ class FileWatcherTest {
                                                 mainDir,
                                                 true,
                                                 e -> { if (e.isFile()) {
-                                                           printf("File Event: %s %s%n", e.getPath(), e.getType());
-                                                           files.offer(e); 
-                                                       }},
-                                                e -> { printf("Error:        %s%n", e.getPath());
+                                                        printf("File Event: %-8s %s%n", e.getType(), e.getPath());
+                                                        files.offer(e);
+                                                     }
+                                                     else if (e.isDir()) {
+                                                         printf("Dir Event:  %-8s %s%n", e.getType(), e.getPath());
+                                                     }},
+                                                e -> { printf("Error:      %s%n", e.getPath());
                                                        errors.offer(e); },
-                                                e -> { printf("Terminated:   %s%n", e.getPath());
+                                                e -> { printf("Terminated: %s%n", e.getPath());
                                                        terminations.offer(e); },
-                                                null,
                                                 null, // default platform monitor
                                                 "/opt/homebrew/bin/fswatch")) {
 
                 fw.start();
 
                 sleep(1);
+
+                printf("Ready to watch%n%n");
 
                 // wait a bit between actions, otherwise fswatch discards event
                 // due to optimizations in regard of the file delete at the end!
@@ -247,7 +264,7 @@ class FileWatcherTest {
                 sleep(3);
             }
 
-            // wait to receive the termination even
+            // wait to receive the termination event
             sleep(1);
 
             // analyze the generated events
@@ -260,8 +277,8 @@ class FileWatcherTest {
 
     @Test 
     @EnableOnMac
-    void testFileWatcherSubDir_DynaicallyAdded() {
-        printf("testFileWatcherSubDir_DynaicallyAdded%n");
+    void testFileWatcherSubDir_DynamicallyAdded() {
+        printf("%n%n[testFileWatcherSubDir_DynamicallyAdded]%n%n");
 
         try(TempFS tempFS = new TempFS()) {
             tempFS.createScanSubDir("0000");
@@ -277,20 +294,24 @@ class FileWatcherTest {
                                                 mainDir,
                                                 true,
                                                 e -> { if (e.isFile()) {
-                                                           printf("File Event: %s %s%n", e.getPath(), e.getType());
-                                                           files.offer(e); 
-                                                       }},
-                                                e -> { printf("Error:        %s%n", e.getPath());
+                                                        printf("File Event: %-8s %s%n", e.getType(), e.getPath());
+                                                        files.offer(e);
+                                                     }
+                                                     else if (e.isDir()) {
+                                                         printf("Dir Event:  %-8s %s%n", e.getType(), e.getPath());
+                                                     }},
+                                                e -> { printf("Error:      %s%n", e.getPath());
                                                        errors.offer(e); },
-                                                e -> { printf("Terminated:   %s%n", e.getPath());
+                                                e -> { printf("Terminated: %s%n", e.getPath());
                                                        terminations.offer(e); },
-                                                null,
                                                 null, // default platform monitor
                                                 "/opt/homebrew/bin/fswatch")) {
 
                 fw.start();
 
                 sleep(1);
+
+                printf("Ready to watch%n%n");
 
                 // wait a bit between actions, otherwise fswatch discards event
                 // due to optimizations in regard of the file delete at the end!
@@ -315,7 +336,7 @@ class FileWatcherTest {
                 sleep(3);
             }
 
-            // wait to receive the termination even
+            // wait to receive the termination event
             sleep(1);
 
             // analyze the generated events
@@ -326,6 +347,71 @@ class FileWatcherTest {
         }
     }
 
+
+    @Test 
+    @EnableOnMac
+    void testFileWatcherSubDir_DynamicSubDirs() {
+        printf("%n%n[testFileWatcherSubDir_DynamicSubDirs]%n%n");
+
+        try(TempFS tempFS = new TempFS()) {
+            tempFS.createScanSubDir("0000");
+            tempFS.createScanSubDir("0001");
+
+            final Queue<Event> files = new ConcurrentLinkedQueue<>();
+            final Queue<Event> errors = new ConcurrentLinkedQueue<>();
+            final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
+
+            final Path mainDir = tempFS.getScanDir().toPath();
+
+            try(final IFileWatcher fw = new FileWatcher_FsWatch(
+                                                mainDir,
+                                                true,
+                                                e -> { if (e.isFile()) {
+                                                        printf("File Event: %-8s %s%n", e.getType(), e.getPath());
+                                                        files.offer(e);
+                                                     }
+                                                     else if (e.isDir()) {
+                                                         printf("Dir Event:  %-8s %s%n", e.getType(), e.getPath());
+                                                     }},
+                                                e -> { printf("Error:      %s%n", e.getPath());
+                                                       errors.offer(e); },
+                                                e -> { printf("Terminated: %s%n", e.getPath());
+                                                       terminations.offer(e); },
+                                                null, // default platform monitor
+                                                "/opt/homebrew/bin/fswatch")) {
+
+                fw.start();
+
+                sleep(1);
+
+                printf("Ready to watch%n%n");
+
+                final File dir1 = tempFS.createScanSubDir("0002");
+                sleep(1);
+
+                final File dir2 = tempFS.createScanSubDir("0003");
+                sleep(1);
+                
+                dir1.delete();
+                sleep(1);
+                
+                dir2.delete();
+                sleep(1);
+                
+                // wait for all events to be processed before closing the watcher
+                sleep(3);
+            }
+
+            // wait to receive the termination event
+            sleep(1);
+
+            // analyze the generated events
+
+            assertEquals(0, files.size());
+            assertEquals(0, errors.size());
+            assertEquals(1, terminations.size());
+        }
+    }
 
     private void printf(final String format, final Object... args) {
         synchronized(lock) {

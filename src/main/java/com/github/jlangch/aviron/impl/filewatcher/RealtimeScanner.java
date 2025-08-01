@@ -34,7 +34,6 @@ import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.events.FileWatchErrorEvent;
 import com.github.jlangch.aviron.events.FileWatchFileEvent;
-import com.github.jlangch.aviron.events.FileWatchRegisterEvent;
 import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.events.RealtimeScanEvent;
 import com.github.jlangch.aviron.ex.FileWatcherException;
@@ -168,8 +167,7 @@ public class RealtimeScanner extends Service {
                          registerAllSubDirs,
                          this::fileWatchEventListener,
                          this::errorEventListener,
-                         this::terminationEventListener,
-                         this::registerEventListener);
+                         this::terminationEventListener);
         }
         else if (OS.isMacOSX()) {
             return new FileWatcher_FsWatch(
@@ -178,7 +176,6 @@ public class RealtimeScanner extends Service {
                          this::fileWatchEventListener,
                          this::errorEventListener,
                          this::terminationEventListener,
-                         this::registerEventListener,
                          null, // default platform monitor
                          "/opt/homebrew/bin/fswatch");
         }
@@ -223,31 +220,29 @@ public class RealtimeScanner extends Service {
     private void fileWatchEventListener(final FileWatchFileEvent event) {
         final FileWatcherQueue queue = fileWatcherQueue.get();
 
-        switch(event.getType()) {
-            case CREATED:
-            case MODIFIED:
-                try {
-                    if (scanApprover == null || scanApprover.test(event)) {
-                        queue.push(event.getPath().toFile());
+        if (event.isFile()) {
+            switch(event.getType()) {
+                case CREATED:
+                case MODIFIED:
+                    try {
+                        if (scanApprover == null || scanApprover.test(event)) {
+                            queue.push(event.getPath().toFile());
+                        }
                     }
-                }
-                catch(Exception ex) { }
-                break;
+                    catch(Exception ex) { }
+                    break;
 
-            case DELETED:
-                queue.remove(event.getPath().toFile());
-                break;
+                case DELETED:
+                    queue.remove(event.getPath().toFile());
+                    break;
 
-            case OVERFLOW:
-                break;
+                case OVERFLOW:
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
+            }
         }
-    }
-
-    private void registerEventListener(final FileWatchRegisterEvent event) {
-        
     }
 
     private void errorEventListener(final FileWatchErrorEvent event) {
