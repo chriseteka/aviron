@@ -50,6 +50,8 @@ import com.github.jlangch.aviron.impl.service.Service;
 
 /**
  * A FileWatcher based on the Java WatchService
+ * 
+ * <p>Note: The Java WatchService does not work properly on MacOS!
  */
 public class FileWatcher_JavaWatchService extends Service implements IFileWatcher {
 
