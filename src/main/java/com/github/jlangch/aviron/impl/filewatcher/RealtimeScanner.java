@@ -24,7 +24,6 @@ package com.github.jlangch.aviron.impl.filewatcher;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -36,13 +35,10 @@ import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.events.RealtimeScanEvent;
 import com.github.jlangch.aviron.ex.FileWatcherException;
 import com.github.jlangch.aviron.filewatcher.FileWatcherQueue;
-import com.github.jlangch.aviron.filewatcher.FileWatcher_FsWatch;
-import com.github.jlangch.aviron.filewatcher.FileWatcher_JavaWatchService;
 import com.github.jlangch.aviron.filewatcher.IFileWatcher;
 import com.github.jlangch.aviron.filewatcher.events.FileWatchErrorEvent;
 import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEvent;
 import com.github.jlangch.aviron.filewatcher.events.FileWatchTerminationEvent;
-import com.github.jlangch.aviron.impl.util.OS;
 import com.github.jlangch.aviron.util.service.Service;
 import com.github.jlangch.aviron.util.service.ServiceStatus;
 
@@ -107,8 +103,7 @@ public class RealtimeScanner extends Service {
 
     public RealtimeScanner(
            final Client client,
-           final Path mainDir,
-           final boolean registerAllSubDirs,
+           final IFileWatcher watcher,
            final Predicate<FileWatchFileEvent> scanApprover,
            final Consumer<RealtimeScanEvent> scanListener,
            final int sleepTimeSecondsOnIdle,
@@ -117,21 +112,20 @@ public class RealtimeScanner extends Service {
         if (client == null) {
             throw new IllegalArgumentException("A 'client' must not be null!");
         }
-        if (mainDir == null) {
-            throw new IllegalArgumentException("A 'mainDir' must not be null!");
-        }
-        if (!Files.isDirectory(mainDir)) {
-            throw new IllegalArgumentException(
-                    "The realtime scanner 'mainDir' is not an existing directory!");
+        if (watcher == null) {
+            throw new IllegalArgumentException("A 'fileWatcher' must not be null!");
         }
 
         this.client = client;
-        this.mainDir = mainDir;
-        this.registerAllSubDirs = registerAllSubDirs;
+        this.watcher = watcher;
         this.scanApprover = scanApprover;
         this.scanListener = scanListener;
         this.sleepTimeSecondsOnIdle = Math.max(1, sleepTimeSecondsOnIdle);
         this.testMode = testMode;
+
+        watcher.setFileListener(this::onFileEvent);
+        watcher.setErrorListener(this::onErrorEvent);
+        watcher.setTerminationListener(this::onTerminationEvent);
     }
 
 
@@ -145,15 +139,13 @@ public class RealtimeScanner extends Service {
         fileWatcherQueue.set(new FileWatcherQueue(MAX_QUEUE_SIZE));
 
         try {
-            final IFileWatcher fw = createPlatformFileWatcher();
-            fw.start();
-            watcher.set(fw);
+           watcher.start();
         }
         catch(Exception ex) {
             throw new FileWatcherException(
                     String.format(
                             "Failed to start FileWatcher on dir '%s'",
-                            mainDir.toString()),
+                            watcher.getMainDir().toString()),
                     ex);
         }
 
@@ -162,34 +154,8 @@ public class RealtimeScanner extends Service {
 
     protected void onClose() throws IOException{
         // stop realtime scanner
-        final IFileWatcher fw = watcher.get();
-        if (fw != null && fw.getStatus() == ServiceStatus.RUNNING) {
-           fw.close();
-        }
-    }
-
-    private IFileWatcher createPlatformFileWatcher() {
-        if (OS.isLinux()) {
-            return new FileWatcher_JavaWatchService(
-                         mainDir,
-                         registerAllSubDirs,
-                         this::fileWatchEventListener,
-                         this::errorEventListener,
-                         this::terminationEventListener);
-        }
-        else if (OS.isMacOSX()) {
-            return new FileWatcher_FsWatch(
-                         mainDir,
-                         registerAllSubDirs,
-                         this::fileWatchEventListener,
-                         this::errorEventListener,
-                         this::terminationEventListener,
-                         null, // default monitor for MacOS platform
-                         FileWatcher_FsWatch.HOMEBREW_FSWATCH_PROGRAM);
-        }
-        else {
-            throw new FileWatcherException(
-                    "FileWatcher is not supported on platforms other than Linux/MacOS!");
+        if (watcher.getStatus() == ServiceStatus.RUNNING) {
+           watcher.close();
         }
     }
 
@@ -248,7 +214,7 @@ public class RealtimeScanner extends Service {
         }
     }
 
-    private void fileWatchEventListener(final FileWatchFileEvent event) {
+    private void onFileEvent(final FileWatchFileEvent event) {
         final FileWatcherQueue queue = fileWatcherQueue.get();
 
         // we are not interested in directories just in files
@@ -277,11 +243,11 @@ public class RealtimeScanner extends Service {
         }
     }
 
-    private void errorEventListener(final FileWatchErrorEvent event) {
+    private void onErrorEvent(final FileWatchErrorEvent event) {
         
     }
 
-    private void terminationEventListener(final FileWatchTerminationEvent event) {
+    private void onTerminationEvent(final FileWatchTerminationEvent event) {
         
     }
 
@@ -298,14 +264,12 @@ public class RealtimeScanner extends Service {
     private static final int MAX_ERROR_COUNT = 1000;
 
     private final Client client;
-    private final Path mainDir;
-    private final boolean registerAllSubDirs;
+    private final IFileWatcher watcher;
     private final Predicate<FileWatchFileEvent> scanApprover;
     private final Consumer<RealtimeScanEvent> scanListener;
     private final int sleepTimeSecondsOnIdle;
     private final boolean testMode;
 
     private AtomicLong errorCount = new AtomicLong();
-    private AtomicReference<IFileWatcher> watcher = new AtomicReference<>();
     private AtomicReference<FileWatcherQueue> fileWatcherQueue = new AtomicReference<>();
 }

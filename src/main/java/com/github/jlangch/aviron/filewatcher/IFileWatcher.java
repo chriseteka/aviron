@@ -25,7 +25,11 @@ package com.github.jlangch.aviron.filewatcher;
 import java.io.Closeable;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.Consumer;
 
+import com.github.jlangch.aviron.filewatcher.events.FileWatchErrorEvent;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEvent;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.util.service.IService;
 
 
@@ -34,5 +38,11 @@ public interface IFileWatcher extends IService, Closeable {
     Path getMainDir();
 
     List<Path> getRegisteredPaths();
+
+    void setFileListener(final Consumer<FileWatchFileEvent> listener);
+
+    void setErrorListener(final Consumer<FileWatchErrorEvent> listener);
+
+    void setTerminationListener(final Consumer<FileWatchTerminationEvent> listener);
 
 }

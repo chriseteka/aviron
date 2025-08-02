@@ -71,6 +71,15 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
     public FileWatcher_FsWatch(
             final Path mainDir,
             final boolean recursive,
+            final FsWatchMonitor monitor,
+            final String fswatchProgram
+    ) {
+        this(mainDir, recursive, null, null, null, monitor, fswatchProgram);
+    }
+
+    public FileWatcher_FsWatch(
+            final Path mainDir,
+            final boolean recursive,
             final Consumer<FileWatchFileEvent> fileListener,
             final Consumer<FileWatchErrorEvent> errorListener,
             final Consumer<FileWatchTerminationEvent> terminationListener,
@@ -89,9 +98,9 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
 
         this.mainDir = mainDir.toAbsolutePath().normalize();
         this.recursive = recursive;
-        this.fileListener = fileListener;
-        this.errorListener = errorListener;
-        this.terminationListener = terminationListener;
+        this.fileListener.set(fileListener);
+        this.errorListener.set(errorListener);
+        this.terminationListener.set(terminationListener);
         this.monitor = monitor;
         this.fswatchProgram = fswatchProgram == null ? "fswatch" : fswatchProgram;
     }
@@ -104,6 +113,21 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
     @Override
     public List<Path> getRegisteredPaths() {
         return CollectionUtils.toList(mainDir);
+    }
+
+    @Override
+    public void setFileListener(final Consumer<FileWatchFileEvent> listener) {
+        fileListener.set(listener);
+    }
+
+    @Override
+    public void setErrorListener(final Consumer<FileWatchErrorEvent> listener) {
+        errorListener.set(listener);
+    }
+
+    @Override
+    public void setTerminationListener(final Consumer<FileWatchTerminationEvent> listener) {
+        terminationListener.set(listener);
     }
 
 
@@ -268,20 +292,23 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
     }
 
     private void fireEvent(final FileWatchFileEvent event) {
-        if (fileListener != null) {
-            safeRun(() -> fileListener.accept(event));
+        final Consumer<FileWatchFileEvent> listener = fileListener.get();
+        if (listener != null) {
+            safeRun(() -> listener.accept(event));
         }
     }
 
     private void fireEvent(final FileWatchErrorEvent event) {
-        if (errorListener != null) {
-            safeRun(() -> errorListener.accept(event));
+        final Consumer<FileWatchErrorEvent> listener = errorListener.get();
+        if (listener != null) {
+            safeRun(() -> listener.accept(event));
         }
     }
 
     private void fireEvent(final FileWatchTerminationEvent event) {
-        if (terminationListener != null) {
-            safeRun(() -> terminationListener.accept(event));
+        final Consumer<FileWatchTerminationEvent> listener = terminationListener.get();
+        if (listener != null) {
+            safeRun(() -> listener.accept(event));
         }
     }
 
@@ -363,9 +390,9 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
 
     private final Path mainDir;
     private final boolean recursive;
-    private final Consumer<FileWatchFileEvent> fileListener;
-    private final Consumer<FileWatchErrorEvent> errorListener;
-    private final Consumer<FileWatchTerminationEvent> terminationListener;
     private final FsWatchMonitor monitor;
     private final String fswatchProgram;
+    private final AtomicReference<Consumer<FileWatchFileEvent>> fileListener = new AtomicReference<>();
+    private final AtomicReference<Consumer<FileWatchErrorEvent>> errorListener = new AtomicReference<>();
+    private final AtomicReference<Consumer<FileWatchTerminationEvent>> terminationListener = new AtomicReference<>();
 }

@@ -37,6 +37,7 @@ import java.nio.file.WatchService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,13 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
 
     public FileWatcher_JavaWatchService(
             final Path mainDir,
+            final boolean registerAllSubDirs
+    ) {
+        this(mainDir, registerAllSubDirs, null, null, null);
+    }
+
+    public FileWatcher_JavaWatchService(
+            final Path mainDir,
             final boolean registerAllSubDirs,
             final Consumer<FileWatchFileEvent> fileListener,
             final Consumer<FileWatchErrorEvent> errorListener,
@@ -69,9 +77,9 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
         }
 
         this.mainDir = mainDir.toAbsolutePath().normalize();
-        this.fileListener = fileListener;
-        this.errorListener = errorListener;
-        this.terminationListener = terminationListener;
+        this.fileListener.set(fileListener);
+        this.errorListener.set(errorListener);
+        this.terminationListener.set(terminationListener);
 
         try {
             this.ws = mainDir.getFileSystem().newWatchService();
@@ -98,6 +106,21 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
     @Override
     public List<Path> getRegisteredPaths() {
         return keys.values().stream().sorted().collect(Collectors.toList());
+    }
+
+    @Override
+    public void setFileListener(final Consumer<FileWatchFileEvent> listener) {
+        fileListener.set(listener);
+    }
+
+    @Override
+    public void setErrorListener(final Consumer<FileWatchErrorEvent> listener) {
+        errorListener.set(listener);
+    }
+
+    @Override
+    public void setTerminationListener(final Consumer<FileWatchTerminationEvent> listener) {
+        terminationListener.set(listener);
     }
 
     protected String name() {
@@ -197,20 +220,23 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
     }
 
     private void fireEvent(final FileWatchFileEvent event) {
-        if (fileListener != null) {
-            safeRun(() -> fileListener.accept(event));
+        final Consumer<FileWatchFileEvent> listener = fileListener.get();
+        if (listener != null) {
+            safeRun(() -> listener.accept(event));
         }
     }
 
     private void fireEvent(final FileWatchErrorEvent event) {
-        if (errorListener != null) {
-            safeRun(() -> errorListener.accept(event));
+        final Consumer<FileWatchErrorEvent> listener = errorListener.get();
+        if (listener != null) {
+            safeRun(() -> listener.accept(event));
         }
     }
 
     private void fireEvent(final FileWatchTerminationEvent event) {
-        if (terminationListener != null) {
-            safeRun(() -> terminationListener.accept(event));
+        final Consumer<FileWatchTerminationEvent> listener = terminationListener.get();
+        if (listener != null) {
+            safeRun(() -> listener.accept(event));
         }
     }
 
@@ -240,7 +266,7 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
     private final Path mainDir;
     private final WatchService ws;
     private final Map<WatchKey,Path> keys = new HashMap<>();
-    private final Consumer<FileWatchFileEvent> fileListener;
-    private final Consumer<FileWatchErrorEvent> errorListener;
-    private final Consumer<FileWatchTerminationEvent> terminationListener;
+    private final AtomicReference<Consumer<FileWatchFileEvent>> fileListener = new AtomicReference<>();
+    private final AtomicReference<Consumer<FileWatchErrorEvent>> errorListener = new AtomicReference<>();
+    private final AtomicReference<Consumer<FileWatchTerminationEvent>> terminationListener = new AtomicReference<>();
 }

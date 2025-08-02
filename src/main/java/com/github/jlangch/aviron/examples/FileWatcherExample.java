@@ -52,8 +52,13 @@ public class FileWatcherExample {
             demoFS.createFilestoreSubDir("001");
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
+            final boolean registerAllSubDirs = true;
 
-            try(final IFileWatcher fw = createPlatformFileWatcher(mainDir)) {
+            try(final IFileWatcher fw = createPlatformFileWatcher(mainDir, registerAllSubDirs)) {
+                fw.setFileListener(this::onFileEvent);
+                fw.setErrorListener(this::onErrorEvent);
+                fw.setTerminationListener(this::onTerminationEvent);
+
                 fw.start();
 
                 printf("Ready to watch%n%n");
@@ -79,22 +84,17 @@ public class FileWatcherExample {
     }
 
 
-    private IFileWatcher createPlatformFileWatcher(final Path mainDir) {
+    private IFileWatcher createPlatformFileWatcher(
+            final Path mainDir, 
+            final boolean registerAllSubDirs
+    ) {
         if (OS.isLinux()) {
-            return new FileWatcher_JavaWatchService(
-                         mainDir,
-                         true,
-                         this::onFileEvent,
-                         this::onErrorEvent,
-                         this::onTerminationEvent);
+            return new FileWatcher_JavaWatchService(mainDir, registerAllSubDirs);
         }
         else if (OS.isMacOSX()) {
             return new FileWatcher_FsWatch(
                          mainDir,
-                         true,
-                         this::onFileEvent,
-                         this::onErrorEvent,
-                         this::onTerminationEvent,
+                         registerAllSubDirs,
                          null, // default fswatch monitor
                          FileWatcher_FsWatch.HOMEBREW_FSWATCH_PROGRAM);
         }
@@ -103,7 +103,6 @@ public class FileWatcherExample {
                     "FileWatcher is not supported on platforms other than Linux/MacOS!");
         }
     }
-
 
     private void onFileEvent(final FileWatchFileEvent event) {
         if (event.isFile()) {
