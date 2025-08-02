@@ -49,7 +49,7 @@ import com.github.jlangch.aviron.util.service.ServiceStatus;
 // |                                                                          |
 // +--------------------------------------------------------------------------+
 
-// Open Issues:  Solve Clamd CPU Profile if background and realtime scan run
+// Open Issues:  Solve Clamd CPU Profile if background and realtime scans run
 //               in parallel! There can be only one authority controlling the
 //               Clamd CPU limit.
 
