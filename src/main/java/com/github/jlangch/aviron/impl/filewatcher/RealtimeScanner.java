@@ -198,18 +198,12 @@ public class RealtimeScanner extends Service {
         if (file != null && file.isFile()) {
             final Path path = file.toPath();
 
-            final RealtimeScanEvent event;
             if (testMode) {
-                event = new RealtimeScanEvent(path, ScanResult.ok(), testMode);
+                fireEvent(new RealtimeScanEvent(path, ScanResult.ok(), testMode));
             }
             else {
                 final ScanResult result = client.scan(path);
-                event = new RealtimeScanEvent(path, result, testMode);
-            }
-
-            // publish event
-            if (scanListener != null) {
-                safeRun(() -> scanListener.accept(event));
+                fireEvent(new RealtimeScanEvent(path, result, testMode));
             }
         }
     }
@@ -249,6 +243,12 @@ public class RealtimeScanner extends Service {
 
     private void onTerminationEvent(final FileWatchTerminationEvent event) {
         
+    }
+
+    private void fireEvent(final RealtimeScanEvent event) {
+        if (scanListener != null) {
+            safeRun(() -> scanListener.accept(event));
+        }
     }
 
     private void safeRun(final Runnable r) {
