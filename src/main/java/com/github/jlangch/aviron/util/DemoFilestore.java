@@ -140,9 +140,9 @@ public class DemoFilestore implements Closeable {
         // limit dirs and filesPerDir to protect the caller
         for(int d=0; d<Math.min(100, dirs); d++) {
             final String dir = String.format("%04d", d);
-            
+
             createFilestoreSubDir(dir);
-            
+
             for(int f=0; f<Math.min(100, filesPerDir); f++) {
                 createFilestoreFile(dir, String.format(dir, "file-%04d.txt", "TEST"));
             }
@@ -244,10 +244,10 @@ public class DemoFilestore implements Closeable {
     
     public long countFilestoreFiles() {
         try {
-	        return Files.walk(filestoreDir.toPath())
-	                    .map(Path::toFile)
-	                    .filter(f -> f.isFile())
-	                    .count();
+            return Files.walk(filestoreDir.toPath())
+                        .map(Path::toFile)
+                        .filter(f -> f.isFile())
+                        .count();
         }
         catch(IOException ex) {
             throw new RuntimeException("Failed count filestore files", ex);
@@ -368,6 +368,8 @@ public class DemoFilestore implements Closeable {
     }
 
 
+    // eicar test file. 
+    // see https://www.eicar.org/download-anti-malware-testfile/
     private final static String eicar = "X_5_O_!_P_%_@_A_P_[_4_\\_P_Z_X_5_4_(_P_^_"  +
                                         ")_7_C_C_)_7_}_$_E_I_C_A_R_-_S_T_A_N_D_A_R_" +
                                         "D_-_A_N_T_I_V_I_R_U_S_-_T_E_S_T_-_F_I_L_E_" +

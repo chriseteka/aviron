@@ -88,7 +88,7 @@ public class ClamdCpuLimiterExample1 {
                                             .serverFileSeparator(FileSeparator.UNIX)
                                             .quarantineFileAction(QuarantineFileAction.MOVE)
                                             .quarantineDir(demoFS.getQuarantineDir())
-                                            .quarantineEventListener(this::eventListener)
+                                            .quarantineEventListener(this::onQuarantineEvent)
                                             .build();
 
             // Use the same day profile for Mon - Sun
@@ -152,7 +152,7 @@ public class ClamdCpuLimiterExample1 {
         }
     }
 
-    private void eventListener(final QuarantineEvent event) {
+    private void onQuarantineEvent(final QuarantineEvent event) {
         if (event.getException() != null) {
             System.out.println("Error " + event.getException().getMessage());
         }
