@@ -480,7 +480,7 @@ Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
 This example demonstrates the watching for new, modified, or deleted files.
 
 
-```
+```java
 import java.nio.file.Path;
 
 import com.github.jlangch.aviron.ex.FileWatcherException;
