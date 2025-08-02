@@ -78,6 +78,7 @@ public class FileWatcherExample {
         }
     }
 
+
     private IFileWatcher createPlatformFileWatcher(final Path mainDir) {
         if (OS.isLinux()) {
             return new FileWatcher_JavaWatchService(
