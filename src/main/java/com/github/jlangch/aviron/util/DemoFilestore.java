@@ -136,6 +136,19 @@ public class DemoFilestore implements Closeable {
         }
     }
 
+    public void populateWithDemoFiles(final int dirs, final int filesPerDir) {
+        // limit dirs and filesPerDir to protect the caller
+        for(int d=0; d<Math.min(100, dirs); d++) {
+            final String dir = String.format("%04d", d);
+            
+            createFilestoreSubDir(dir);
+            
+            for(int f=0; f<Math.min(100, filesPerDir); f++) {
+                createFilestoreFile(dir, String.format(dir, "file-%04d.txt", "TEST"));
+            }
+        }
+    }
+
     public File createFilestoreSubDir(final String name) {
        final File dir = new File(filestoreDir, name);
        dir.mkdir();

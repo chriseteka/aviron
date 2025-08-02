@@ -81,6 +81,8 @@ public class ClamdCpuLimiterExample1 {
 
     public void scan() throws Exception {
         try(DemoFilestore demoFS = new DemoFilestore()) {
+            demoFS.populateWithDemoFiles(5, 10);  // 5 sub dirs, each with 10 files
+
             final Client client = new Client.Builder()
                                             .serverHostname("localhost")
                                             .serverFileSeparator(FileSeparator.UNIX)
@@ -103,13 +105,15 @@ public class ClamdCpuLimiterExample1 {
 
             final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
 
-            // get a IDirCycler to cycle through the file store directories
+            // get a IDirCycler to cycle sequentially through the demo file 
+            // store directories:  "0000" ⇨ "0001" ⇨ ... "NNNN" ⇨ "0000" ⇨ ... 
             final IDirCycler fsDirCycler = demoFS.getFilestoreDirCycler();
 
             // inital CPU limit after startup
             initialCpuLimit(limiter, clamdPID);
 
-            // scan in an endless loop the filestore directories until we get killed or stopped
+            // scan the file store directories in an endless loop until we get 
+            // killed or stopped
             while(!stop.get()) {
                 // update clamd CPU limit 
                 final int limit = updateCpuLimit(limiter, clamdPID);
@@ -117,7 +121,7 @@ public class ClamdCpuLimiterExample1 {
                 if (limit >= MIN_SCAN_LIMIT_PERCENT) {
                     // scan next filestore directory
                     final File dir = fsDirCycler.nextDir();
-                    System.out.println(client.scan(dir.toPath(), false));
+                    System.out.println(client.scan(dir.toPath(), true));
                 }
                 else {
                     Thread.sleep(30_000);  // wait 30s
