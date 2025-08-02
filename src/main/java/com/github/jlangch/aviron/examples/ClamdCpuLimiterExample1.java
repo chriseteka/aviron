@@ -152,10 +152,10 @@ public class ClamdCpuLimiterExample1 {
 
     private void onQuarantineEvent(final QuarantineEvent event) {
         if (event.getException() != null) {
-        	printf("Error %s%n", event.getException().getMessage());
+            printf("Error %s%n", event.getException().getMessage());
         }
         else {
-        	printf("File %s moved to quarantine%n", event.getInfectedFile() + "");
+            printf("File %s moved to quarantine%n", event.getInfectedFile() + "");
         }
     }
 
@@ -165,7 +165,7 @@ public class ClamdCpuLimiterExample1 {
         }
     }
 
-    
+
     private static final int MIN_SCAN_LIMIT_PERCENT = 20;
 
     private final AtomicBoolean stop = new AtomicBoolean(false);
