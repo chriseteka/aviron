@@ -46,6 +46,9 @@ any CPU limiting features.
     * [Dynamic profile](#dynamic-profile)
 
 
+* [File Watcher](#file-watcher)
+
+
 * [Controlling the Clamd CPU usage](#controlling-the-clamd-cpu-usage)
 
 
@@ -472,6 +475,126 @@ Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
 ```
 
 
+## File Watcher
+
+This example demonstrates the watching for new, modified, or deleted files.
+
+
+```
+import java.nio.file.Path;
+
+import com.github.jlangch.aviron.ex.FileWatcherException;
+import com.github.jlangch.aviron.filewatcher.FileWatcher_FsWatch;
+import com.github.jlangch.aviron.filewatcher.FileWatcher_JavaWatchService;
+import com.github.jlangch.aviron.filewatcher.IFileWatcher;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchErrorEvent;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEvent;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchTerminationEvent;
+import com.github.jlangch.aviron.impl.util.OS;
+import com.github.jlangch.aviron.util.DemoFilestore;
+
+
+public class FileWatcherExample {
+
+    public static void main(String[] args) {
+        try {
+            new FileWatcherExample().run();
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void run() throws Exception {
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            demoFS.createFilestoreSubDir("000");
+            demoFS.createFilestoreSubDir("001");
+
+            final Path mainDir = demoFS.getFilestoreDir().toPath();
+
+            try(final IFileWatcher fw = createPlatformFileWatcher(mainDir)) {
+                fw.start();
+
+                printf("Ready to watch%n%n");
+
+                // wait a bit between actions, otherwise fswatch discards event
+                // due to optimizations in regard of the file delete at the end!
+
+                demoFS.touchFilestoreFile("000", "test1.data");      // created
+                sleep(1);
+
+                demoFS.appendToFilestoreFile("000", "test1.data");   // modified
+                sleep(1);
+
+                demoFS.deleteFilestoreFile("000", "test1.data");     // deleted
+
+                // wait for all events to be processed before closing the watcher
+                sleep(3);
+            }
+
+            // wait to receive the termination event
+            sleep(1);
+        }
+    }
+
+    private IFileWatcher createPlatformFileWatcher(final Path mainDir) {
+        if (OS.isLinux()) {
+            return new FileWatcher_JavaWatchService(
+                         mainDir,
+                         true,
+                         this::onFileEvent,
+                         this::onErrorEvent,
+                         this::onTerminationEvent);
+        }
+        else if (OS.isMacOSX()) {
+            return new FileWatcher_FsWatch(
+                         mainDir,
+                         true,
+                         this::onFileEvent,
+                         this::onErrorEvent,
+                         this::onTerminationEvent,
+                         null, // default monitor for MacOS platform
+                         FileWatcher_FsWatch.HOMEBREW_FSWATCH_PROGRAM);
+        }
+        else {
+            throw new FileWatcherException(
+                    "FileWatcher is not supported on platforms other than Linux/MacOS!");
+        }
+    }
+
+    private void onFileEvent(final FileWatchFileEvent event) {
+        if (event.isFile()) {
+            printf("File Event: %-8s %s%n", event.getType(), event.getPath());
+         }
+         else if (event.isDir()) {
+             printf("Dir Event:  %-8s %s%n", event.getType(), event.getPath());
+         }
+    }
+
+    private void onErrorEvent(final FileWatchErrorEvent event) {
+        printf("Error:      %s %s%n", event.getPath(), event.getException().getMessage());
+    }
+
+    private void onTerminationEvent(final FileWatchTerminationEvent event) {
+        printf("Terminated: %s%n", event.getPath());
+    }
+
+    private void printf(final String format, final Object... args) {
+        synchronized(lock) {
+            System.out.printf(format, args);
+        }
+    }
+
+    private void sleep(final int seconds) {
+        try { Thread.sleep(seconds * 1000); } catch(Exception ex) {}
+    }
+
+
+    private final Object lock = new Object();
+}
+```
+
+
 ## Controlling the Clamd CPU usage
 
 This example demonstrates how a demo filestore can be continuously scanned 
@@ -482,26 +605,34 @@ In the examples package you find two variants:
 * ClamdCpuLimiterExample2 (scheduled cpu limit update)
 
 
-Our demo filestore requiring virus scanning looks like:
+Our demo file store used for virus scanning looks like:
 
 ```
-/data/filestore/
-  |
-  +-- 0000
-  |     \_ file1.doc
-  |     \_ file2.doc
-  |     :
-  |     \_ fileN.doc
-  +-- 0001
-  :
-  +-- NNNN
-        \_ file1.doc
+ * demo/
+ *   |
+ *   +-- filestore/
+ *   |     |
+ *   |     +-- 0000
+ *   |     |     \_ file1.doc
+ *   |     |     \_ file2.doc
+ *   |     |     :
+ *   |     |     \_ fileN.doc
+ *   |     +-- 0001
+ *   |     |     \_ file1.doc
+ *   |     |     :
+ *   |     |     \_ fileN.doc
+ *   |     :
+ *   |     +-- NNNN
+ *   |           \_ file1.doc
+ *   |
+ *   +-- quarantine/
+ *         \_ eicar.txt
+ *         \_ eicar.txt.virus
 ```
 
 and the demo code:
 
 ```java
-
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 
 import java.io.File;
@@ -515,14 +646,14 @@ import com.github.jlangch.aviron.admin.CpuProfile;
 import com.github.jlangch.aviron.admin.DynamicCpuLimit;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
-import com.github.jlangch.aviron.util.FileStoreMgr;
+import com.github.jlangch.aviron.util.DemoFilestore;
+import com.github.jlangch.aviron.util.IDirCycler;
 
-
-public class ClamdCpuLimiterExample {
+public class ClamdCpuLimiterExample1 {
 
     public static void main(String[] args) {
         try {
-            new ClamdCpuLimiterExample().scan();
+            new ClamdCpuLimiterExample1().scan();
         }
         catch(Exception ex) {
             ex.printStackTrace();
@@ -530,49 +661,54 @@ public class ClamdCpuLimiterExample {
     }
 
     public void scan() throws Exception {
-        final File filestoreDir = new File("/data/filestore/");
-        final File quarantineDir = new File("/data/quarantine/");
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            demoFS.populateWithDemoFiles(5, 10);  // 5 sub dirs, each with 10 files
 
-        final Client client = new Client.Builder()
-                                        .serverHostname("localhost")
-                                        .serverFileSeparator(FileSeparator.UNIX)
-                                        .quarantineFileAction(QuarantineFileAction.MOVE)
-                                        .quarantineDir(quarantineDir)
-                                        .quarantineEventListener(this::eventListener)
-                                        .build();
+            // demoFS.createEicarAntiMalwareTestFile("0000");
 
-        // Use the same day profile for Mon - Sun
-        final CpuProfile everyday = CpuProfile.of(
-                                        "weekday",
-                                        toList(
-                                            "00:00-05:59 @ 100%",
-                                            "06:00-08:59 @  50%",
-                                            "09:00-17:59 @   0%",
-                                            "18:00-21:59 @  50%",
-                                            "22:00-23:59 @ 100%"));
+            final Client client = new Client.Builder()
+                                            .serverHostname("localhost")
+                                            .serverFileSeparator(FileSeparator.UNIX)
+                                            .quarantineFileAction(QuarantineFileAction.MOVE)
+                                            .quarantineDir(demoFS.getQuarantineDir())
+                                            .quarantineEventListener(this::onQuarantineEvent)
+                                            .build();
 
-        final String clamdPID = ClamdAdmin.getClamdPID();
+            // Use the same day profile for Mon - Sun
+            final CpuProfile everyday = CpuProfile.of(
+                                            "weekday",
+                                            toList(
+                                                "00:00-05:59 @ 100%",
+                                                "06:00-08:59 @  50%",
+                                                "09:00-17:59 @   0%",
+                                                "18:00-21:59 @  50%",
+                                                "22:00-23:59 @ 100%"));
 
-        final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
+            final String clamdPID = ClamdAdmin.getClamdPID();
 
-        // create a FileStoreMgr to cycle through the file store directories
-        final FileStoreMgr fsMgr = new FileStoreMgr(filestoreDir);
+            final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
 
-        // inital CPU limit after startup
-        initialCpuLimit(limiter, clamdPID);
+            // get a IDirCycler to cycle sequentially through the demo file 
+            // store directories:  "0000" ⇨ "0001" ⇨ ... ⇨ "NNNN" ⇨ "0000" ⇨ ... 
+            final IDirCycler fsDirCycler = demoFS.getFilestoreDirCycler();
 
-        // scan in an endless loop the filestore directories until we get killed or stopped
-        while(!stop.get()) {
-            // update clamd CPU limit 
-            final int limit = updateCpuLimit(limiter, clamdPID);
+            // inital CPU limit after startup
+            initialCpuLimit(limiter, clamdPID);
 
-            if (limit >= MIN_SCAN_LIMIT_PERCENT) {
-                // scan next filestore directory
-                final File dir = fsMgr.nextDir();
-                System.out.println(client.scan(dir.toPath(), false));
-            }
-            else {
-                Thread.sleep(30_000);  // wait 30s
+            // scan the file store directories in an endless loop until we get 
+            // killed or stopped
+            while(!stop.get()) {
+                // update clamd CPU limit 
+                final int limit = updateCpuLimit(limiter, clamdPID);
+
+                if (limit >= MIN_SCAN_LIMIT_PERCENT) {
+                    // scan next filestore directory
+                    final File dir = fsDirCycler.nextDir();
+                    System.out.println(client.scan(dir.toPath(), true));
+                }
+                else {
+                    Thread.sleep(30_000);  // wait 30s
+                }
             }
         }
     }
@@ -599,7 +735,7 @@ public class ClamdCpuLimiterExample {
         }
     }
 
-    private void eventListener(final QuarantineEvent event) {
+    private void onQuarantineEvent(final QuarantineEvent event) {
         if (event.getException() != null) {
             System.out.println("Error " + event.getException().getMessage());
         }
