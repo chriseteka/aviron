@@ -36,6 +36,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 /**
  * 
  * The demo file store layout:
@@ -73,28 +74,27 @@ import java.util.stream.Collectors;
  *    final File rootDir = fs.getRootDir();
  *    final File filestoreDir = fs.getFilestoreDir();
  *    final File quarantineDir = fs.getQuarantineDir();
- *    
+ *
  *    // create subirs
  *    fs.createFilestoreSubDir("0000");
  *    fs.createFilestoreSubDir("0001");
  *    fs.createFilestoreSubDir("0002");
- *    
+ *
  *    // subdirs
- *    final List<File> subDirs = fs.listFilestoreSubDirs();
- *    
+ *    final List&lt;File&gt; subDirs = fs.listFilestoreSubDirs();
+ *
  *    // populate with some data files
  *    fs.touchFilestoreFile("0000",  "file1.txt");
- *    
+ *
  *    fs.touchFilestoreFile("0000",  "file2.txt");
  *    fs.appendFilestoreFile("0000", "file2.txt");
- *    
+ *
  *    fs.createFilestoreFile("0000", "file3.txt");
- *    
+ *
  *    fs.createFilestoreFile("0000", "file4.txt");
  *    fs.deleteFilestoreFile("0000", "file4.txt");
  * }
  * </pre>
- * 
  */
 public class DemoFilestore implements Closeable {
 
@@ -102,10 +102,10 @@ public class DemoFilestore implements Closeable {
         this.rootDir = createTempDir();
         this.filestoreDir = new File(rootDir, "filestoreDir");
         this.quarantineDir = new File(rootDir, "quarantine");
-        
+
         this.filestoreDir.mkdir();
         this.quarantineDir.mkdir();
-        
+
         this.dirCycler = new DirCycler(this.filestoreDir);
     }
 
@@ -195,7 +195,7 @@ public class DemoFilestore implements Closeable {
             throw new RuntimeException("Failed to touch file store file "+ fsFile, ex);
         }
     }
-    
+
     public File appendToFilestoreFile(final String subDir, final String filename) {
         final String fsFile = new File(subDir).getName() + "/" + new File(filename).getName();
         final File file = new File(filestoreDir,fsFile);
@@ -241,7 +241,7 @@ public class DemoFilestore implements Closeable {
                     "Failed to append to the file store file " + fsFile, ex);
         }
     }
-    
+
     public long countFilestoreFiles() {
         try {
             return Files.walk(filestoreDir.toPath())
@@ -378,6 +378,6 @@ public class DemoFilestore implements Closeable {
     private final File rootDir;
     private final File filestoreDir;
     private final File quarantineDir;
-    
+
     private final IDirCycler dirCycler;
 }
