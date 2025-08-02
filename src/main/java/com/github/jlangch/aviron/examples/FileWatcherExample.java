@@ -95,7 +95,7 @@ public class FileWatcherExample {
                          this::onFileEvent,
                          this::onErrorEvent,
                          this::onTerminationEvent,
-                         null, // default monitor for MacOS platform
+                         null, // default fswatch monitor
                          FileWatcher_FsWatch.HOMEBREW_FSWATCH_PROGRAM);
         }
         else {
