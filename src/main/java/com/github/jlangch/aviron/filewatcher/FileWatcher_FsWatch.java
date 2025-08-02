@@ -354,8 +354,8 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
 
     // fswatch binary installed under homebrew on MacOS
     public static final String HOMEBREW_FSWATCH_PROGRAM = "/opt/homebrew/bin/fswatch";
-    
-    
+
+
     // any reasonable string that does not appear in file names
     private static final String SEPARATOR = "|#|";
 
