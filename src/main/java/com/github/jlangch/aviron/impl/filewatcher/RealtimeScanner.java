@@ -43,71 +43,24 @@ import com.github.jlangch.aviron.util.service.Service;
 import com.github.jlangch.aviron.util.service.ServiceStatus;
 
 
+// +--------------------------------------------------------------------------+
+// |                                                                          |
+// |                NOT YET TESTED    -->   DO NOT USE                        |
+// |                                                                          |
+// +--------------------------------------------------------------------------+
+
 /**
- * 
- * The demo filestore layout:
- * 
- * <pre>
- * /data/filestore/
- *   |
- *   +-- 0000
- *   |     \_ file1.doc
- *   |     \_ file2.doc
- *   |     :
- *   |     \_ fileN.doc
- *   +-- 0001
- *   |     \_ file1.doc
- *   |     :
- *   |     \_ fileN.doc
- *   :
- *   +-- NNNN
- *         \_ file1.doc
- * </pre>
- * 
- * <p>A realtime file scanner that scans all newly created docx, xlsx, and pdf 
- * files in filestore with the above layout.
- * 
- * <p>If any new directories appear in the filestore, the file watcher adds it
- * implicitly to its list of watch dirs.
- * 
- * <pre>
- * Client avClient = Client.builder()
- *                       .serverHostname("localhost")
- *                       .serverFileSeparator(FileSeparator.UNIX)
- *                       .build();
- *
- * final Predicate-&lt;FileWatchFileEvent-&gt; scanApprover = 
- *         (e) -&gt; { final String filename = e.getPath().toFile().getName();
- *                  return e.getType() == FileWatchEventType.CREATED
- *                         &amp;&amp; filename.matches(".*[.](docx|xlsx|pdf)")); };
- *
- * final Consumer-&lt;RealtimeScanEvent-&gt; scanListener =
- *         (e) -&gt; { if (e.hasVirus) {
- *                     System.out.println("Infected -&gt; " + e.getPath());
- *                  } };
- *
- * final RealtimeScanner rts = new RealtimeScanner(
- *                                      avClient,
- *                                      Paths.get("/data/filestore/"),
- *                                      true, // include all subdirs
- *                                      scanApprover,
- *                                      scanListener,
- *                                      10);
- *
- * rts.start();
- *
- * rts.close();
- * </pre>
+ * Realtime scanner
  */
 public class RealtimeScanner extends Service {
 
     public RealtimeScanner(
            final Client client,
            final IFileWatcher watcher,
-           final Predicate<FileWatchFileEvent> scanApprover,
-           final Consumer<RealtimeScanEvent> scanListener,
            final int sleepTimeSecondsOnIdle,
-           final boolean testMode
+           final boolean testMode,
+           final Predicate<FileWatchFileEvent> scanApprover,
+           final Consumer<RealtimeScanEvent> scanListener
     ) {
         if (client == null) {
             throw new IllegalArgumentException("A 'client' must not be null!");
@@ -118,10 +71,10 @@ public class RealtimeScanner extends Service {
 
         this.client = client;
         this.watcher = watcher;
-        this.scanApprover = scanApprover;
-        this.scanListener = scanListener;
         this.sleepTimeSecondsOnIdle = Math.max(1, sleepTimeSecondsOnIdle);
         this.testMode = testMode;
+        this.scanApprover = scanApprover;
+        this.scanListener = scanListener;
 
         watcher.setFileListener(this::onFileEvent);
         watcher.setErrorListener(this::onErrorEvent);

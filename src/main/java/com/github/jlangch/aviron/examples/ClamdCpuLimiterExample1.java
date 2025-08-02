@@ -134,9 +134,7 @@ public class ClamdCpuLimiterExample1 {
 
     private void initialCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
         limiter.activateClamdCpuLimit(clamdPID);
-        System.out.println(String.format(
-                            "Initial clamd CPU limit: %d%%",
-                            limiter.getLastSeenLimit()));
+        printf("Initial clamd CPU limit: %d%%%n",limiter.getLastSeenLimit());
     }
 
     private int updateCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
@@ -144,9 +142,7 @@ public class ClamdCpuLimiterExample1 {
         final int lastSeenLimit = limiter.getLastSeenLimit();
         if (limiter.activateClamdCpuLimit(clamdPID)) {
             final int newLimit = limiter.getLastSeenLimit();
-            System.out.println(String.format(
-                                "Adjusted clamd CPU limit: %d%% -> %d%%",
-                                lastSeenLimit, newLimit));
+            printf("Adjusted clamd CPU limit: %d%% -> %d%%%n", lastSeenLimit, newLimit);
             return newLimit;
         }
         else {
@@ -156,15 +152,22 @@ public class ClamdCpuLimiterExample1 {
 
     private void onQuarantineEvent(final QuarantineEvent event) {
         if (event.getException() != null) {
-            System.out.println("Error " + event.getException().getMessage());
+        	printf("Error %s%n", event.getException().getMessage());
         }
         else {
-            System.out.println("File " + event.getInfectedFile() + " moved to quarantine");
+        	printf("File %s moved to quarantine%n", event.getInfectedFile() + "");
         }
     }
 
+    private void printf(final String format, final Object... args) {
+        synchronized(lock) {
+            System.out.printf(format, args);
+        }
+    }
 
+    
     private static final int MIN_SCAN_LIMIT_PERCENT = 20;
 
     private final AtomicBoolean stop = new AtomicBoolean(false);
+    private final Object lock = new Object();
 }

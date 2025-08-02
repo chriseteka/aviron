@@ -130,7 +130,7 @@ public class ClamdCpuLimiterExample2 {
                     if (limiter.getLastSeenLimit() >= MIN_SCAN_LIMIT_PERCENT) {
                         // scan next filestore directory
                         final File dir = fsDirCycler.nextDir();
-                        System.out.println(client.scan(dir.toPath(), true));
+                        printf("%s%n", client.scan(dir.toPath(), true));
                     }
                     else {
                         Thread.sleep(30_000);  // wait 30s
@@ -145,9 +145,7 @@ public class ClamdCpuLimiterExample2 {
 
     private void initialCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
         limiter.activateClamdCpuLimit(clamdPID);
-        System.out.println(String.format(
-                            "Initial clamd CPU limit: %d%%",
-                            limiter.getLastSeenLimit()));
+        printf("Initial clamd CPU limit: %d%%%n",limiter.getLastSeenLimit());
     }
 
     private void updateCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
@@ -155,25 +153,30 @@ public class ClamdCpuLimiterExample2 {
         final int lastSeenLimit = limiter.getLastSeenLimit();
         if (limiter.activateClamdCpuLimit(clamdPID)) {
             final int newLimit = limiter.getLastSeenLimit();
-            System.out.println(String.format(
-                                "Adjusted clamd CPU limit: %d%% -> %d%%",
-                                lastSeenLimit, newLimit));
+            printf("Adjusted clamd CPU limit: %d%% -> %d%%%n", lastSeenLimit, newLimit);
         }
     }
 
     private void onQuarantineEvent(final QuarantineEvent event) {
         if (event.getException() != null) {
-            System.out.println("Error " + event.getException().getMessage());
+        	printf("Error %s%n", event.getException().getMessage());
         }
         else {
-            System.out.println("File " + event.getInfectedFile() + " moved to quarantine");
+        	printf("File %s moved to quarantine%n", event.getInfectedFile() + "");
         }
     }
 
+    private void printf(final String format, final Object... args) {
+        synchronized(lock) {
+            System.out.printf(format, args);
+        }
+    }
 
+    
     private static final int MIN_SCAN_LIMIT_PERCENT = 20;
 
     private final AtomicBoolean stop = new AtomicBoolean(false);
+    private final Object lock = new Object();
 
     private ScheduledExecutorService ses;
 }
