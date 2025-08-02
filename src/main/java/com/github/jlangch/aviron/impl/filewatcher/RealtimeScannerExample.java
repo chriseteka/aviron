@@ -22,14 +22,19 @@
  */
 package com.github.jlangch.aviron.impl.filewatcher;
 
+import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
+
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
+import com.github.jlangch.aviron.admin.ClamdCpuLimiter;
+import com.github.jlangch.aviron.admin.CpuProfile;
+import com.github.jlangch.aviron.admin.DynamicCpuLimit;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
-import com.github.jlangch.aviron.events.RealtimeScanEvent;
+import com.github.jlangch.aviron.events.RealtimeScanResultEvent;
 import com.github.jlangch.aviron.ex.FileWatcherException;
 import com.github.jlangch.aviron.filewatcher.FileWatcher_FsWatch;
 import com.github.jlangch.aviron.filewatcher.FileWatcher_JavaWatchService;
@@ -69,12 +74,24 @@ public class RealtimeScannerExample {
                                             .quarantineEventListener(this::onQuarantineEvent)
                                             .build();
 
+
+            // Use the same day profile for Mon - Sun
+            final CpuProfile everyday = CpuProfile.of(
+                                            "weekday",
+                                            toList(
+                                                "00:00-05:59 @ 100%",
+                                                "06:00-08:59 @  50%",
+                                                "09:00-17:59 @  50%",
+                                                "18:00-21:59 @  50%",
+                                                "22:00-23:59 @ 100%"));
+
+            final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
+
             final Path mainDir = demoFS.getFilestoreDir().toPath();
             final boolean registerAllSubDirs = true;
 
             final IFileWatcher fw = createPlatformFileWatcher(mainDir, registerAllSubDirs);
 
-            
             final int sleepTimeSecondsOnIdle = 5;
             final boolean testMode = true; // skip file scans with clamd in test mode
 
@@ -84,11 +101,11 @@ public class RealtimeScannerExample {
                                                     sleepTimeSecondsOnIdle,
                                                     testMode,
                                                     this::scanApprover,
-                                                    this::onScan)) {
+                                                    this::onScanResult)) {
                 rtScanner.start();
 
                 Thread.sleep(1000);
-                
+
                 demoFS.createFilestoreFile("0000", "test1.data");
 
                 Thread.sleep(1000);
@@ -126,11 +143,12 @@ public class RealtimeScannerExample {
     private boolean scanApprover(final FileWatchFileEvent event) {
         final String filename = event.getPath().toFile().getName();
 
-        return event.getType() == FileWatchFileEventType.CREATED
+        return event.isFile()
+                && event.getType() == FileWatchFileEventType.CREATED
                 && filename.matches(".*[.](docx|xlsx|pdf)");
     }
 
-    private void onScan(final RealtimeScanEvent event) {
+    private void onScanResult(final RealtimeScanResultEvent event) {
         if (event.hasVirus()) {
             printf("Infected %s%n", event.getPath());
         }

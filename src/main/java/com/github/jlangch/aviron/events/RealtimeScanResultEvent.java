@@ -27,9 +27,9 @@ import java.nio.file.Path;
 import com.github.jlangch.aviron.dto.ScanResult;
 
 
-public class RealtimeScanEvent implements Event {
+public class RealtimeScanResultEvent implements Event {
     
-    public RealtimeScanEvent(
+    public RealtimeScanResultEvent(
             final Path path,
             final ScanResult result, 
             final boolean test

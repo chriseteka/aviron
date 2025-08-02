@@ -32,7 +32,7 @@ import java.util.function.Predicate;
 
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.dto.ScanResult;
-import com.github.jlangch.aviron.events.RealtimeScanEvent;
+import com.github.jlangch.aviron.events.RealtimeScanResultEvent;
 import com.github.jlangch.aviron.ex.FileWatcherException;
 import com.github.jlangch.aviron.filewatcher.FileWatcherQueue;
 import com.github.jlangch.aviron.filewatcher.IFileWatcher;
@@ -60,7 +60,7 @@ public class RealtimeScanner extends Service {
            final int sleepTimeSecondsOnIdle,
            final boolean testMode,
            final Predicate<FileWatchFileEvent> scanApprover,
-           final Consumer<RealtimeScanEvent> scanListener
+           final Consumer<RealtimeScanResultEvent> scanResultListener
     ) {
         if (client == null) {
             throw new IllegalArgumentException("A 'client' must not be null!");
@@ -74,7 +74,7 @@ public class RealtimeScanner extends Service {
         this.sleepTimeSecondsOnIdle = Math.max(1, sleepTimeSecondsOnIdle);
         this.testMode = testMode;
         this.scanApprover = scanApprover;
-        this.scanListener = scanListener;
+        this.scanResultListener = scanResultListener;
 
         watcher.setFileListener(this::onFileEvent);
         watcher.setErrorListener(this::onErrorEvent);
@@ -152,11 +152,11 @@ public class RealtimeScanner extends Service {
             final Path path = file.toPath();
 
             if (testMode) {
-                fireEvent(new RealtimeScanEvent(path, ScanResult.ok(), testMode));
+                fireEvent(new RealtimeScanResultEvent(path, ScanResult.ok(), testMode));
             }
             else {
                 final ScanResult result = client.scan(path);
-                fireEvent(new RealtimeScanEvent(path, result, testMode));
+                fireEvent(new RealtimeScanResultEvent(path, result, testMode));
             }
         }
     }
@@ -198,9 +198,9 @@ public class RealtimeScanner extends Service {
         
     }
 
-    private void fireEvent(final RealtimeScanEvent event) {
-        if (scanListener != null) {
-            safeRun(() -> scanListener.accept(event));
+    private void fireEvent(final RealtimeScanResultEvent event) {
+        if (scanResultListener != null) {
+            safeRun(() -> scanResultListener.accept(event));
         }
     }
 
@@ -219,7 +219,7 @@ public class RealtimeScanner extends Service {
     private final Client client;
     private final IFileWatcher watcher;
     private final Predicate<FileWatchFileEvent> scanApprover;
-    private final Consumer<RealtimeScanEvent> scanListener;
+    private final Consumer<RealtimeScanResultEvent> scanResultListener;
     private final int sleepTimeSecondsOnIdle;
     private final boolean testMode;
 
