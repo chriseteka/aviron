@@ -30,9 +30,14 @@ import com.github.jlangch.aviron.events.Event;
 
 public class RealtimeScanEvent implements Event {
     
-    public RealtimeScanEvent(final Path path, final ScanResult result) {
+    public RealtimeScanEvent(
+            final Path path,
+            final ScanResult result, 
+            final boolean test
+    ) {
         this.path = path;
         this.result = result;
+        this.test = test;
     }
 
 
@@ -42,6 +47,10 @@ public class RealtimeScanEvent implements Event {
 
     public ScanResult getScanResult() {
         return result;
+    }
+
+    public boolean isTest() {
+        return test;
     }
 
     public boolean isOK() {
@@ -59,6 +68,9 @@ public class RealtimeScanEvent implements Event {
         sb.append("Path: ");
         sb.append(path);
         sb.append(System.lineSeparator());
+        sb.append("Test: ");
+        sb.append(test);
+        sb.append(System.lineSeparator());
         sb.append(result);
 
         return sb.toString();
@@ -66,4 +78,5 @@ public class RealtimeScanEvent implements Event {
 
     private final Path path;
     private final ScanResult result;
+    private final boolean test;
 }

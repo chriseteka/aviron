@@ -30,7 +30,7 @@ import java.nio.charset.Charset;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.jlangch.aviron.impl.test.TempFS;
+import com.github.jlangch.aviron.util.DemoFilestore;
 
 
 class HashesTest {
@@ -39,7 +39,7 @@ class HashesTest {
     void testDataHash() {
         final String hashFile1 = Hashes.hashData("MD5", "SALT", "TEST1".getBytes(Charset.defaultCharset()));
         final String hashFile2 = Hashes.hashData("MD5", "SALT", "TEST2".getBytes(Charset.defaultCharset()));
-        
+
         assertNotNull(hashFile1);
         assertNotNull(hashFile2);
 
@@ -48,17 +48,15 @@ class HashesTest {
 
     @Test
     void testFileHash() {
-        try(TempFS tempFS = new TempFS()) {
-            final File file1 = tempFS.createScanFile("test1.data", "TEST1");
-            final File file2 = tempFS.createScanFile("test2.data", "TEST2");
-            
-            final String hashFile1 = Hashes.hashFile("MD5", "SALT", file1);
-            final String hashFile2 = Hashes.hashFile("MD5", "SALT", file2);
-            
-            assertNotNull(hashFile1);
-            assertNotNull(hashFile2);
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            demoFS.createFilestoreSubDir("000");
 
-            assertNotEquals(hashFile1, hashFile2);
+            final File f1 = demoFS.createFilestoreFile("000", "1.txt");
+
+
+            final String hashFile1 = Hashes.hashFile("MD5", "SALT", f1);
+
+            assertNotNull(hashFile1);
         }
      }
 

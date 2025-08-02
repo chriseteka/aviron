@@ -35,9 +35,39 @@ import com.github.jlangch.aviron.admin.CpuProfile;
 import com.github.jlangch.aviron.admin.DynamicCpuLimit;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
-import com.github.jlangch.aviron.util.FileStoreMgr;
+import com.github.jlangch.aviron.util.DemoFilestore;
+import com.github.jlangch.aviron.util.IDirCycler;
 
 
+/**
+ * Clamd CpuLimiter Example 1
+ * 
+ * 
+ * The demo filestore layout:
+ * 
+ * <pre>
+ * demo/
+ *   |
+ *   +-- filestore/
+ *   |     |
+ *   |     +-- 0000
+ *   |     |     \_ file1.doc
+ *   |     |     \_ file2.doc
+ *   |     |     :
+ *   |     |     \_ fileN.doc
+ *   |     +-- 0001
+ *   |     |     \_ file1.doc
+ *   |     |     :
+ *   |     |     \_ fileN.doc
+ *   |     :
+ *   |     +-- NNNN
+ *   |           \_ file1.doc
+ *   |
+ *   +-- quarantine/
+ *         \_ file1.doc
+ *         \_ file1.doc.virus
+ * </pre>
+ */
 public class ClamdCpuLimiterExample1 {
 
     public static void main(String[] args) {
@@ -50,63 +80,48 @@ public class ClamdCpuLimiterExample1 {
     }
 
     public void scan() throws Exception {
-        // Our demo filestore looks like:
-        //
-        // /data/filestore/
-        //   |
-        //   +-- 0000
-        //   |     \_ file1.doc
-        //   |     \_ file2.doc
-        //   |     :
-        //   |     \_ fileN.doc
-        //   +-- 0001
-        //   :
-        //   +-- NNNN
-        //         \_ file1.doc
-        //
-        final File filestoreDir = new File("/data/filestore/");
-        final File quarantineDir = new File("/data/quarantine/");
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            final Client client = new Client.Builder()
+                                            .serverHostname("localhost")
+                                            .serverFileSeparator(FileSeparator.UNIX)
+                                            .quarantineFileAction(QuarantineFileAction.MOVE)
+                                            .quarantineDir(demoFS.getQuarantineDir())
+                                            .quarantineEventListener(this::eventListener)
+                                            .build();
 
-        final Client client = new Client.Builder()
-                                        .serverHostname("localhost")
-                                        .serverFileSeparator(FileSeparator.UNIX)
-                                        .quarantineFileAction(QuarantineFileAction.MOVE)
-                                        .quarantineDir(quarantineDir)
-                                        .quarantineEventListener(this::eventListener)
-                                        .build();
+            // Use the same day profile for Mon - Sun
+            final CpuProfile everyday = CpuProfile.of(
+                                            "weekday",
+                                            toList(
+                                                "00:00-05:59 @ 100%",
+                                                "06:00-08:59 @  50%",
+                                                "09:00-17:59 @   0%",
+                                                "18:00-21:59 @  50%",
+                                                "22:00-23:59 @ 100%"));
 
-        // Use the same day profile for Mon - Sun
-        final CpuProfile everyday = CpuProfile.of(
-                                        "weekday",
-                                        toList(
-                                            "00:00-05:59 @ 100%",
-                                            "06:00-08:59 @  50%",
-                                            "09:00-17:59 @   0%",
-                                            "18:00-21:59 @  50%",
-                                            "22:00-23:59 @ 100%"));
+            final String clamdPID = ClamdAdmin.getClamdPID();
 
-        final String clamdPID = ClamdAdmin.getClamdPID();
+            final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
 
-        final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
+            // get a IDirCycler to cycle through the file store directories
+            final IDirCycler fsDirCycler = demoFS.getFilestoreDirCycler();
 
-        // create a FileStoreMgr to cycle through the file store directories
-        final FileStoreMgr fsMgr = new FileStoreMgr(filestoreDir);
+            // inital CPU limit after startup
+            initialCpuLimit(limiter, clamdPID);
 
-        // inital CPU limit after startup
-        initialCpuLimit(limiter, clamdPID);
+            // scan in an endless loop the filestore directories until we get killed or stopped
+            while(!stop.get()) {
+                // update clamd CPU limit 
+                final int limit = updateCpuLimit(limiter, clamdPID);
 
-       // scan in an endless loop the filestore directories until we get killed or stopped
-        while(!stop.get()) {
-            // update clamd CPU limit 
-            final int limit = updateCpuLimit(limiter, clamdPID);
-
-            if (limit >= MIN_SCAN_LIMIT_PERCENT) {
-                // scan next filestore directory
-                final File dir = fsMgr.nextDir();
-                System.out.println(client.scan(dir.toPath(), false));
-            }
-            else {
-                Thread.sleep(30_000);  // wait 30s
+                if (limit >= MIN_SCAN_LIMIT_PERCENT) {
+                    // scan next filestore directory
+                    final File dir = fsDirCycler.nextDir();
+                    System.out.println(client.scan(dir.toPath(), false));
+                }
+                else {
+                    Thread.sleep(30_000);  // wait 30s
+                }
             }
         }
     }

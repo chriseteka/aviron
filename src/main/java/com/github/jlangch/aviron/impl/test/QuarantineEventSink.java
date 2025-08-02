@@ -32,9 +32,9 @@ import com.github.jlangch.aviron.events.QuarantineEvent;
 /**
  * An Event sink to support unit tests
  */
-public class EventSink {
+public class QuarantineEventSink {
 
-    public EventSink() {
+    public QuarantineEventSink() {
     }
 
     public void process(final QuarantineEvent event) {

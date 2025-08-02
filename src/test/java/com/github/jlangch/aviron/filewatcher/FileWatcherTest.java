@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.junit.jupiter.api.Test;
 
 import com.github.jlangch.aviron.events.Event;
-import com.github.jlangch.aviron.impl.test.TempFS;
+import com.github.jlangch.aviron.util.DemoFilestore;
 import com.github.jlangch.aviron.util.junit.EnableOnMac;
 
 
@@ -43,12 +43,12 @@ class FileWatcherTest {
     void testFileWatcherMainDirOnly_NoFiles() {
         printf("%n%n[testFileWatcherMainDirOnly_NoFiles]%n%n");
 
-        try(TempFS tempFS = new TempFS()) {
+        try(DemoFilestore demoFS = new DemoFilestore()) {
             final Queue<Event> files = new ConcurrentLinkedQueue<>();
             final Queue<Event> errors = new ConcurrentLinkedQueue<>();
             final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
 
-            final Path mainDir = tempFS.getScanDir().toPath();
+            final Path mainDir = demoFS.getFilestoreDir().toPath();
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                               mainDir,
@@ -90,15 +90,15 @@ class FileWatcherTest {
     void testFileWatcherMainDirWithSubDirs_NoFiles() {
         printf("%n%n[testFileWatcherMainDirWithSubDirs_NoFiles]%n%n");
 
-        try(TempFS tempFS = new TempFS()) {
-            tempFS.createScanSubDir("0000");
-            tempFS.createScanSubDir("0001");
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            demoFS.createFilestoreSubDir("000");
+            demoFS.createFilestoreSubDir("001");
 
             final Queue<Event> files = new ConcurrentLinkedQueue<>();
             final Queue<Event> errors = new ConcurrentLinkedQueue<>();
             final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
 
-            final Path mainDir = tempFS.getScanDir().toPath();
+            final Path mainDir = demoFS.getFilestoreDir().toPath();
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                                 mainDir,
@@ -137,18 +137,18 @@ class FileWatcherTest {
 
     @Test 
     @EnableOnMac
-    void testFileWatcherMainDir() {
+     void testFileWatcherMainDir() {
         printf("%n%n[testFileWatcherMainDir]%n%n");
 
-        try(TempFS tempFS = new TempFS()) {
-            tempFS.createScanSubDir("0000");
-            tempFS.createScanSubDir("0001");
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            demoFS.createFilestoreSubDir("000");
+            demoFS.createFilestoreSubDir("001");
 
             final Queue<Event> files = new ConcurrentLinkedQueue<>();
             final Queue<Event> errors = new ConcurrentLinkedQueue<>();
             final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
 
-            final Path mainDir = tempFS.getScanDir().toPath();
+            final Path mainDir = demoFS.getFilestoreDir().toPath();
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                                 mainDir,
@@ -175,19 +175,19 @@ class FileWatcherTest {
 
                 // wait a bit between actions, otherwise fswatch discards event
                 // due to optimizations in regard of the file delete at the end!
-                tempFS.touchScanFile("test1.data");            // created
+                demoFS.touchFilestoreFile("000", "test1.data");     // created
                 sleep(1);  
-                tempFS.appendScanFile("test1.data", "TEST");   // modified
+                demoFS.appendToFilestoreFile("000", "test1.data");  // modified
                 sleep(1);
-                tempFS.deleteScanFile("test1.data");           // deleted
+                demoFS.deleteFilestoreFile("000", "test1.data");    // deleted
                 sleep(1);
 
 
-                tempFS.createScanFile("test2.data", "TEST");   // modified
+                demoFS.createFilestoreFile("000", "test2.data");    // modified
                 sleep(1);
-                tempFS.appendScanFile("test2.data", "TEST");   // modified
+                demoFS.appendToFilestoreFile("000", "test2.data");  // modified
                 sleep(1);
-                tempFS.deleteScanFile("test2.data");           // deleted
+                demoFS.deleteFilestoreFile("000", "test2.data");    // deleted
 
                 // wait for all events to be processed before closing the watcher
                 sleep(3);
@@ -209,15 +209,15 @@ class FileWatcherTest {
     void testFileWatcherSubDir() {
         printf("%n%n[testFileWatcherSubDir]%n%n");
 
-        try(TempFS tempFS = new TempFS()) {
-            tempFS.createScanSubDir("0000");
-            tempFS.createScanSubDir("0001");
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            demoFS.createFilestoreSubDir("000");
+            demoFS.createFilestoreSubDir("001");
 
             final Queue<Event> files = new ConcurrentLinkedQueue<>();
             final Queue<Event> errors = new ConcurrentLinkedQueue<>();
             final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
 
-            final Path mainDir = tempFS.getScanDir().toPath();
+            final Path mainDir = demoFS.getFilestoreDir().toPath();
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                                 mainDir,
@@ -244,19 +244,19 @@ class FileWatcherTest {
 
                 // wait a bit between actions, otherwise fswatch discards event
                 // due to optimizations in regard of the file delete at the end!
-                tempFS.touchScanFile("0000", "test1.data");            // created
+                demoFS.touchFilestoreFile("000", "test1.data");      // created
                 sleep(1);
-                tempFS.appendScanFile("0000", "test1.data", "TEST");   // modified
+                demoFS.appendToFilestoreFile("000", "test1.data");   // modified
                 sleep(1);
-                tempFS.deleteScanFile("0000", "test1.data");           // deleted
+                demoFS.deleteFilestoreFile("000", "test1.data");     // deleted
                 sleep(1);
 
 
-                tempFS.createScanFile("0001", "test2.data", "TEST");   // modified
+                demoFS.createFilestoreFile("001", "test2.data");    // modified
                 sleep(1);
-                tempFS.appendScanFile("0001", "test2.data", "TEST");   // modified
+                demoFS.appendToFilestoreFile("001", "test2.data");  // modified
                 sleep(1);
-                tempFS.deleteScanFile("0001", "test2.data");           // deleted
+                demoFS.deleteFilestoreFile("001", "test2.data");    // deleted
 
                 // wait for all events to be processed before closing the watcher
                 sleep(3);
@@ -278,15 +278,15 @@ class FileWatcherTest {
     void testFileWatcherSubDir_DynamicallyAdded() {
         printf("%n%n[testFileWatcherSubDir_DynamicallyAdded]%n%n");
 
-        try(TempFS tempFS = new TempFS()) {
-            tempFS.createScanSubDir("0000");
-            tempFS.createScanSubDir("0001");
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            demoFS.createFilestoreSubDir("000");
+            demoFS.createFilestoreSubDir("001");
 
             final Queue<Event> files = new ConcurrentLinkedQueue<>();
             final Queue<Event> errors = new ConcurrentLinkedQueue<>();
             final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
 
-            final Path mainDir = tempFS.getScanDir().toPath();
+            final Path mainDir = demoFS.getFilestoreDir().toPath();
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                                 mainDir,
@@ -313,21 +313,21 @@ class FileWatcherTest {
 
                 // wait a bit between actions, otherwise fswatch discards event
                 // due to optimizations in regard of the file delete at the end!
-                tempFS.touchScanFile("0000", "test1.data");            // created
+                demoFS.touchFilestoreFile("000", "test1.data");      // created
                 sleep(1);
-                tempFS.appendScanFile("0000", "test1.data", "TEST");   // modified
+                demoFS.appendToFilestoreFile("000", "test1.data");   // modified
                 sleep(1);
-                tempFS.deleteScanFile("0000", "test1.data");           // deleted
+                demoFS.deleteFilestoreFile("000", "test1.data");     // deleted
                 sleep(1);
 
-                // a new subdir "0002" arrives
-                tempFS.createScanSubDir("0002");
+                // a new subdir "002" arrives
+                demoFS.createFilestoreSubDir("002");
 
-                tempFS.touchScanFile("0002", "test3.data");            // created
+                demoFS.touchFilestoreFile("002", "test3.data");     // created
                 sleep(1);
-                tempFS.appendScanFile("0002", "test3.data", "TEST");   // modified
+                demoFS.appendToFilestoreFile("002", "test3.data");  // modified
                 sleep(1);
-                tempFS.deleteScanFile("0002", "test3.data");           // deleted
+                demoFS.deleteFilestoreFile("002", "test3.data");    // deleted
                 sleep(1);
 
                 // wait for all events to be processed before closing the watcher
@@ -351,15 +351,15 @@ class FileWatcherTest {
     void testFileWatcherSubDir_DynamicSubDirs() {
         printf("%n%n[testFileWatcherSubDir_DynamicSubDirs]%n%n");
 
-        try(TempFS tempFS = new TempFS()) {
-            tempFS.createScanSubDir("0000");
-            tempFS.createScanSubDir("0001");
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            demoFS.createFilestoreSubDir("000");
+            demoFS.createFilestoreSubDir("001");
 
             final Queue<Event> files = new ConcurrentLinkedQueue<>();
             final Queue<Event> errors = new ConcurrentLinkedQueue<>();
             final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
 
-            final Path mainDir = tempFS.getScanDir().toPath();
+            final Path mainDir = demoFS.getFilestoreDir().toPath();
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                                 mainDir,
@@ -384,10 +384,10 @@ class FileWatcherTest {
 
                 printf("Ready to watch%n%n");
 
-                final File dir1 = tempFS.createScanSubDir("0002");
+                final File dir1 = demoFS.createFilestoreSubDir("0002");
                 sleep(1);
 
-                final File dir2 = tempFS.createScanSubDir("0003");
+                final File dir2 = demoFS.createFilestoreSubDir("0003");
                 sleep(1);
                 
                 dir1.delete();

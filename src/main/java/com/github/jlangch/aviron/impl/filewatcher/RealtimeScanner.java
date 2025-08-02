@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -109,7 +110,8 @@ public class RealtimeScanner extends Service {
            final boolean registerAllSubDirs,
            final Predicate<FileWatchFileEvent> scanApprover,
            final Consumer<RealtimeScanEvent> scanListener,
-           final int sleepTimeOnIdle
+           final int sleepTimeSecondsOnIdle,
+           final boolean testMode
     ) {
         if (client == null) {
             throw new IllegalArgumentException("A 'client' must not be null!");
@@ -127,7 +129,8 @@ public class RealtimeScanner extends Service {
         this.registerAllSubDirs = registerAllSubDirs;
         this.scanApprover = scanApprover;
         this.scanListener = scanListener;
-        this.sleepTimeOnIdle = Math.max(1, sleepTimeOnIdle);
+        this.sleepTimeSecondsOnIdle = Math.max(1, sleepTimeSecondsOnIdle);
+        this.testMode = testMode;
     }
 
 
@@ -136,6 +139,8 @@ public class RealtimeScanner extends Service {
     }
 
     protected void onStart() {
+        // create a file watcher queue to decouple this scanner from
+        // the file watcher
         fileWatcherQueue.set(new FileWatcherQueue(MAX_QUEUE_SIZE));
 
         try {
@@ -195,23 +200,26 @@ public class RealtimeScanner extends Service {
                 try {
                     for(int ii=0; ii<BATCH_SIZE && isInRunningState(); ii++) {
                         final File file = queue.pop();
-                        if (file.isFile()) {
-                            final Path path = file.toPath();
-                            final ScanResult result = client.scan(path);
-                            if (scanListener != null) {
-                                safeRun(() -> scanListener.accept(
-                                                new RealtimeScanEvent(path, result)));
-                            }
+                        if (file != null) {
+                           scanFile(file);
+                        }
+                        else {
+                            break;
                         }
                     }
 
                     if (queue.isEmpty()) {
-                        for(int ii=0; ii<sleepTimeOnIdle && isInRunningState(); ii++) {
-                            sleep(500);
+                        // idle sleep
+                        for(int ii=0; ii<sleepTimeSecondsOnIdle && isInRunningState(); ii++) {
+                            sleep(1000);
                         }
                     }
                 }
                 catch(Exception ex) {
+                    if (errorCount.incrementAndGet() > MAX_ERROR_COUNT) {
+                        throw new FileWatcherException(
+                                "Realtime file scanner exceeded the max error count! Scanning stopped!");
+                    }
                     // prevent thread spinning in fatal error conditions
                     sleep(5_000);
                 }
@@ -219,9 +227,30 @@ public class RealtimeScanner extends Service {
         };
     }
 
+    private void scanFile(final File file) {
+        if (file != null && file.isFile()) {
+            final Path path = file.toPath();
+
+            final RealtimeScanEvent event;
+            if (testMode) {
+                event = new RealtimeScanEvent(path, ScanResult.ok(), testMode);
+            }
+            else {
+                final ScanResult result = client.scan(path);
+                event = new RealtimeScanEvent(path, result, testMode);
+            }
+
+            // publish event
+            if (scanListener != null) {
+                safeRun(() -> scanListener.accept(event));
+            }
+        }
+    }
+
     private void fileWatchEventListener(final FileWatchFileEvent event) {
         final FileWatcherQueue queue = fileWatcherQueue.get();
 
+        // we are not interested in directories just in files
         if (event.isFile()) {
             switch(event.getType()) {
                 case CREATED:
@@ -263,16 +292,19 @@ public class RealtimeScanner extends Service {
     }
 
 
-    private static final int BATCH_SIZE = 300;
+    private static final int BATCH_SIZE = 100;
     private static final int MAX_QUEUE_SIZE = 5000;
+    private static final int MAX_ERROR_COUNT = 1000;
 
     private final Client client;
     private final Path mainDir;
     private final boolean registerAllSubDirs;
     private final Predicate<FileWatchFileEvent> scanApprover;
     private final Consumer<RealtimeScanEvent> scanListener;
-    private final int sleepTimeOnIdle;
+    private final int sleepTimeSecondsOnIdle;
+    private final boolean testMode;
 
+    private AtomicLong errorCount = new AtomicLong();
     private AtomicReference<IFileWatcher> watcher = new AtomicReference<>();
     private AtomicReference<FileWatcherQueue> fileWatcherQueue = new AtomicReference<>();
 }

@@ -32,7 +32,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.jlangch.aviron.impl.test.TempFS;
+import com.github.jlangch.aviron.util.DemoFilestore;
 
 
 class FileWatcherQueueTest {
@@ -208,12 +208,12 @@ class FileWatcherQueueTest {
 
     @Test 
     void testPopExistingFilesOnly() {
-        try(TempFS tempFS = new TempFS()) {
-            tempFS.createScanSubDir("0000");
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            demoFS.createFilestoreSubDir("000");
 
-            final File f1 = tempFS.createScanFile("1.txt", "TEST");
-            final File f2 = tempFS.createScanFile("2.txt", "TEST");
-            final File f3 = tempFS.createScanFile("3.txt", "TEST");
+            final File f1 = demoFS.createFilestoreFile("000", "1.txt");
+            final File f2 = demoFS.createFilestoreFile("000", "2.txt");
+            final File f3 = demoFS.createFilestoreFile("000", "3.txt");
             
             final FileWatcherQueue queue = new FileWatcherQueue(5);
 
@@ -234,12 +234,12 @@ class FileWatcherQueueTest {
 
     @Test 
     void testPopNExistingFilesOnly() {
-        try(TempFS tempFS = new TempFS()) {
-            tempFS.createScanSubDir("0000");
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            demoFS.createFilestoreSubDir("000");
 
-            final File f1 = tempFS.createScanFile("1.txt", "TEST");
-            final File f2 = tempFS.createScanFile("2.txt", "TEST");
-            final File f3 = tempFS.createScanFile("3.txt", "TEST");
+            final File f1 = demoFS.createFilestoreFile("000", "1.txt");
+            final File f2 = demoFS.createFilestoreFile("000", "2.txt");
+            final File f3 = demoFS.createFilestoreFile("000", "3.txt");
             
             final FileWatcherQueue queue = new FileWatcherQueue(5);
 
