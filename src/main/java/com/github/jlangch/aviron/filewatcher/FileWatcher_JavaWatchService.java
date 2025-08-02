@@ -114,10 +114,7 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
     protected void onClose() throws IOException {
         ws.close();
 
-        if (terminationListener != null) {
-            safeRun(() -> terminationListener.accept(
-                            new FileWatchTerminationEvent(mainDir)));
-        }
+        fireEvent(new FileWatchTerminationEvent(mainDir));
     }
 
 
@@ -132,9 +129,7 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
             keys.put(dirKey, normalizedDir);
         }
         catch(Exception e) {
-            if (errorListener != null) {
-                safeRun(() -> errorListener.accept(new FileWatchErrorEvent(dir, e)));
-            }
+            fireEvent(new FileWatchErrorEvent(dir, e));
         }
     }
 
@@ -170,18 +165,15 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
 
                                 // send a dir created event
                                 if (eventType != FileWatchFileEventType.CREATED) {
-                                    safeRun(() -> fileListener.accept(
-                                                    new FileWatchFileEvent(absPath, true, false, eventType)));
+                                    fireEvent(new FileWatchFileEvent(absPath, true, false, eventType));
                                 }
                             }
                             else if (Files.isRegularFile(absPath)) {
-                                safeRun(() -> fileListener.accept(
-                                                new FileWatchFileEvent(absPath, false, true, eventType)));
+                                fireEvent(new FileWatchFileEvent(absPath, false, true, eventType));
                             }
                             else {
                                 // if the file has been deleted its type cannot be checked
-                                safeRun(() -> fileListener.accept(
-                                                new FileWatchFileEvent(absPath, false, false, eventType)));
+                                fireEvent(new FileWatchFileEvent(absPath, false, false, eventType));
                             }});
 
                     key.reset();
@@ -193,10 +185,7 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
                     break; // stop watching
                 }
                 catch(Exception ex) {
-                    if (errorListener != null) {
-                        safeRun(() -> errorListener.accept(
-                                            new FileWatchErrorEvent(mainDir, ex)));
-                    }
+                    fireEvent(new FileWatchErrorEvent(mainDir, ex));
                     // continue processing events
                 }
             }
@@ -205,6 +194,24 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
                 close();
             }
         };
+    }
+
+    private void fireEvent(final FileWatchFileEvent event) {
+        if (fileListener != null) {
+            safeRun(() -> fileListener.accept(event));
+        }
+    }
+
+    private void fireEvent(final FileWatchErrorEvent event) {
+        if (errorListener != null) {
+            safeRun(() -> errorListener.accept(event));
+        }
+    }
+
+    private void fireEvent(final FileWatchTerminationEvent event) {
+        if (terminationListener != null) {
+            safeRun(() -> terminationListener.accept(event));
+        }
     }
 
     private static void safeRun(final Runnable r) {

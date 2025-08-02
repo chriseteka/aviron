@@ -149,10 +149,7 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
             process.destroyForcibly();
         }
 
-        if (terminationListener != null) {
-            safeRun(() -> terminationListener.accept(
-                            new FileWatchTerminationEvent(mainDir)));
-        }
+        fireEvent(new FileWatchTerminationEvent(mainDir));
     }
 
 
@@ -211,10 +208,7 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
                 }
             }
             catch (Exception ex) {
-                if (errorListener != null) {
-                    safeRun(() -> errorListener.accept(
-                                    new FileWatchErrorEvent(mainDir, ex)));
-                }
+                fireEvent(new FileWatchErrorEvent(mainDir, ex));
             }
 
             if (!isInClosedState()) {
@@ -231,37 +225,30 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
     ) {
         if (isDir) {
             if (types.contains(DELETED)) {
-                safeRun(() -> fileListener.accept(
-                                new FileWatchFileEvent(path, isDir, isFile, DELETED)));
+                fireEvent(new FileWatchFileEvent(path, isDir, isFile, DELETED));
             }
             else if (types.contains(CREATED)) {
-                safeRun(() -> fileListener.accept(
-                                new FileWatchFileEvent(path, isDir, isFile, CREATED)));
+                fireEvent(new FileWatchFileEvent(path, isDir, isFile, CREATED));
             }
         }
         else if (isFile) {
             if (Files.isRegularFile(path)) {
                 if (types.contains(DELETED)) {
-                    safeRun(() -> fileListener.accept(
-                                    new FileWatchFileEvent(path, isDir, isFile, DELETED)));
+                    fireEvent(new FileWatchFileEvent(path, isDir, isFile, DELETED));
                 }
                 else if (types.contains(MODIFIED)) {
-                    safeRun(() -> fileListener.accept(
-                                    new FileWatchFileEvent(path, isDir, isFile, MODIFIED)));
+                    fireEvent(new FileWatchFileEvent(path, isDir, isFile, MODIFIED));
                 }
                 else if (types.contains(CREATED)) {
-                   safeRun(() -> fileListener.accept(
-                                    new FileWatchFileEvent(path, isDir, isFile, CREATED)));
+                    fireEvent(new FileWatchFileEvent(path, isDir, isFile, CREATED));
                 }
             }
             else {
                 if (types.contains(DELETED)) {
-                    safeRun(() -> fileListener.accept(
-                                    new FileWatchFileEvent(path, isDir, isFile, DELETED)));
+                    fireEvent(new FileWatchFileEvent(path, isDir, isFile, DELETED));
                 }
                 else {
-                    safeRun(() -> fileListener.accept(
-                                    new FileWatchFileEvent(path, isDir, isFile, MODIFIED)));
+                    fireEvent(new FileWatchFileEvent(path, isDir, isFile, MODIFIED));
                 }
             }
         }
@@ -269,17 +256,32 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
 
     private void fireFallbackFileEvents(final Path path) {
         if (Files.isDirectory(path)) {
-            safeRun(() -> fileListener.accept(
-                    new FileWatchFileEvent(path, true, false, MODIFIED)));
+            fireEvent(new FileWatchFileEvent(path, true, false, MODIFIED));
         }
         else if (Files.isRegularFile(path)) {
-            safeRun(() -> fileListener.accept(
-                    new FileWatchFileEvent(path, false, true, MODIFIED)));
+            fireEvent(new FileWatchFileEvent(path, false, true, MODIFIED));
         }
         else {
             // if the file has been deleted its type cannot be checked
-            safeRun(() -> fileListener.accept(
-                    new FileWatchFileEvent(path, false, false, DELETED)));
+            fireEvent(new FileWatchFileEvent(path, false, false, DELETED));
+        }
+    }
+
+    private void fireEvent(final FileWatchFileEvent event) {
+        if (fileListener != null) {
+            safeRun(() -> fileListener.accept(event));
+        }
+    }
+
+    private void fireEvent(final FileWatchErrorEvent event) {
+        if (errorListener != null) {
+            safeRun(() -> errorListener.accept(event));
+        }
+    }
+
+    private void fireEvent(final FileWatchTerminationEvent event) {
+        if (terminationListener != null) {
+            safeRun(() -> terminationListener.accept(event));
         }
     }
 
