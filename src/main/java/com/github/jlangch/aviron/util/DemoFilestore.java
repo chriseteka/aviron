@@ -230,7 +230,14 @@ public class DemoFilestore implements Closeable {
        }
     }
 
-    public void createEicarTestFile(final String subDir) {
+    /**
+     * Create an eicar anti malware test file in file store's subdirectory.
+     * 
+     * @param subDir a subdirectory to write the test file to.
+     * 
+     * @see <a href="https://www.eicar.org/download-anti-malware-testfile/">Eicar</a>
+     */
+    public void createEicarAntiMalwareTestFile(final String subDir) {
         final String fsFile = new File(subDir).getName() + "/eicar.txt";
         final File file = new File(filestoreDir,fsFile);
         try {
@@ -368,7 +375,8 @@ public class DemoFilestore implements Closeable {
     }
 
 
-    // eicar test file. 
+    // eicar test file. it's encoded -> Github :-).
+    //
     // see https://www.eicar.org/download-anti-malware-testfile/
     private final static String eicar = "X_5_O_!_P_%_@_A_P_[_4_\\_P_Z_X_5_4_(_P_^_"  +
                                         ")_7_C_C_)_7_}_$_E_I_C_A_R_-_S_T_A_N_D_A_R_" +

@@ -64,8 +64,8 @@ import com.github.jlangch.aviron.util.IDirCycler;
  *   |           \_ file1.doc
  *   |
  *   +-- quarantine/
- *         \_ file1.doc
- *         \_ file1.doc.virus
+ *         \_ eicar.txt
+ *         \_ eicar.txt.virus
  * </pre>
  */
 public class ClamdCpuLimiterExample1 {
@@ -82,6 +82,8 @@ public class ClamdCpuLimiterExample1 {
     public void scan() throws Exception {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.populateWithDemoFiles(5, 10);  // 5 sub dirs, each with 10 files
+
+            // demoFS.createEicarAntiMalwareTestFile("0000");
 
             final Client client = new Client.Builder()
                                             .serverHostname("localhost")
@@ -106,7 +108,7 @@ public class ClamdCpuLimiterExample1 {
             final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
 
             // get a IDirCycler to cycle sequentially through the demo file 
-            // store directories:  "0000" ⇨ "0001" ⇨ ... "NNNN" ⇨ "0000" ⇨ ... 
+            // store directories:  "0000" ⇨ "0001" ⇨ ... ⇨ "NNNN" ⇨ "0000" ⇨ ... 
             final IDirCycler fsDirCycler = demoFS.getFilestoreDirCycler();
 
             // inital CPU limit after startup
