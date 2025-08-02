@@ -33,6 +33,7 @@ import java.util.function.Predicate;
 
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.dto.ScanResult;
+import com.github.jlangch.aviron.events.RealtimeScanEvent;
 import com.github.jlangch.aviron.ex.FileWatcherException;
 import com.github.jlangch.aviron.filewatcher.FileWatcherQueue;
 import com.github.jlangch.aviron.filewatcher.FileWatcher_FsWatch;
