@@ -50,6 +50,8 @@ class FileWatcherTest {
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
 
+            sleep(1);  // prevent the watcher from picking the 'fswatch' mainDir event
+
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                               mainDir,
                                               true,
@@ -100,6 +102,8 @@ class FileWatcherTest {
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
 
+            sleep(1);  // prevent the watcher from picking the 'fswatch' mainDir event
+
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                                 mainDir,
                                                 true,
@@ -149,6 +153,8 @@ class FileWatcherTest {
             final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
+
+            sleep(1);  // prevent the watcher from picking the 'fswatch' mainDir event
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                                 mainDir,
@@ -219,6 +225,8 @@ class FileWatcherTest {
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
 
+            sleep(1);  // prevent the watcher from picking the 'fswatch' mainDir event
+
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                                 mainDir,
                                                 true,
@@ -287,6 +295,8 @@ class FileWatcherTest {
             final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
+
+            sleep(1);  // prevent the watcher from picking the 'fswatch' mainDir event
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                                 mainDir,
@@ -360,6 +370,8 @@ class FileWatcherTest {
             final Queue<Event> terminations = new ConcurrentLinkedQueue<>();
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
+
+            sleep(1);  // prevent the watcher from picking the 'fswatch' mainDir event
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                                 mainDir,

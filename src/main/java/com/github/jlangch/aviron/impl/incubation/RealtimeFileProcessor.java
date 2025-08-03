@@ -34,7 +34,6 @@ import com.github.jlangch.aviron.filewatcher.FileWatcherQueue;
 import com.github.jlangch.aviron.filewatcher.IFileWatcher;
 import com.github.jlangch.aviron.filewatcher.events.FileWatchErrorEvent;
 import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEvent;
-import com.github.jlangch.aviron.filewatcher.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.util.service.Service;
 import com.github.jlangch.aviron.util.service.ServiceStatus;
 
@@ -84,7 +83,8 @@ public class RealtimeFileProcessor extends Service {
     public RealtimeFileProcessor(
            final IFileWatcher watcher,
            final int sleepTimeSecondsOnIdle,
-           final Consumer<RealtimeScanEvent> scanListener
+           final Consumer<RealtimeScanEvent> scanListener,
+           final Consumer<FileWatchErrorEvent> errorListener
     ) {
         if (watcher == null) {
             throw new IllegalArgumentException("A 'fileWatcher' must not be null!");
@@ -95,8 +95,8 @@ public class RealtimeFileProcessor extends Service {
         this.scanListener = scanListener;
 
         watcher.setFileListener(this::onFileEvent);
-        watcher.setErrorListener(this::onErrorEvent);
-        watcher.setTerminationListener(this::onTerminationEvent);
+        watcher.setErrorListener(errorListener);
+        watcher.setTerminationListener(null);
     }
 
 
@@ -192,12 +192,6 @@ public class RealtimeFileProcessor extends Service {
                     break;
             }
         }
-    }
-
-    private void onErrorEvent(final FileWatchErrorEvent event) {
-    }
-
-    private void onTerminationEvent(final FileWatchTerminationEvent event) {
     }
 
     private void fireEvent(final RealtimeScanEvent event) {

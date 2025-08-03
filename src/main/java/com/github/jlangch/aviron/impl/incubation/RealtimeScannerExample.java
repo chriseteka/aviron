@@ -43,6 +43,7 @@ import com.github.jlangch.aviron.ex.FileWatcherException;
 import com.github.jlangch.aviron.filewatcher.FileWatcher_FsWatch;
 import com.github.jlangch.aviron.filewatcher.FileWatcher_JavaWatchService;
 import com.github.jlangch.aviron.filewatcher.IFileWatcher;
+import com.github.jlangch.aviron.filewatcher.events.FileWatchErrorEvent;
 import com.github.jlangch.aviron.util.DemoFilestore;
 import com.github.jlangch.aviron.util.OS;
 
@@ -108,7 +109,8 @@ public class RealtimeScannerExample {
             try (RealtimeFileProcessor rtScanner = new RealtimeFileProcessor(
                                                         fw,
                                                         sleepTimeSecondsOnIdle,
-                                                        this::onScan)
+                                                        this::onScan,
+                                                        this::onErrorEvent)
             ) {
                 rtScanner.start();
 
@@ -167,11 +169,15 @@ public class RealtimeScannerExample {
 
     private void onQuarantineEvent(final QuarantineEvent event) {
         if (event.getException() != null) {
-            printf("Error %s%n", event.getException().getMessage());
+            printf("Quarantine Error %s%n", event.getException().getMessage());
         }
         else {
             printf("File %s moved to quarantine!%n", event.getInfectedFile());
         }
+    }
+
+    private void onErrorEvent(final FileWatchErrorEvent event) {
+        printf("File Watch Error: %s %s%n", event.getPath(), event.getException().getMessage());
     }
 
     private void printf(final String format, final Object... args) {

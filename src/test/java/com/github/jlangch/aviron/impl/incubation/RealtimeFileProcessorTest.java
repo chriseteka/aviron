@@ -49,6 +49,7 @@ public class RealtimeFileProcessorTest {
             demoFS.createFilestoreSubDir("001");
 
             final Queue<Event> files = new ConcurrentLinkedQueue<>();
+            final Queue<Event> errors = new ConcurrentLinkedQueue<>();
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
             
@@ -63,8 +64,12 @@ public class RealtimeFileProcessorTest {
             try (RealtimeFileProcessor rtScanner = new RealtimeFileProcessor(
                                                         fw,
                                                         0,
-                                                        e -> { printf("File Event: %s%n", e.getPath());
-                                                               files.offer(e); })
+                                                        e -> { printf("RT File Event: %s%n", e.getPath());
+                                                               files.offer(e); },
+                                                        e -> { printf("File Watch Error: %s %s%n", 
+                                                                      e.getPath(), 
+                                                                      e.getException().getMessage());
+                                                               errors.offer(e); })
             ) {
                 rtScanner.start();
 
@@ -93,6 +98,7 @@ public class RealtimeFileProcessorTest {
 
             // analyze the generated events
             assertEquals(4, files.size());
+            assertEquals(0, errors.size());
         }
     }
 
