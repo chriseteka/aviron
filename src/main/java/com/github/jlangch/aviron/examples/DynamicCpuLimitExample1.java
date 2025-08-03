@@ -29,11 +29,11 @@ import com.github.jlangch.aviron.admin.CpuProfile;
 import com.github.jlangch.aviron.admin.DynamicCpuLimit;
 
 
-public class DynamicCpuLimitExample {
+public class DynamicCpuLimitExample1 {
 
     public static void main(String[] args) {
         try {
-            new DynamicCpuLimitExample().test();
+            new DynamicCpuLimitExample1().test();
         }
         catch(Exception ex) {
             ex.printStackTrace();
@@ -55,7 +55,7 @@ public class DynamicCpuLimitExample {
 
         // Even though the profile has a minute resolution the 
         // 'formatProfilesAsTableByHour' function prints the overview
-        //  table at an hour resolution for simplicity!
+        // table at an hour resolution for simplicity!
         final String s = dynamicCpuLimit.formatProfilesAsTableByHour();
         System.out.println(s);
     }
