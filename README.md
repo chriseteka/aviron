@@ -25,6 +25,7 @@ ClamAV® is an open-source antivirus engine for detecting trojans, viruses, malw
 * Dynamically limit the *clamd* daemon CPU usage through day/time-based CPU
   limit profiles
 * The quarantine and CPU limit features are optional
+* File watchers for watching new, modified, or deleted files or directories.
 * Available for Linux and MacOS (battle tested on Alma Linux)
 
 The ClamAV tools ([clamd](https://linux.die.net/man/8/clamd), [clamdscan](https://linux.die.net/man/1/clamdscan), [clamscan](https://linux.die.net/man/1/clamscan)) 
