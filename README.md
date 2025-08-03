@@ -480,7 +480,7 @@ Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
 
 This example demonstrates watching for file and directory changes.
 
-On Linux the Aviron file watcher is based on Java's **FileWatch** Service 
+On Linux the Aviron file watcher is based on Java's file **WatchService** 
 that relies on *inotify*, a Linux kernel subsystem that reports file system
 changes to applications.
 
