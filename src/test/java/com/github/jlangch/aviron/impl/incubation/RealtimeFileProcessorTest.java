@@ -80,6 +80,12 @@ public class RealtimeFileProcessorTest {
                 demoFS.createFilestoreSubDir("002");
                 demoFS.createFilestoreFile("002", "test4.data");
 
+                sleep(500);
+                demoFS.createFilestoreFile("002", "test5.data");
+                // this should discard the create for "test5.data" 
+                // unless the delete event "test5.data" arrives too late
+                demoFS.deleteFilestoreFile("002", "test5.data");
+
                 sleep(2000);
             }
 
