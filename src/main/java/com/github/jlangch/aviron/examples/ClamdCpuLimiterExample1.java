@@ -101,7 +101,7 @@ public class ClamdCpuLimiterExample1 {
                                             toList(
                                                 "00:00-05:59 @ 100%",
                                                 "06:00-08:59 @  50%",
-                                                "09:00-17:59 @   0%",
+                                                "09:00-17:59 @   0%", // no scans
                                                 "18:00-21:59 @  50%",
                                                 "22:00-23:59 @ 100%"));
 
@@ -125,9 +125,10 @@ public class ClamdCpuLimiterExample1 {
 
                 final int limit = limiter.getLastSeenLimit();
                 if (limit >= MIN_SCAN_LIMIT_PERCENT) {
-                    // scan next filestore directory
+                    // scan next file store directory
                     final File dir = fsDirCycler.nextDir();
                     final ScanResult result = client.scan(dir.toPath(), true);
+                    
                     printf("%s%n", result);
                 }
                 else {

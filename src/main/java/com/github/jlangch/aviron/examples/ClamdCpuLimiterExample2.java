@@ -104,7 +104,7 @@ public class ClamdCpuLimiterExample2 {
                                             toList(
                                                 "00:00-05:59 @ 100%",
                                                 "06:00-08:59 @  50%",
-                                                "09:00-17:59 @   0%",
+                                                "09:00-17:59 @   0%", // no scans
                                                 "18:00-21:59 @  50%",
                                                 "22:00-23:59 @ 100%"));
 
@@ -118,22 +118,23 @@ public class ClamdCpuLimiterExample2 {
             final IDirCycler fsDirCycler = demoFS.getFilestoreDirCycler();
 
             // inital CPU limit after startup
-            limiter.activateClamdCpuLimit(clamdPID);
+            updateCpuLimit(limiter, clamdPID);
 
             try {
                 ses = Executors.newScheduledThreadPool(1);
 
                 // update CPU limit task, fired every 5 minutes
-                final Runnable updateCpuLimitTask = () -> limiter.activateClamdCpuLimit(clamdPID);
+                final Runnable updateCpuLimitTask = () -> updateCpuLimit(limiter, clamdPID);
                 ses.scheduleAtFixedRate(updateCpuLimitTask, 5, 5, TimeUnit.MINUTES);
 
                 // scan the file store directories in an endless loop until we get 
                 // killed or stopped
                 while(!stop.get()) {
                     if (limiter.getLastSeenLimit() >= MIN_SCAN_LIMIT_PERCENT) {
-                        // scan next filestore directory
+                        // scan next file store directory
                         final File dir = fsDirCycler.nextDir();
                         final ScanResult result = client.scan(dir.toPath(), true);
+                        
                         printf("%s%n", result);
                     }
                     else {
@@ -145,6 +146,10 @@ public class ClamdCpuLimiterExample2 {
                 ses.shutdown();
             }
         }
+    }
+    
+    private void updateCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
+    	limiter.activateClamdCpuLimit(clamdPID);
     }
 
     private void onCpuLimitChangeEvent(final ClamdCpuLimitChangeEvent event) {
