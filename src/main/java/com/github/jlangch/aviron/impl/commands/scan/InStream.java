@@ -28,7 +28,7 @@ import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.ex.UnknownCommandException;
 import com.github.jlangch.aviron.impl.commands.CommandDef;
 import com.github.jlangch.aviron.impl.commands.CommandFormat;
-import com.github.jlangch.aviron.impl.server.ServerIO;
+import com.github.jlangch.aviron.impl.server.ClamdServerIO;
 
 
 /**
@@ -62,7 +62,7 @@ public class InStream extends ScanCommand {
     }
 
     @Override
-    public ScanResult send(final ServerIO server) {
+    public ScanResult send(final ClamdServerIO server) {
         final String rawResponse = server.sendCommandWithDataAndReturnResponse(
                                             rawCommand(),
                                             inputStream, 

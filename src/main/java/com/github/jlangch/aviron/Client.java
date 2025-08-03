@@ -49,7 +49,7 @@ import com.github.jlangch.aviron.impl.commands.scan.InStream;
 import com.github.jlangch.aviron.impl.commands.scan.MultiScan;
 import com.github.jlangch.aviron.impl.commands.scan.Scan;
 import com.github.jlangch.aviron.impl.quarantine.Quarantine;
-import com.github.jlangch.aviron.impl.server.ServerIO;
+import com.github.jlangch.aviron.impl.server.ClamdServerIO;
 import com.github.jlangch.aviron.impl.util.AvironVersion;
 import com.github.jlangch.aviron.impl.util.Lazy;
 
@@ -128,7 +128,7 @@ public class Client {
             }
         }
 
-        this.server = new ServerIO(
+        this.server = new ClamdServerIO(
                             builder.serverHostname,
                             builder.serverPort,
                             builder.serverFileSeparator,
@@ -586,11 +586,11 @@ public class Client {
         }
 
 
-        private String serverHostname = ServerIO.LOCALHOST;
-        private int serverPort = ServerIO.DEFAULT_SERVER_PORT;
+        private String serverHostname = ClamdServerIO.LOCALHOST;
+        private int serverPort = ClamdServerIO.DEFAULT_SERVER_PORT;
         private FileSeparator serverFileSeparator = FileSeparator.JVM_PLATFORM;
-        private int connectionTimeoutMillis = ServerIO.DEFAULT_CONNECTION_TIMEOUT;
-        private int readTimeoutMillis = ServerIO.DEFAULT_READ_TIMEOUT;
+        private int connectionTimeoutMillis = ClamdServerIO.DEFAULT_CONNECTION_TIMEOUT;
+        private int readTimeoutMillis = ClamdServerIO.DEFAULT_READ_TIMEOUT;
         private QuarantineFileAction quarantineFileAction = QuarantineFileAction.NONE;
         private File quarantineDir = null;
         private Consumer<QuarantineEvent> quarantineEventListener;
@@ -598,10 +598,10 @@ public class Client {
 
 
     public static final String LOCALHOST = "localhost";
-    public static final int DEFAULT_SERVER_PORT = ServerIO.DEFAULT_SERVER_PORT;
-    public static final FileSeparator DEFAULT_SERVER_PLATFORM = ServerIO.DEFAULT_SERVER_FILESEPARATOR;
+    public static final int DEFAULT_SERVER_PORT = ClamdServerIO.DEFAULT_SERVER_PORT;
+    public static final FileSeparator DEFAULT_SERVER_PLATFORM = ClamdServerIO.DEFAULT_SERVER_FILESEPARATOR;
 
     private final Quarantine quarantine;
-    private final ServerIO server;
+    private final ClamdServerIO server;
     private final Lazy<List<String>> memoizedAvCommands = new Lazy<>(this::loadAvailableCommands);
 }

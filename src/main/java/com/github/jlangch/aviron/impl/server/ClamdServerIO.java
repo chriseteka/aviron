@@ -40,16 +40,19 @@ import com.github.jlangch.aviron.dto.CommandRunDetails;
 import com.github.jlangch.aviron.ex.CommunicationException;
 
 
-public class ServerIO {
+/**
+ * Communication abstraction for talking with the clamd process.
+ */
+public class ClamdServerIO {
 
-    public ServerIO(
+    public ClamdServerIO(
             final String serverHostname, 
             final FileSeparator serverPlatform
     ) {
         this(serverHostname, DEFAULT_SERVER_PORT, serverPlatform);
     }
 
-    public ServerIO(
+    public ClamdServerIO(
             final String serverHostname, 
             final int serverPort, 
             final FileSeparator serverFileSeparator
@@ -58,7 +61,7 @@ public class ServerIO {
         	 DEFAULT_CONNECTION_TIMEOUT, DEFAULT_READ_TIMEOUT);
     }
 
-    public ServerIO(
+    public ClamdServerIO(
             final String serverHostname, 
             final int serverPort, 
             final FileSeparator serverFileSeparator,

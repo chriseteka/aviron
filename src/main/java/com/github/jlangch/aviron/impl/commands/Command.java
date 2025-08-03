@@ -23,7 +23,7 @@
 package com.github.jlangch.aviron.impl.commands;
 
 import com.github.jlangch.aviron.ex.UnknownCommandException;
-import com.github.jlangch.aviron.impl.server.ServerIO;
+import com.github.jlangch.aviron.impl.server.ClamdServerIO;
 
 
 public abstract class Command<T> {
@@ -38,7 +38,7 @@ public abstract class Command<T> {
         return getCommandDef().getFormat();
     }
 
-    public T send(final ServerIO server) {
+    public T send(final ClamdServerIO server) {
         final String rawResponse = server.sendCommandAndReturnResponse(rawCommand());
 
         final String response = removeResponseTerminator(rawResponse);
