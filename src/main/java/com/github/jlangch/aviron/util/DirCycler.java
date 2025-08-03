@@ -87,8 +87,10 @@ public class DirCycler implements IDirCycler {
 
     @Override
     public void restoreLastDirName(final String name) {
+        refresh();
         lastDirIdx = getIndexOf(name);
     }
+
 
     private List<File> dirs() {
         return Arrays.stream(rootDir.listFiles())
@@ -98,10 +100,12 @@ public class DirCycler implements IDirCycler {
     }
 
     private int getIndexOf(final String name) {
-        for(int ii=0; ii<subDirs.size(); ii++) {
-            if (subDirs.get(ii).getName().equals(name)) {
-                return ii;
-            }
+        if (name != null) {
+            for(int ii=0; ii<subDirs.size(); ii++) {
+                if (subDirs.get(ii).getName().equals(name)) {
+                    return ii;
+                }
+           }
         }
         return -1;
     }

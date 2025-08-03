@@ -25,16 +25,46 @@ package com.github.jlangch.aviron.util;
 import java.io.File;
 
 
+/**
+ * Cycles through all the subdirs of a directory. If the last subdir is
+ * reached it starts over with the first subdir.
+ */
 public interface IDirCycler {
 
+    /**
+     * Returns the root dir
+     * 
+     * @return the cycler's root dir
+     */
     File rootDir();
 
+    /**
+     * Returns the next dir in the cycle
+     * 
+     * @return the next dir or <code>null</code> if the root dir does not have 
+     *         any sub dirs
+     */
     File nextDir() ;
 
+    /**
+     * Refreshes the cycler. Rescans all sub dirs.
+     */
     void refresh();
 
+    /**
+     * Returns the last sub dir name in the cycle.
+     * 
+     * @return the last sub dir or <code>null</code> if there not yet a call 
+     *         to next()
+     */
     String lastDirName();
 
-    void restoreLastDirName(String name);
+    /**
+     * Restores the cycler's state the passed dir name as last processed
+     * sub dir.
+     * 
+     * @param name A sub dir name (may be <code>null</code>)
+     */
+    void restoreLastDirName(String dirName);
 
 }
