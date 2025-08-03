@@ -243,7 +243,7 @@ public class ClamdCpuLimiter {
 
 
 
-    private Limit lastSeen = new Limit(null, 100);
+    private Limit lastSeen = new Limit(null, -1);
 
     private final AtomicReference<Consumer<ClamdCpuLimitChangeEvent>> limitChangeListener = new AtomicReference<>();
     private final DynamicCpuLimit dynamicCpuLimit;

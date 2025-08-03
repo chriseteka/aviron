@@ -63,7 +63,7 @@ public interface IDirCycler {
      * Restores the cycler's state the passed dir name as last processed
      * sub dir.
      * 
-     * @param name A sub dir name (may be <code>null</code>)
+     * @param dirName A sub dir name (may be <code>null</code>)
      */
     void restoreLastDirName(String dirName);
 

@@ -34,12 +34,18 @@ public class ClamdCpuLimitChangeEvent implements Event {
     }
 
 
-
+    /** 
+     * @return the old limit before the clamd cpu limit change. Is -1 if the limit 
+     *         is change the first time)
+     */
     public int getOldLimit() {
         return oldLimit;
     }
 
-   public int getNewLimit() {
+    /**
+     * @return the new limit after the clamd cpu limit change
+     */
+    public int getNewLimit() {
         return newLimit;
     }
 
