@@ -31,8 +31,8 @@ import com.github.jlangch.aviron.filewatcher.IFileWatcher;
 import com.github.jlangch.aviron.filewatcher.events.FileWatchErrorEvent;
 import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEvent;
 import com.github.jlangch.aviron.filewatcher.events.FileWatchTerminationEvent;
-import com.github.jlangch.aviron.impl.util.OS;
 import com.github.jlangch.aviron.util.DemoFilestore;
+import com.github.jlangch.aviron.util.OS;
 
 
 public class FileWatcherExample {

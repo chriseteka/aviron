@@ -41,8 +41,8 @@ import com.github.jlangch.aviron.filewatcher.FileWatcher_JavaWatchService;
 import com.github.jlangch.aviron.filewatcher.IFileWatcher;
 import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEvent;
 import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEventType;
-import com.github.jlangch.aviron.impl.util.OS;
 import com.github.jlangch.aviron.util.DemoFilestore;
+import com.github.jlangch.aviron.util.OS;
 
 
 // +--------------------------------------------------------------------------+
