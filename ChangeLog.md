@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - Enhanced the FileWatcherQueue with an overflow count (added two methods: 
   `overflowCount` and `resetOverflowCount`)
 - Enhanced the file watchers to be more flexible in accepting event listeners
+- Added a file watcher example
 
 
 
