@@ -61,7 +61,7 @@ public class FileWatcherExample {
 
                 fw.start();
 
-                printf("Ready to watch%n%n");
+                printf("Ready to watch «%s»%n%n", mainDir);
 
                 // wait a bit between actions, otherwise fswatch discards event
                 // due to optimizations in regard of the file delete at the end!

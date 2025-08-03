@@ -477,7 +477,22 @@ Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
 
 ## File Watcher
 
-This example demonstrates the watching for new, modified, or deleted files.
+This example demonstrates the watching for new, modified, or deleted files or 
+directories.
+
+In order run this example on MacOS the **fswatch** tool must be installed. The 
+Java **WatchService** does not run properly on MacOS.
+
+Installing *fswatch* via Homebrew:
+
+```
+    brew install fswatch
+```
+
+See:
+* [fswatch Installation](https://formulae.brew.sh/formula/fswatch)
+* [fswatch Github](https://github.com/emcrisostomo/fswatch")
+* [fswatch Manual](https://emcrisostomo.github.io/fswatch/doc/1.17.1/fswatch.html)
 
 
 ```java
@@ -515,7 +530,7 @@ public class FileWatcherExample {
             try(final IFileWatcher fw = createPlatformFileWatcher(mainDir)) {
                 fw.start();
 
-                printf("Ready to watch%n%n");
+                printf("Ready to watch «%s»%n%n", mainDir);
 
                 // wait a bit between actions, otherwise fswatch discards event
                 // due to optimizations in regard of the file delete at the end!

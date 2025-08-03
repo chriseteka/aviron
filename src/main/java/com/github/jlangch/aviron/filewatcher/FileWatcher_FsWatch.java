@@ -62,8 +62,8 @@ import com.github.jlangch.aviron.util.service.Service;
  * </pre>
  *
  *
- * @see <a href="https://github.com/emcrisostomo/fswatch/">fswatch Github</a>
- * @see <a href="https://emcrisostomo.github.io/fswatch/doc/1.17.1/fswatch.html/">fswatch Manual</a>
+ * @see <a href="https://github.com/emcrisostomo/fswatch">fswatch Github</a>
+ * @see <a href="https://emcrisostomo.github.io/fswatch/doc/1.17.1/fswatch.html">fswatch Manual</a>
  * @see <a href="https://formulae.brew.sh/formula/fswatch">fswatch Installation</a>
  */
 public class FileWatcher_FsWatch extends Service implements IFileWatcher {
