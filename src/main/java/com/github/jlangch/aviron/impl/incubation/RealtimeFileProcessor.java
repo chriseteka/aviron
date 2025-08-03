@@ -67,7 +67,7 @@ import com.github.jlangch.aviron.util.service.ServiceStatus;
  * </pre>
  *
  * <p>The FileWatcherQueue is buffering file watching events. It asynchronously 
- * decouples the event producing FileWatcher from the event  consuming AV scanner 
+ * decouples the event producing FileWatcher from the event consuming AV scanner 
  * client.
  * 
  * <p>The FileWatcherQueue never blocks and never grows beyond limits to protect
@@ -172,7 +172,7 @@ public class RealtimeFileProcessor extends Service {
     private void onFileEvent(final FileWatchFileEvent event) {
         final FileWatcherQueue queue = fileWatcherQueue.get();
 
-        // we are not interested in directories just in files
+        // we are not interested in directories but in new or modified files
         if (event.isFile()) {
             switch(event.getType()) {
                 case CREATED:
@@ -182,8 +182,8 @@ public class RealtimeFileProcessor extends Service {
 
                 case DELETED:
                     // optimization: if there is already a file with this path in
-                    //               queue, remove it from the queue, because it
-                    //               has now been deleted!
+                    //               the queue, remove it from the queue, because
+                    //               it has now been deleted!
                     queue.remove(event.getPath().toFile());
                     break;
 
