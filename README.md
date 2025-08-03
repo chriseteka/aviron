@@ -492,7 +492,7 @@ Installing *fswatch* via Homebrew:
 
 See:
 * [fswatch Installation](https://formulae.brew.sh/formula/fswatch)
-* [fswatch Github](https://github.com/emcrisostomo/fswatch")
+* [fswatch Github](https://github.com/emcrisostomo/fswatch)
 * [fswatch Manual](https://emcrisostomo.github.io/fswatch/doc/1.17.1/fswatch.html)
 
 
