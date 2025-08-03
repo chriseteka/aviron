@@ -45,17 +45,17 @@ import java.util.stream.Collectors;
  *   |
  *   +-- filestore/
  *   |     |
- *   |     +-- 0000
+ *   |     +-- 000
  *   |     |     \_ file1.doc
  *   |     |     \_ file2.doc
  *   |     |     :
  *   |     |     \_ fileN.doc
- *   |     +-- 0001
+ *   |     +-- 001
  *   |     |     \_ file1.doc
  *   |     |     :
  *   |     |     \_ fileN.doc
  *   |     :
- *   |     +-- NNNN
+ *   |     +-- NNN
  *   |           \_ file1.doc
  *   |
  *   +-- quarantine/
@@ -75,23 +75,23 @@ import java.util.stream.Collectors;
  *    final File quarantineDir = fs.getQuarantineDir();
  *
  *    // create subirs
- *    fs.createFilestoreSubDir("0000");
- *    fs.createFilestoreSubDir("0001");
- *    fs.createFilestoreSubDir("0002");
+ *    fs.createFilestoreSubDir("000");
+ *    fs.createFilestoreSubDir("001");
+ *    fs.createFilestoreSubDir("002");
  *
  *    // subdirs
  *    final List&lt;File&gt; subDirs = fs.listFilestoreSubDirs();
  *
  *    // populate with some data files
- *    fs.touchFilestoreFile("0000",  "file1.txt");
+ *    fs.touchFilestoreFile("000",  "file1.txt");
  *
- *    fs.touchFilestoreFile("0000",  "file2.txt");
- *    fs.appendFilestoreFile("0000", "file2.txt");
+ *    fs.touchFilestoreFile("000",  "file2.txt");
+ *    fs.appendFilestoreFile("000", "file2.txt");
  *
- *    fs.createFilestoreFile("0000", "file3.txt");
+ *    fs.createFilestoreFile("000", "file3.txt");
  *
- *    fs.createFilestoreFile("0000", "file4.txt");
- *    fs.deleteFilestoreFile("0000", "file4.txt");
+ *    fs.createFilestoreFile("000", "file4.txt");
+ *    fs.deleteFilestoreFile("000", "file4.txt");
  * }
  * </pre>
  */
@@ -138,12 +138,12 @@ public class DemoFilestore implements Closeable {
     public void populateWithDemoFiles(final int dirs, final int filesPerDir) {
         // limit dirs and filesPerDir to protect the caller
         for(int d=0; d<Math.min(100, dirs); d++) {
-            final String dir = String.format("%04d", d);
+            final String dir = String.format("%03d", d);
 
             createFilestoreSubDir(dir);
 
             for(int f=0; f<Math.min(100, filesPerDir); f++) {
-                createFilestoreFile(dir, String.format(dir, "file-%04d.txt", "TEST"));
+                createFilestoreFile(dir, String.format(dir, "file-%03d.txt", "TEST"));
             }
         }
     }

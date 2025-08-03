@@ -41,7 +41,7 @@ class FileWatcherTest {
     @Test 
     @EnableOnMac
     void testFileWatcherMainDirOnly_NoFiles() {
-        printf("%n%n[testFileWatcherMainDirOnly_NoFiles]%n%n");
+        printf("%n%n[FileWatcherTest::testFileWatcherMainDirOnly_NoFiles]%n%n");
 
         try(DemoFilestore demoFS = new DemoFilestore()) {
             final Queue<Event> files = new ConcurrentLinkedQueue<>();
@@ -88,7 +88,7 @@ class FileWatcherTest {
     @Test 
     @EnableOnMac
     void testFileWatcherMainDirWithSubDirs_NoFiles() {
-        printf("%n%n[testFileWatcherMainDirWithSubDirs_NoFiles]%n%n");
+        printf("%n%n[FileWatcherTest::testFileWatcherMainDirWithSubDirs_NoFiles]%n%n");
 
         try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.createFilestoreSubDir("000");
@@ -138,7 +138,7 @@ class FileWatcherTest {
     @Test 
     @EnableOnMac
      void testFileWatcherMainDir() {
-        printf("%n%n[testFileWatcherMainDir]%n%n");
+        printf("%n%n[FileWatcherTest::testFileWatcherMainDir]%n%n");
 
         try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.createFilestoreSubDir("000");
@@ -207,7 +207,7 @@ class FileWatcherTest {
     @Test 
     @EnableOnMac
     void testFileWatcherSubDir() {
-        printf("%n%n[testFileWatcherSubDir]%n%n");
+        printf("%n%n[FileWatcherTest::testFileWatcherSubDir]%n%n");
 
         try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.createFilestoreSubDir("000");
@@ -276,7 +276,7 @@ class FileWatcherTest {
     @Test 
     @EnableOnMac
     void testFileWatcherSubDir_DynamicallyAdded() {
-        printf("%n%n[testFileWatcherSubDir_DynamicallyAdded]%n%n");
+        printf("%n%n[FileWatcherTest::testFileWatcherSubDir_DynamicallyAdded]%n%n");
 
         try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.createFilestoreSubDir("000");
@@ -349,7 +349,7 @@ class FileWatcherTest {
     @Test 
     @EnableOnMac
     void testFileWatcherSubDir_DynamicSubDirs() {
-        printf("%n%n[testFileWatcherSubDir_DynamicSubDirs]%n%n");
+        printf("%n%n[FileWatcherTest::testFileWatcherSubDir_DynamicSubDirs]%n%n");
 
         try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.createFilestoreSubDir("000");

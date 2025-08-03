@@ -42,10 +42,12 @@ public class RealtimeFileProcessorTest {
     @Test 
     @EnableOnMac
     void testRealtimeFileProcessor() {
+        printf("%n%n[RealtimeFileProcessorTest::testRealtimeFileProcessor]%n%n");
+
         try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.createFilestoreSubDir("000");
             demoFS.createFilestoreSubDir("001");
-            
+
             final Queue<Event> files = new ConcurrentLinkedQueue<>();
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();

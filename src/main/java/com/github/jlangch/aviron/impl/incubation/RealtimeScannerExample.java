@@ -114,7 +114,7 @@ public class RealtimeScannerExample {
 
                 Thread.sleep(1000);
 
-                demoFS.createFilestoreFile("0000", "test1.data");
+                demoFS.createFilestoreFile("000", "test1.data");
 
                 Thread.sleep(1000);
 
