@@ -582,10 +582,10 @@ public class FileWatcherExample {
     private void onFileEvent(final FileWatchFileEvent event) {
         if (event.isFile()) {
             printf("File Event: %-8s %s%n", event.getType(), event.getPath());
-         }
-         else if (event.isDir()) {
-             printf("Dir Event:  %-8s %s%n", event.getType(), event.getPath());
-         }
+        }
+        else if (event.isDir()) {
+            printf("Dir Event:  %-8s %s%n", event.getType(), event.getPath());
+        }
     }
 
     private void onErrorEvent(final FileWatchErrorEvent event) {
