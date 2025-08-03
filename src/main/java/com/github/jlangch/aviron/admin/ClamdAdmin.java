@@ -89,7 +89,7 @@ public class ClamdAdmin {
                                     .map(l -> l.trim())
                                     .findFirst()
                                     .orElse(null);
-    
+
                 return s;
             }
             else {
@@ -226,11 +226,11 @@ public class ClamdAdmin {
         }
 
         try {
-        	// best effort, do not check the exit code
-        	//
-        	// note: if there are no cpulimit processes running on the {clamdPID} pid
-        	//       pkill returns the exit code 1. we don't want to throw an exception
-        	//       in this case
+            // best effort, do not check the exit code
+            //
+            // note: if there are no cpulimit processes running on the {clamdPID} pid
+            //       pkill returns the exit code 1. we don't want to throw an exception
+            //       in this case
             Shell.execCmd("pkill", "-f", "cpulimit.*" + clamdPID);
         }
         catch(IOException ex) {
