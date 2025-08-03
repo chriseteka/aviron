@@ -84,7 +84,7 @@ public class RealtimeFileProcessorTest {
             printf("RealtimeFileProcessor terminated%n%n");
 
             // analyze the generated events
-            assertEquals(3, files.size());
+            assertEquals(4, files.size());
         }
     }
 
