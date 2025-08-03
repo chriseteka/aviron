@@ -103,6 +103,8 @@ public class RealtimeScannerExample {
             // inital CPU limit after startup
             limiter.get().activateClamdCpuLimit(pid);
 
+            // start the realtime file processor and process the incoming
+            // file events in the onScan() listener
             try (RealtimeFileProcessor rtScanner = new RealtimeFileProcessor(
                                                         fw,
                                                         sleepTimeSecondsOnIdle,
