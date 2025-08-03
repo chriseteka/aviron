@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
   `overflowCount` and `resetOverflowCount`)
 - Enhanced the file watchers to be more flexible in accepting event listeners
 - Added a file watcher example
-- Enhanced ClamdCpuLimiter to send an event if the clamd cpu limit has changed
+- Enhanced ClamdCpuLimiter to send an event if the clamd cpu limit is changed
 
 
 
