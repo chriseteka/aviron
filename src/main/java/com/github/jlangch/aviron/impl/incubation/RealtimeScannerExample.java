@@ -32,6 +32,7 @@ import com.github.jlangch.aviron.FileSeparator;
 import com.github.jlangch.aviron.admin.ClamdCpuLimiter;
 import com.github.jlangch.aviron.admin.CpuProfile;
 import com.github.jlangch.aviron.admin.DynamicCpuLimit;
+import com.github.jlangch.aviron.events.ClamdCpuLimitChangeEvent;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.events.RealtimeScanResultEvent;
@@ -86,6 +87,7 @@ public class RealtimeScannerExample {
                                                 "22:00-23:59 @ 100%"));
 
             final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
+            limiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
             final boolean registerAllSubDirs = true;
@@ -169,6 +171,10 @@ public class RealtimeScannerExample {
         }
     }
 
+
+    private void onCpuLimitChangeEvent(final ClamdCpuLimitChangeEvent event) {
+        printf("Adjusted clamd CPU limit: %d%% -> %d%%%n", event.getOldLimit(), event.getNewLimit());
+    }
 
     private final AtomicBoolean stop = new AtomicBoolean(false);
 

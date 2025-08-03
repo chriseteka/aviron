@@ -33,6 +33,7 @@ import com.github.jlangch.aviron.admin.ClamdAdmin;
 import com.github.jlangch.aviron.admin.ClamdCpuLimiter;
 import com.github.jlangch.aviron.admin.CpuProfile;
 import com.github.jlangch.aviron.admin.DynamicCpuLimit;
+import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.events.ClamdCpuLimitChangeEvent;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
@@ -126,7 +127,8 @@ public class ClamdCpuLimiterExample1 {
                 if (limit >= MIN_SCAN_LIMIT_PERCENT) {
                     // scan next filestore directory
                     final File dir = fsDirCycler.nextDir();
-                    System.out.println(client.scan(dir.toPath(), true));
+                    final ScanResult result = client.scan(dir.toPath(), true);
+                    printf("%s%n", result);
                 }
                 else {
                     Thread.sleep(30_000);  // wait 30s
