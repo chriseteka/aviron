@@ -478,8 +478,14 @@ Time        Mon    Tue    Wed    Thu    Fri    Sat    Sun
 
 ## File Watcher
 
-This example demonstrates the watching for new, modified, or deleted files or 
-directories.
+This example demonstrates the watching for file and directory changes.
+
+On Linux the Aviron file watcher is based on Java's **FileWatch** Service 
+that relies on *inotify*, a Linux kernel subsystem that reports file system
+changes to applications.
+
+On MacOS the Aviron file watcher is based on the **fspath** tool that uses
+the FreeBSD's *kqueue* for file notifications.
 
 In order run this example on MacOS the **fswatch** tool must be installed. The 
 Java **WatchService** does not run properly on MacOS.
