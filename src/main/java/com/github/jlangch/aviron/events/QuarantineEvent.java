@@ -96,7 +96,7 @@ public class QuarantineEvent implements Event {
         return sb.toString();
     }
 
-    
+
     private final File infectedFile;
     private final List<String> virusList = new ArrayList<>();
     private final File quarantineFile;

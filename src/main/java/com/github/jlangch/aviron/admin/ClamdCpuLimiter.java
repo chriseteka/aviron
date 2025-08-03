@@ -24,7 +24,10 @@ package com.github.jlangch.aviron.admin;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
+import com.github.jlangch.aviron.events.ClamdCpuLimitChangeEvent;
 import com.github.jlangch.aviron.impl.util.StringUtils;
 
 
@@ -58,6 +61,17 @@ public class ClamdCpuLimiter {
                                   : dynamicCpuLimit;
     }
 
+
+    /**
+     * Register a Clamd CPU limit change listener.
+     * 
+     * @param listener a listener
+     */
+    public void setClamdCpuLimitChangeListener(
+            final Consumer<ClamdCpuLimitChangeEvent> listener
+    ) {
+        limitChangeListener.set(listener);
+    }
 
     /**
      * Returns the limit for a given timestamp. If the timestamp is <code>null</code>
@@ -119,11 +133,17 @@ public class ClamdCpuLimiter {
             return false;  // no change
         }
         else {
+            final ClamdCpuLimitChangeEvent event = new ClamdCpuLimitChangeEvent(
+                                                           lastSeen.limit, limit);
+
             lastSeen = newLimit;
             ClamdAdmin.deactivateClamdCpuLimit(clamdPID);
             if (limit != 100) {
                 ClamdAdmin.activateClamdCpuLimit(clamdPID, limit);
             }
+
+            fireEvent(event);
+
             return true;
         }
     }
@@ -169,8 +189,13 @@ public class ClamdCpuLimiter {
             throw new IllegalArgumentException("No Clamd PID!");
         }
 
+        final ClamdCpuLimitChangeEvent event = new ClamdCpuLimitChangeEvent(
+                                                       lastSeen.limit, 100);
+
         lastSeen = new Limit(null, 100);
         ClamdAdmin.deactivateClamdCpuLimit(clamdPID);
+
+        fireEvent(event);
     }
 
     public String formatProfilesAsTableByHour() {
@@ -181,6 +206,22 @@ public class ClamdCpuLimiter {
     public String toString() {
         return dynamicCpuLimit.toString();
     };
+
+
+
+    private void fireEvent(final ClamdCpuLimitChangeEvent event) {
+        final Consumer<ClamdCpuLimitChangeEvent> listener = limitChangeListener.get();
+        if (listener != null) {
+            safeRun(() -> listener.accept(event));
+        }
+    }
+
+    private static void safeRun(final Runnable r) {
+        try {
+            r.run();
+        }
+        catch(Exception e) { }
+    }
 
 
     private static class Limit {
@@ -204,5 +245,6 @@ public class ClamdCpuLimiter {
 
     private Limit lastSeen = new Limit(null, 100);
 
+    private final AtomicReference<Consumer<ClamdCpuLimitChangeEvent>> limitChangeListener = new AtomicReference<>();
     private final DynamicCpuLimit dynamicCpuLimit;
 }

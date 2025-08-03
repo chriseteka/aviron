@@ -30,5 +30,5 @@ public enum QuarantineFileAction {
     MOVE,    // move infected files to quarantine directory
     
     COPY;    // copy infected files to quarantine directory
-	
+
 }

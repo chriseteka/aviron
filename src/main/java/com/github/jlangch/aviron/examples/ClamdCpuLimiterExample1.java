@@ -33,6 +33,7 @@ import com.github.jlangch.aviron.admin.ClamdAdmin;
 import com.github.jlangch.aviron.admin.ClamdCpuLimiter;
 import com.github.jlangch.aviron.admin.CpuProfile;
 import com.github.jlangch.aviron.admin.DynamicCpuLimit;
+import com.github.jlangch.aviron.events.ClamdCpuLimitChangeEvent;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.util.DemoFilestore;
@@ -106,20 +107,22 @@ public class ClamdCpuLimiterExample1 {
             final String clamdPID = ClamdAdmin.getClamdPID();
 
             final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
+            limiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
 
             // get a IDirCycler to cycle sequentially through the demo file 
             // store directories:  "0000" ⇨ "0001" ⇨ ... ⇨ "NNNN" ⇨ "0000" ⇨ ... 
             final IDirCycler fsDirCycler = demoFS.getFilestoreDirCycler();
 
             // inital CPU limit after startup
-            initialCpuLimit(limiter, clamdPID);
+            limiter.activateClamdCpuLimit(clamdPID);
 
             // scan the file store directories in an endless loop until we get 
             // killed or stopped
             while(!stop.get()) {
                 // update clamd CPU limit 
-                final int limit = updateCpuLimit(limiter, clamdPID);
+                limiter.activateClamdCpuLimit(clamdPID);
 
+                final int limit = limiter.getLastSeenLimit();
                 if (limit >= MIN_SCAN_LIMIT_PERCENT) {
                     // scan next filestore directory
                     final File dir = fsDirCycler.nextDir();
@@ -132,22 +135,8 @@ public class ClamdCpuLimiterExample1 {
         }
     }
 
-    private void initialCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
-        limiter.activateClamdCpuLimit(clamdPID);
-        printf("Initial clamd CPU limit: %d%%%n",limiter.getLastSeenLimit());
-    }
-
-    private int updateCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
-        // note: applied only if the new limit differs from the last one
-        final int lastSeenLimit = limiter.getLastSeenLimit();
-        if (limiter.activateClamdCpuLimit(clamdPID)) {
-            final int newLimit = limiter.getLastSeenLimit();
-            printf("Adjusted clamd CPU limit: %d%% -> %d%%%n", lastSeenLimit, newLimit);
-            return newLimit;
-        }
-        else {
-            return lastSeenLimit;
-        }
+    private void onCpuLimitChangeEvent(final ClamdCpuLimitChangeEvent event) {
+        printf("Adjusted clamd CPU limit: %d%% -> %d%%%n", event.getOldLimit(), event.getNewLimit());
     }
 
     private void onQuarantineEvent(final QuarantineEvent event) {

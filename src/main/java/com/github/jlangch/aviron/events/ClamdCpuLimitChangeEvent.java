@@ -22,60 +22,42 @@
  */
 package com.github.jlangch.aviron.events;
 
-import java.nio.file.Path;
 
-import com.github.jlangch.aviron.dto.ScanResult;
+public class ClamdCpuLimitChangeEvent implements Event {
 
-
-public class RealtimeScanResultEvent implements Event {
-
-    public RealtimeScanResultEvent(
-            final Path path,
-            final ScanResult result, 
-            final boolean test
+    public ClamdCpuLimitChangeEvent(
+            final int oldLimit,
+            final int newLimit
     ) {
-        this.path = path;
-        this.result = result;
-        this.test = test;
+        this.oldLimit = oldLimit;
+        this.newLimit = newLimit;
     }
 
 
-    public Path getPath() {
-        return path;
+
+    public int getOldLimit() {
+        return oldLimit;
     }
 
-    public ScanResult getScanResult() {
-        return result;
+   public int getNewLimit() {
+        return newLimit;
     }
 
-    public boolean isTest() {
-        return test;
-    }
-
-    public boolean isOK() {
-        return result.isOK();
-    }
-  
-    public boolean hasVirus() {
-        return result.hasVirus();
-    }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
 
-        sb.append("Path: ");
-        sb.append(path);
+        sb.append("Old Limit: ");
+        sb.append(oldLimit);
         sb.append(System.lineSeparator());
-        sb.append("Test: ");
-        sb.append(test);
-        sb.append(System.lineSeparator());
-        sb.append(result);
+        sb.append("New Limit: ");
+        sb.append(newLimit);
 
         return sb.toString();
     }
 
-    private final Path path;
-    private final ScanResult result;
-    private final boolean test;
+
+    private final int oldLimit;
+    private final int newLimit;
 }
