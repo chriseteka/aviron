@@ -56,15 +56,13 @@ import com.github.jlangch.aviron.util.service.ServiceStatus;
  * 
  * <pre>
  * 
- * +------------+   +----------------------------------+   +-----------+   +-------+
- * | Filesystem | ⇨ | ⇘   Realtime File Processor    ⇗ | ⇨ | AV Client | ⇨ | Clamd |
- * +------------+   |  ⇓                            ⇑  |   +-----------+   +-------+
- *                  | +------------------------------+ |
- *                  | |+-------------+               | |
- *                  | || FileWatcher | ⇨ |  Queue   || |
- *                  | |+-------------+   +----------+| |
- *                  | +------------------------------+ |
- *                  +----------------------------------+
+ * +------------+   +--------------------------------+   +-----------+   +-------+
+ * | Filesystem | ⇨ | ⇘  Realtime File Processor   ⇗ | ⇨ | AV Client | ⇨ | Clamd |
+ * +------------+   |  ⇓                          ⇑  |   +-----------+   +-------+
+ *                  | +-------------+             ⇑  |                            
+ *                  | | FileWatcher | ⇨ |  Queue   | |                            
+ *                  | +-------------+   +----------+ |                            
+ *                  +--------------------------------+                            
  * 
  * </pre>
  *
@@ -135,6 +133,8 @@ public class RealtimeFileProcessor extends Service {
     private Runnable createWorker() {
         return () -> {
             final FileWatcherQueue queue = fileWatcherQueue.get();
+            
+            enteredRunningState();
 
             while (isInRunningState()) {
                 try {
@@ -147,8 +147,13 @@ public class RealtimeFileProcessor extends Service {
 
                     if (queue.isEmpty()) {
                         // idle sleep
-                        for(int ii=0; ii<sleepTimeSecondsOnIdle && isInRunningState(); ii++) {
-                            sleep(1000);
+                        if (sleepTimeSecondsOnIdle == 0 && isInRunningState()) {
+                            sleep(100);    
+                        }
+                        else {
+                            for(int ii=0; ii<sleepTimeSecondsOnIdle && isInRunningState(); ii++) {
+                                sleep(1000);
+                            }
                         }
                     }
                 }

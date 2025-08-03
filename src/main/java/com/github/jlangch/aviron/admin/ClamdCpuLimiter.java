@@ -77,7 +77,7 @@ public class ClamdCpuLimiter {
         this.dynamicCpuLimit = dynamicCpuLimit == null 
                                   ? new DynamicCpuLimit() 
                                   : dynamicCpuLimit;
-        limitChangeListener.set(listener);
+        this.limitChangeListener.set(listener);
     }
 
     /**
