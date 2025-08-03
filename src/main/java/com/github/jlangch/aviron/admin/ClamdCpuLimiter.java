@@ -48,6 +48,16 @@ import com.github.jlangch.aviron.impl.util.StringUtils;
  * Alma Linux:         » dnf install cpulimit
  * MacOS (Homebrew):   » brew install cpulimit
  * </pre>
+ * 
+ * <p>
+ * Physically we do not go below MIN_SCAN_LIMIT_PERCENT for the clamd daemon 
+ * CPU limit! Otherwise the daemon is not reactive any more.
+ * 
+ * <p>
+ * To declare a scan free time period use the limit from the CpuProfile 
+ * and simply do not run scan events at all!
+ * 
+ * @see #MIN_SCAN_LIMIT_PERCENT
  */
 public class ClamdCpuLimiter {
 
@@ -152,7 +162,7 @@ public class ClamdCpuLimiter {
             	// more.
             	//
             	// To declare a scan free time period use the limit from the 
-            	// CpuProfil and simply do not run scan events at all!
+            	// CpuProfile and simply do not run scan events at all!
             	
                 ClamdAdmin.activateClamdCpuLimit(
                 		clamdPID, 
@@ -259,7 +269,7 @@ public class ClamdCpuLimiter {
     }
 
 
-    private static final int MIN_SCAN_LIMIT_PERCENT = 20;
+    public static final int MIN_SCAN_LIMIT_PERCENT = 20;
 
     private Limit lastSeen = new Limit(null, -1);
 
