@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.github.jlangch.aviron.filewatcher.events.FileWatchErrorEvent;
@@ -113,6 +114,11 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
     @Override
     public List<Path> getRegisteredPaths() {
         return CollectionUtils.toList(mainDir);
+    }
+
+    @Override
+    public void setFileSelector(final Predicate<FileWatchFileEvent> selector) {
+        fileSelector.set(selector);
     }
 
     @Override
@@ -292,9 +298,12 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
     }
 
     private void fireEvent(final FileWatchFileEvent event) {
-        final Consumer<FileWatchFileEvent> listener = fileListener.get();
-        if (listener != null) {
-            safeRun(() -> listener.accept(event));
+        final Predicate<FileWatchFileEvent> selector = fileSelector.get();
+        if (selector == null || selector.test(event)) {
+            final Consumer<FileWatchFileEvent> listener = fileListener.get();
+            if (listener != null) {
+                safeRun(() -> listener.accept(event));
+            }
         }
     }
 
@@ -392,6 +401,7 @@ public class FileWatcher_FsWatch extends Service implements IFileWatcher {
     private final boolean recursive;
     private final FsWatchMonitor monitor;
     private final String fswatchProgram;
+    private final AtomicReference<Predicate<FileWatchFileEvent>> fileSelector = new AtomicReference<>();
     private final AtomicReference<Consumer<FileWatchFileEvent>> fileListener = new AtomicReference<>();
     private final AtomicReference<Consumer<FileWatchErrorEvent>> errorListener = new AtomicReference<>();
     private final AtomicReference<Consumer<FileWatchTerminationEvent>> terminationListener = new AtomicReference<>();

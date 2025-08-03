@@ -20,32 +20,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.filewatcher;
+package com.github.jlangch.aviron.events;
 
-import java.io.Closeable;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-
-import com.github.jlangch.aviron.filewatcher.events.FileWatchErrorEvent;
-import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEvent;
-import com.github.jlangch.aviron.filewatcher.events.FileWatchTerminationEvent;
-import com.github.jlangch.aviron.util.service.IService;
 
 
-public interface IFileWatcher extends IService, Closeable {
+public class RealtimeScanEvent implements Event {
 
-    Path getMainDir();
+    public RealtimeScanEvent(
+            final Path path
+    ) {
+        this.path = path;
+    }
 
-    List<Path> getRegisteredPaths();
 
-    void setFileSelector(Predicate<FileWatchFileEvent> selector);
+    public Path getPath() {
+        return path;
+    }
 
-    void setFileListener(Consumer<FileWatchFileEvent> listener);
+    @Override
+    public String toString() {
+        return path.toString();
+    }
 
-    void setErrorListener(Consumer<FileWatchErrorEvent> listener);
 
-    void setTerminationListener(Consumer<FileWatchTerminationEvent> listener);
-
+    private final Path path;
 }

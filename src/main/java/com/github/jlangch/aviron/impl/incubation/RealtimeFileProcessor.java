@@ -24,15 +24,11 @@ package com.github.jlangch.aviron.impl.incubation;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
-import com.github.jlangch.aviron.Client;
-import com.github.jlangch.aviron.dto.ScanResult;
-import com.github.jlangch.aviron.events.RealtimeScanResultEvent;
+import com.github.jlangch.aviron.events.RealtimeScanEvent;
 import com.github.jlangch.aviron.ex.FileWatcherException;
 import com.github.jlangch.aviron.filewatcher.FileWatcherQueue;
 import com.github.jlangch.aviron.filewatcher.IFileWatcher;
@@ -49,36 +45,56 @@ import com.github.jlangch.aviron.util.service.ServiceStatus;
 // |                                                                          |
 // +--------------------------------------------------------------------------+
 
-// Open Issues:  Solve Clamd CPU Profile if background and realtime scans run
-//               in parallel! There can be only one authority controlling the
-//               Clamd CPU limit.
-
 /**
- * Realtime scanner
+ * Realtime file processor
+ * 
+ * <p>The RealtimeFileProcessor orchestrates the FileWatcher and the 
+ * FileWatcherQueue to deliver file scan events to an AV client. It applies
+ * some optimization to file watching events on deleted files. It helps
+ * keep the scan pipeline safe and sound even if the pipeline is overrun by 
+ * file watching events.
+ * 
+ * <pre>
+ * 
+ * +------------+   +----------------------------------+   +-----------+   +-------+
+ * | Filesystem | ⇨ | ⇘   Realtime File Processor    ⇗ | ⇨ | AV Client | ⇨ | Clamd |
+ * +------------+   |  ⇓                            ⇑  |   +-----------+   +-------+
+ *                  | +------------------------------+ |
+ *                  | |+-------------+               | |
+ *                  | || FileWatcher | ⇨ |  Queue   || |
+ *                  | |+-------------+   +----------+| |
+ *                  | +------------------------------+ |
+ *                  +----------------------------------+
+ * 
+ * </pre>
+ *
+ * <p>The FileWatcherQueue is buffering file watching events. It asynchronously 
+ * decouples the event producing FileWatcher from the event  consuming AV scanner 
+ * client.
+ * 
+ * <p>The FileWatcherQueue never blocks and never grows beyond limits to protect
+ * the system! Therefore the queue is non blocking and has a fix capacity. As a
+ * consequence it must discard old events if overrun. 
+ * 
+ * <p>File watchers (like the Java WatchService or the 'fswatch' tool) have the 
+ * same behavior. If they get overrun with file change events they discard events 
+ * and signal it by sending an 'OVERFLOW' event to their clients.
  */
-public class RealtimeScanner extends Service {
 
-    public RealtimeScanner(
-           final Client client,
+public class RealtimeFileProcessor extends Service {
+
+    public RealtimeFileProcessor(
            final IFileWatcher watcher,
            final int sleepTimeSecondsOnIdle,
-           final boolean testMode,
-           final Predicate<FileWatchFileEvent> scanApprover,
-           final Consumer<RealtimeScanResultEvent> scanResultListener
+           final Consumer<RealtimeScanEvent> scanListener
     ) {
-        if (client == null) {
-            throw new IllegalArgumentException("A 'client' must not be null!");
-        }
         if (watcher == null) {
             throw new IllegalArgumentException("A 'fileWatcher' must not be null!");
         }
 
-        this.client = client;
         this.watcher = watcher;
         this.sleepTimeSecondsOnIdle = Math.max(1, sleepTimeSecondsOnIdle);
-        this.testMode = testMode;
-        this.scanApprover = scanApprover;
-        this.scanResultListener = scanResultListener;
+        this.scanListener = scanListener;
 
         watcher.setFileListener(this::onFileEvent);
         watcher.setErrorListener(this::onErrorEvent);
@@ -123,12 +139,9 @@ public class RealtimeScanner extends Service {
             while (isInRunningState()) {
                 try {
                     for(int ii=0; ii<BATCH_SIZE && isInRunningState(); ii++) {
-                        final File file = queue.pop();
-                        if (file != null) {
-                           scanFile(file);
-                        }
-                        else {
-                            break;
+                        final File file = queue.pop(true);
+                        if (file != null && file.isFile()) {
+                            fireEvent(new RealtimeScanEvent(file.toPath()));
                         }
                     }
 
@@ -151,20 +164,6 @@ public class RealtimeScanner extends Service {
         };
     }
 
-    private void scanFile(final File file) {
-        if (file != null && file.isFile()) {
-            final Path path = file.toPath();
-
-            if (testMode) {
-                fireEvent(new RealtimeScanResultEvent(path, ScanResult.ok(), testMode));
-            }
-            else {
-                final ScanResult result = client.scan(path);
-                fireEvent(new RealtimeScanResultEvent(path, result, testMode));
-            }
-        }
-    }
-
     private void onFileEvent(final FileWatchFileEvent event) {
         final FileWatcherQueue queue = fileWatcherQueue.get();
 
@@ -173,21 +172,17 @@ public class RealtimeScanner extends Service {
             switch(event.getType()) {
                 case CREATED:
                 case MODIFIED:
-                    try {
-                        if (scanApprover == null || scanApprover.test(event)) {
-                            queue.push(event.getPath().toFile());
-                        }
-                    }
-                    catch(Exception ex) { }
+                    queue.push(event.getPath().toFile());
                     break;
 
                 case DELETED:
+                    // optimization: if there is already a file with this path in
+                    //               queue, remove it from the queue, because it
+                    //               has now been deleted!
                     queue.remove(event.getPath().toFile());
                     break;
 
                 case OVERFLOW:
-                    break;
-
                 default:
                     break;
             }
@@ -195,16 +190,14 @@ public class RealtimeScanner extends Service {
     }
 
     private void onErrorEvent(final FileWatchErrorEvent event) {
-        
     }
 
     private void onTerminationEvent(final FileWatchTerminationEvent event) {
-        
     }
 
-    private void fireEvent(final RealtimeScanResultEvent event) {
-        if (scanResultListener != null) {
-            safeRun(() -> scanResultListener.accept(event));
+    private void fireEvent(final RealtimeScanEvent event) {
+        if (scanListener != null) {
+            safeRun(() -> scanListener.accept(event));
         }
     }
 
@@ -220,12 +213,9 @@ public class RealtimeScanner extends Service {
     private static final int MAX_QUEUE_SIZE = 5000;
     private static final int MAX_ERROR_COUNT = 1000;
 
-    private final Client client;
     private final IFileWatcher watcher;
-    private final Predicate<FileWatchFileEvent> scanApprover;
-    private final Consumer<RealtimeScanResultEvent> scanResultListener;
+    private final Consumer<RealtimeScanEvent> scanListener;
     private final int sleepTimeSecondsOnIdle;
-    private final boolean testMode;
 
     private AtomicLong errorCount = new AtomicLong();
     private AtomicReference<FileWatcherQueue> fileWatcherQueue = new AtomicReference<>();

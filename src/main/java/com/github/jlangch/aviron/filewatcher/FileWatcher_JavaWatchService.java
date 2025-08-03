@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.github.jlangch.aviron.filewatcher.events.FileWatchErrorEvent;
@@ -106,6 +107,11 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
     @Override
     public List<Path> getRegisteredPaths() {
         return keys.values().stream().sorted().collect(Collectors.toList());
+    }
+
+    @Override
+    public void setFileSelector(final Predicate<FileWatchFileEvent> selector) {
+        fileSelector.set(selector);
     }
 
     @Override
@@ -220,9 +226,12 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
     }
 
     private void fireEvent(final FileWatchFileEvent event) {
-        final Consumer<FileWatchFileEvent> listener = fileListener.get();
-        if (listener != null) {
-            safeRun(() -> listener.accept(event));
+        final Predicate<FileWatchFileEvent> selector = fileSelector.get();
+        if (selector == null || selector.test(event)) {
+            final Consumer<FileWatchFileEvent> listener = fileListener.get();
+            if (listener != null) {
+                safeRun(() -> listener.accept(event));
+            }
         }
     }
 
@@ -266,6 +275,7 @@ public class FileWatcher_JavaWatchService extends Service implements IFileWatche
     private final Path mainDir;
     private final WatchService ws;
     private final Map<WatchKey,Path> keys = new HashMap<>();
+    private final AtomicReference<Predicate<FileWatchFileEvent>> fileSelector = new AtomicReference<>();
     private final AtomicReference<Consumer<FileWatchFileEvent>> fileListener = new AtomicReference<>();
     private final AtomicReference<Consumer<FileWatchErrorEvent>> errorListener = new AtomicReference<>();
     private final AtomicReference<Consumer<FileWatchTerminationEvent>> terminationListener = new AtomicReference<>();

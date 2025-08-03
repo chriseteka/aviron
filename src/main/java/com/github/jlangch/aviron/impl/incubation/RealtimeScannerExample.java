@@ -26,22 +26,23 @@ import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
+import com.github.jlangch.aviron.admin.ClamdAdmin;
 import com.github.jlangch.aviron.admin.ClamdCpuLimiter;
 import com.github.jlangch.aviron.admin.CpuProfile;
 import com.github.jlangch.aviron.admin.DynamicCpuLimit;
+import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.events.ClamdCpuLimitChangeEvent;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
-import com.github.jlangch.aviron.events.RealtimeScanResultEvent;
+import com.github.jlangch.aviron.events.RealtimeScanEvent;
 import com.github.jlangch.aviron.ex.FileWatcherException;
 import com.github.jlangch.aviron.filewatcher.FileWatcher_FsWatch;
 import com.github.jlangch.aviron.filewatcher.FileWatcher_JavaWatchService;
 import com.github.jlangch.aviron.filewatcher.IFileWatcher;
-import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEvent;
-import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEventType;
 import com.github.jlangch.aviron.util.DemoFilestore;
 import com.github.jlangch.aviron.util.OS;
 
@@ -67,14 +68,13 @@ public class RealtimeScannerExample {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.populateWithDemoFiles(5, 10);  // 5 sub dirs, each with 10 files
 
-            final Client client = new Client.Builder()
-                                            .serverHostname("localhost")
-                                            .serverFileSeparator(FileSeparator.UNIX)
-                                            .quarantineFileAction(QuarantineFileAction.MOVE)
-                                            .quarantineDir(demoFS.getQuarantineDir())
-                                            .quarantineEventListener(this::onQuarantineEvent)
-                                            .build();
-
+            client.set(new Client.Builder()
+                                 .serverHostname("localhost")
+                                 .serverFileSeparator(FileSeparator.UNIX)
+                                 .quarantineFileAction(QuarantineFileAction.MOVE)
+                                 .quarantineDir(demoFS.getQuarantineDir())
+                                 .quarantineEventListener(this::onQuarantineEvent)
+                                 .build());
 
             // Use the same day profile for Mon - Sun
             final CpuProfile everyday = CpuProfile.of(
@@ -86,8 +86,12 @@ public class RealtimeScannerExample {
                                                 "18:00-21:59 @  50%",
                                                 "22:00-23:59 @ 100%"));
 
-            final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
-            limiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
+            limiter.set(new ClamdCpuLimiter(
+                                new DynamicCpuLimit(everyday),
+                                this::onCpuLimitChangeEvent));
+
+            final String pid = ClamdAdmin.getClamdPID();
+            clamdPID.set(pid);
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
             final boolean registerAllSubDirs = true;
@@ -95,15 +99,15 @@ public class RealtimeScannerExample {
             final IFileWatcher fw = createPlatformFileWatcher(mainDir, registerAllSubDirs);
 
             final int sleepTimeSecondsOnIdle = 5;
-            final boolean testMode = true; // skip file scans with clamd in test mode
 
-            try (RealtimeScanner rtScanner = new RealtimeScanner(
-                                                    client, 
-                                                    fw,
-                                                    sleepTimeSecondsOnIdle,
-                                                    testMode,
-                                                    this::scanApprover,
-                                                    this::onScanResult)) {
+            // inital CPU limit after startup
+            limiter.get().activateClamdCpuLimit(pid);
+
+            try (RealtimeFileProcessor rtScanner = new RealtimeFileProcessor(
+                                                        fw,
+                                                        sleepTimeSecondsOnIdle,
+                                                        this::onScan)
+            ) {
                 rtScanner.start();
 
                 Thread.sleep(1000);
@@ -142,17 +146,16 @@ public class RealtimeScannerExample {
         }
     }
 
-    private boolean scanApprover(final FileWatchFileEvent event) {
-        final String filename = event.getPath().toFile().getName();
+    private void onScan(final RealtimeScanEvent event) {
+        final ClamdCpuLimiter l = limiter.get();
 
-        return event.isFile()
-                && event.getType() == FileWatchFileEventType.CREATED
-                && filename.matches(".*[.](docx|xlsx|pdf)");
-    }
+        // update clamd CPU limit 
+        l.activateClamdCpuLimit(clamdPID.get());
 
-    private void onScanResult(final RealtimeScanResultEvent event) {
-        if (event.hasVirus()) {
-            printf("Infected %s%n", event.getPath());
+        final int limit = l.getLastSeenLimit();
+        if (limit >= MIN_SCAN_LIMIT_PERCENT) {
+            final ScanResult result = client.get().scan(event.getPath(), true);
+            printf("%s%n", result);
         }
     }
 
@@ -176,7 +179,14 @@ public class RealtimeScannerExample {
         printf("Adjusted clamd CPU limit: %d%% -> %d%%%n", event.getOldLimit(), event.getNewLimit());
     }
 
+
+    private static final int MIN_SCAN_LIMIT_PERCENT = 20;
+
     private final AtomicBoolean stop = new AtomicBoolean(false);
+
+    private final AtomicReference<Client> client = new AtomicReference<>();
+    private final AtomicReference<ClamdCpuLimiter> limiter = new AtomicReference<>();
+    private final AtomicReference<String> clamdPID = new AtomicReference<>();
 
     private final Object lock = new Object();
 }

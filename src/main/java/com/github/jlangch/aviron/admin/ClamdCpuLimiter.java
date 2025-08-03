@@ -56,11 +56,19 @@ public class ClamdCpuLimiter {
     }
 
     public ClamdCpuLimiter(final DynamicCpuLimit dynamicCpuLimit) {
+        this(dynamicCpuLimit, null);
+    }
+
+
+    public ClamdCpuLimiter(
+            final DynamicCpuLimit dynamicCpuLimit,
+            final Consumer<ClamdCpuLimitChangeEvent> listener
+    ) {
         this.dynamicCpuLimit = dynamicCpuLimit == null 
                                   ? new DynamicCpuLimit() 
                                   : dynamicCpuLimit;
+        limitChangeListener.set(listener);
     }
-
 
     /**
      * Register a Clamd CPU limit change listener.
