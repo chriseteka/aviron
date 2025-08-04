@@ -22,6 +22,7 @@
  */
 package com.github.jlangch.aviron.examples;
 
+import static com.github.jlangch.aviron.util.DemoUtil.printf;
 import static com.github.jlangch.aviron.util.DemoUtil.printfln;
 import static com.github.jlangch.aviron.util.DemoUtil.sleep;
 
@@ -123,13 +124,4 @@ public class FileWatcherExample {
     private void onTerminationEvent(final FileWatchTerminationEvent event) {
         printfln("Terminated: %s", event.getPath());
     }
-
-    private void printf(final String format, final Object... args) {
-        synchronized(lock) {
-            System.out.printf(format, args);
-        }
-    }
-
-
-    private final Object lock = new Object();
 }
