@@ -138,8 +138,7 @@ java {
 }
 
 javadoc {
-    exclude "com/github/jlangch/aviron/commands/**"
-    exclude "com/github/jlangch/aviron/server/**"
+    exclude "com/github/jlangch/aviron/impl/**"
     source = sourceSets.main.allJava
 }
 
