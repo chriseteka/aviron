@@ -23,6 +23,7 @@
 package com.github.jlangch.aviron.impl.incubation;
 
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
+import static com.github.jlangch.aviron.util.DemoUtil.printfln;
 
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -151,7 +152,7 @@ public class RealtimeScannerExample {
     }
 
     private void onCpuLimitChangeEvent(final ClamdCpuLimitChangeEvent event) {
-        printf("Adjusted clamd CPU limit: %d%% -> %d%%%n", event.getOldLimit(), event.getNewLimit());
+        printfln("Adjusted clamd CPU limit: %d%% -> %d%%", event.getOldLimit(), event.getNewLimit());
     }
 
     private void onScan(final RealtimeScanEvent event) {
@@ -163,27 +164,21 @@ public class RealtimeScannerExample {
         final int limit = l.getLastSeenLimit();
         if (limit >= MIN_SCAN_LIMIT_PERCENT) {
             final ScanResult result = client.get().scan(event.getPath(), true);
-            printf("%s%n", result);
+            printfln("%s", result);
         }
     }
 
     private void onQuarantineEvent(final QuarantineEvent event) {
         if (event.getException() != null) {
-            printf("Quarantine Error %s%n", event.getException().getMessage());
+            printfln("Quarantine Error %s", event.getException().getMessage());
         }
         else {
-            printf("File %s moved to quarantine!%n", event.getInfectedFile());
+            printfln("File %s moved to quarantine!", event.getInfectedFile());
         }
     }
 
     private void onErrorEvent(final FileWatchErrorEvent event) {
-        printf("File Watch Error: %s %s%n", event.getPath(), event.getException().getMessage());
-    }
-
-    private void printf(final String format, final Object... args) {
-        synchronized(lock) {
-            System.out.printf(format, args);
-        }
+        printfln("File Watch Error: %s %s", event.getPath(), event.getException().getMessage());
     }
 
 
@@ -194,6 +189,4 @@ public class RealtimeScannerExample {
     private final AtomicReference<Client> client = new AtomicReference<>();
     private final AtomicReference<ClamdCpuLimiter> limiter = new AtomicReference<>();
     private final AtomicReference<String> clamdPID = new AtomicReference<>();
-
-    private final Object lock = new Object();
 }

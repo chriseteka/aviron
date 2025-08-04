@@ -22,6 +22,8 @@
  */
 package com.github.jlangch.aviron.impl.incubation;
 
+import static com.github.jlangch.aviron.util.DemoUtil.printf;
+import static com.github.jlangch.aviron.util.DemoUtil.sleep;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.file.Path;
@@ -102,17 +104,4 @@ public class RealtimeFileProcessorTest {
         }
     }
 
-
-    private void printf(final String format, final Object... args) {
-        synchronized(lock) {
-            System.out.printf(format, args);
-        }
-    }
-
-    private void sleep(final int millis) {
-        try { Thread.sleep(millis); } catch(Exception ex) {}
-    }
-
-
-    private final Object lock = new Object();
 }

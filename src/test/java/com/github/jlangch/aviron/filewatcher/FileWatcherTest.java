@@ -22,6 +22,8 @@
  */
 package com.github.jlangch.aviron.filewatcher;
 
+import static com.github.jlangch.aviron.util.DemoUtil.printf;
+import static com.github.jlangch.aviron.util.DemoUtil.sleep;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
@@ -50,7 +52,7 @@ class FileWatcherTest {
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
 
-            sleep(1);  // prevent the watcher from picking the 'fswatch' mainDir event
+            sleep(1000);  // prevent the watcher from picking the 'fswatch' mainDir event
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                               mainDir,
@@ -74,7 +76,7 @@ class FileWatcherTest {
                 assertEquals(1, fw.getRegisteredPaths().size());
                 assertEquals(mainDir, fw.getRegisteredPaths().get(0));
 
-                sleep(1);
+                sleep(1000);
 
                 printf("Ready to watch%n%n");
             }
@@ -102,7 +104,7 @@ class FileWatcherTest {
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
 
-            sleep(1);  // prevent the watcher from picking the 'fswatch' mainDir event
+            sleep(1000);  // prevent the watcher from picking the 'fswatch' mainDir event
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                                 mainDir,
@@ -126,7 +128,7 @@ class FileWatcherTest {
                 assertEquals(1, fw.getRegisteredPaths().size());
                 assertEquals(mainDir, fw.getRegisteredPaths().get(0));
 
-                sleep(1);
+                sleep(1000);
 
                 printf("Ready to watch%n%n");
            }
@@ -154,7 +156,7 @@ class FileWatcherTest {
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
 
-            sleep(1);  // prevent the watcher from picking the 'fswatch' mainDir event
+            sleep(1000);  // prevent the watcher from picking the 'fswatch' mainDir event
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                                 mainDir,
@@ -175,32 +177,32 @@ class FileWatcherTest {
 
                 fw.start();
 
-                sleep(1);
+                sleep(1000);
 
                 printf("Ready to watch%n%n");
 
                 // wait a bit between actions, otherwise fswatch discards event
                 // due to optimizations in regard of the file delete at the end!
                 demoFS.touchFilestoreFile("000", "test1.data");     // created
-                sleep(1);  
+                sleep(1000);  
                 demoFS.appendToFilestoreFile("000", "test1.data");  // modified
-                sleep(1);
+                sleep(1000);
                 demoFS.deleteFilestoreFile("000", "test1.data");    // deleted
-                sleep(1);
+                sleep(1000);
 
 
                 demoFS.createFilestoreFile("000", "test2.data");    // modified
-                sleep(1);
+                sleep(1000);
                 demoFS.appendToFilestoreFile("000", "test2.data");  // modified
-                sleep(1);
+                sleep(1000);
                 demoFS.deleteFilestoreFile("000", "test2.data");    // deleted
 
                 // wait for all events to be processed before closing the watcher
-                sleep(3);
+                sleep(3000);
             }
 
             // wait to receive the termination event
-            sleep(1);
+            sleep(1000);
 
             // analyze the generated events
 
@@ -225,7 +227,7 @@ class FileWatcherTest {
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
 
-            sleep(1);  // prevent the watcher from picking the 'fswatch' mainDir event
+            sleep(1000);  // prevent the watcher from picking the 'fswatch' mainDir event
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                                 mainDir,
@@ -246,32 +248,32 @@ class FileWatcherTest {
 
                 fw.start();
 
-                sleep(1);
+                sleep(1000);
 
                 printf("Ready to watch%n%n");
 
                 // wait a bit between actions, otherwise fswatch discards event
                 // due to optimizations in regard of the file delete at the end!
                 demoFS.touchFilestoreFile("000", "test1.data");      // created
-                sleep(1);
+                sleep(1000);
                 demoFS.appendToFilestoreFile("000", "test1.data");   // modified
-                sleep(1);
+                sleep(1000);
                 demoFS.deleteFilestoreFile("000", "test1.data");     // deleted
-                sleep(1);
+                sleep(1000);
 
 
                 demoFS.createFilestoreFile("001", "test2.data");    // modified
-                sleep(1);
+                sleep(1000);
                 demoFS.appendToFilestoreFile("001", "test2.data");  // modified
-                sleep(1);
+                sleep(1000);
                 demoFS.deleteFilestoreFile("001", "test2.data");    // deleted
 
                 // wait for all events to be processed before closing the watcher
-                sleep(3);
+                sleep(3000);
             }
 
             // wait to receive the termination event
-            sleep(1);
+            sleep(1000);
 
             // analyze the generated events
 
@@ -296,7 +298,7 @@ class FileWatcherTest {
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
 
-            sleep(1);  // prevent the watcher from picking the 'fswatch' mainDir event
+            sleep(1000);  // prevent the watcher from picking the 'fswatch' mainDir event
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                                 mainDir,
@@ -317,35 +319,35 @@ class FileWatcherTest {
 
                 fw.start();
 
-                sleep(1);
+                sleep(1000);
 
                 printf("Ready to watch%n%n");
 
                 // wait a bit between actions, otherwise fswatch discards event
                 // due to optimizations in regard of the file delete at the end!
                 demoFS.touchFilestoreFile("000", "test1.data");      // created
-                sleep(1);
+                sleep(1000);
                 demoFS.appendToFilestoreFile("000", "test1.data");   // modified
-                sleep(1);
+                sleep(1000);
                 demoFS.deleteFilestoreFile("000", "test1.data");     // deleted
-                sleep(1);
+                sleep(1000);
 
                 // a new subdir "002" arrives
                 demoFS.createFilestoreSubDir("002");
 
                 demoFS.touchFilestoreFile("002", "test3.data");     // created
-                sleep(1);
+                sleep(1000);
                 demoFS.appendToFilestoreFile("002", "test3.data");  // modified
-                sleep(1);
+                sleep(1000);
                 demoFS.deleteFilestoreFile("002", "test3.data");    // deleted
-                sleep(1);
+                sleep(1000);
 
                 // wait for all events to be processed before closing the watcher
-                sleep(3);
+                sleep(3000);
             }
 
             // wait to receive the termination event
-            sleep(1);
+            sleep(1000);
 
             // analyze the generated events
 
@@ -371,7 +373,7 @@ class FileWatcherTest {
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
 
-            sleep(1);  // prevent the watcher from picking the 'fswatch' mainDir event
+            sleep(1000);  // prevent the watcher from picking the 'fswatch' mainDir event
 
             try(final IFileWatcher fw = new FileWatcher_FsWatch(
                                                 mainDir,
@@ -392,28 +394,28 @@ class FileWatcherTest {
 
                 fw.start();
 
-                sleep(1);
+                sleep(1000);
 
                 printf("Ready to watch%n%n");
 
                 final File dir1 = demoFS.createFilestoreSubDir("0002");
-                sleep(1);
+                sleep(1000);
 
                 final File dir2 = demoFS.createFilestoreSubDir("0003");
-                sleep(1);
+                sleep(1000);
                 
                 dir1.delete();
-                sleep(1);
+                sleep(1000);
                 
                 dir2.delete();
-                sleep(1);
+                sleep(1000);
                 
                 // wait for all events to be processed before closing the watcher
-                sleep(3);
+                sleep(3000);
             }
 
             // wait to receive the termination event
-            sleep(1);
+            sleep(1000);
 
             // analyze the generated events
 
@@ -423,16 +425,6 @@ class FileWatcherTest {
         }
     }
 
-    private void printf(final String format, final Object... args) {
-        synchronized(lock) {
-            System.out.printf(format, args);
-        }
-    }
-
-    private void sleep(final int seconds) {
-        try { Thread.sleep(seconds * 1000); } catch(Exception ex) {}
-    }
 
 
-    private final Object lock = new Object();
 }

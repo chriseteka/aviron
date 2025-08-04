@@ -22,6 +22,9 @@
  */
 package com.github.jlangch.aviron.examples;
 
+import static com.github.jlangch.aviron.util.DemoUtil.printfln;
+import static com.github.jlangch.aviron.util.DemoUtil.sleep;
+
 import java.nio.file.Path;
 
 import com.github.jlangch.aviron.ex.FileWatcherException;
@@ -67,19 +70,19 @@ public class FileWatcherExample {
                 // due to optimizations in regard of the file delete at the end!
 
                 demoFS.touchFilestoreFile("000", "test1.data");      // created
-                sleep(1);
+                sleep(1000);
 
                 demoFS.appendToFilestoreFile("000", "test1.data");   // modified
-                sleep(1);
+                sleep(1000);
 
                 demoFS.deleteFilestoreFile("000", "test1.data");     // deleted
 
                 // wait for all events to be processed before closing the watcher
-                sleep(3);
+                sleep(3000);
             }
 
             // wait to receive the termination event
-            sleep(1);
+            sleep(1000);
         }
     }
 
@@ -106,29 +109,25 @@ public class FileWatcherExample {
 
     private void onFileEvent(final FileWatchFileEvent event) {
         if (event.isFile()) {
-            printf("File Event: %-8s %s%n", event.getType(), event.getPath());
+            printfln("File Event: %-8s %s", event.getType(), event.getPath());
         }
         else if (event.isDir()) {
-            printf("Dir Event:  %-8s %s%n", event.getType(), event.getPath());
+            printfln("Dir Event:  %-8s %s", event.getType(), event.getPath());
         }
     }
 
     private void onErrorEvent(final FileWatchErrorEvent event) {
-        printf("Error:      %s %s%n", event.getPath(), event.getException().getMessage());
+        printfln("Error:      %s %s", event.getPath(), event.getException().getMessage());
     }
 
     private void onTerminationEvent(final FileWatchTerminationEvent event) {
-        printf("Terminated: %s%n", event.getPath());
+        printfln("Terminated: %s", event.getPath());
     }
 
     private void printf(final String format, final Object... args) {
         synchronized(lock) {
             System.out.printf(format, args);
         }
-    }
-
-    private void sleep(final int seconds) {
-        try { Thread.sleep(seconds * 1000); } catch(Exception ex) {}
     }
 
 

@@ -23,6 +23,7 @@
 package com.github.jlangch.aviron.examples;
 
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
+import static com.github.jlangch.aviron.util.DemoUtil.printfln;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -129,7 +130,7 @@ public class ClamdCpuLimiterExample1 {
                     final File dir = fsDirCycler.nextDir();
                     final ScanResult result = client.scan(dir.toPath(), true);
                     
-                    printf("%s%n", result);
+                    printfln("%s", result);
                 }
                 else {
                     Thread.sleep(30_000);  // wait 30s
@@ -139,21 +140,15 @@ public class ClamdCpuLimiterExample1 {
     }
 
     private void onCpuLimitChangeEvent(final ClamdCpuLimitChangeEvent event) {
-        printf("Adjusted clamd CPU limit: %d%% -> %d%%%n", event.getOldLimit(), event.getNewLimit());
+         printfln("Adjusted clamd CPU limit: %d%% -> %d%%", event.getOldLimit(), event.getNewLimit());
     }
 
     private void onQuarantineEvent(final QuarantineEvent event) {
         if (event.getException() != null) {
-            printf("Error %s%n", event.getException().getMessage());
+            printfln("Error %s", event.getException().getMessage());
         }
         else {
-            printf("File %s moved to quarantine%n", event.getInfectedFile() + "");
-        }
-    }
-
-    private void printf(final String format, final Object... args) {
-        synchronized(lock) {
-            System.out.printf(format, args);
+            printfln("File %s moved to quarantine", event.getInfectedFile() + "");
         }
     }
 
@@ -161,5 +156,4 @@ public class ClamdCpuLimiterExample1 {
     private static final int MIN_SCAN_LIMIT_PERCENT = 20;
 
     private final AtomicBoolean stop = new AtomicBoolean(false);
-    private final Object lock = new Object();
 }
