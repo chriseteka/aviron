@@ -25,9 +25,12 @@ package com.github.jlangch.aviron.impl.test;
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import com.github.jlangch.aviron.FileSeparator;
@@ -39,6 +42,7 @@ import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.impl.quarantine.Quarantine;
 import com.github.jlangch.aviron.impl.server.ClamdServerIO;
 import com.github.jlangch.aviron.impl.util.AvironVersion;
+import com.github.jlangch.aviron.impl.util.CollectionUtils;
 
 
 /**
@@ -210,9 +214,20 @@ public class MockClient {
             throw new IllegalArgumentException("A 'path' must not be null!");
         }
 
-        final ScanResult result = ScanResult.ok();
-        quarantine.handleQuarantineActions(result);
-        return result;
+        if (Files.isRegularFile(path)
+            && path.toFile().getName().toLowerCase().contains("eicar")
+        ) {
+            final Map<String, List<String>> viruses = new HashMap<>();
+            viruses.put(path.toFile().getName(), CollectionUtils.toList("Eicar virus signature"));
+            final ScanResult result = ScanResult.virusFound(viruses);
+            quarantine.handleQuarantineActions(result);
+            return result;
+       }
+        else {
+            final ScanResult result = ScanResult.ok();
+            quarantine.handleQuarantineActions(result);
+           return result;
+        }
     }
 
     /**
@@ -229,9 +244,7 @@ public class MockClient {
             throw new IllegalArgumentException("A 'path' must not be null!");
         }
 
-        final ScanResult result = ScanResult.ok();
-        quarantine.handleQuarantineActions(result);
-        return result;
+        return scan(path);
     }
 
     /**
@@ -245,9 +258,7 @@ public class MockClient {
             throw new IllegalArgumentException("A 'path' must not be null!");
         }
 
-        final ScanResult result = ScanResult.ok();
-        quarantine.handleQuarantineActions(result);
-        return result;
+        return scan(path);
     }
 
     /**

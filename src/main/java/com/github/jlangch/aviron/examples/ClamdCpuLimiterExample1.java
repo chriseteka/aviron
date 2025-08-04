@@ -148,7 +148,7 @@ public class ClamdCpuLimiterExample1 {
             printfln("Error %s", event.getException().getMessage());
         }
         else {
-            printfln("File %s moved to quarantine", event.getInfectedFile() + "");
+            printfln("File %s moved to quarantine", event.getInfectedFile());
         }
     }
 
