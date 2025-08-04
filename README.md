@@ -503,6 +503,10 @@ See:
 
 
 ```java
+import static com.github.jlangch.aviron.util.DemoUtil.printf;
+import static com.github.jlangch.aviron.util.DemoUtil.printfln;
+import static com.github.jlangch.aviron.util.DemoUtil.sleep;
+
 import java.nio.file.Path;
 
 import com.github.jlangch.aviron.ex.FileWatcherException;
@@ -512,8 +516,8 @@ import com.github.jlangch.aviron.filewatcher.IFileWatcher;
 import com.github.jlangch.aviron.filewatcher.events.FileWatchErrorEvent;
 import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEvent;
 import com.github.jlangch.aviron.filewatcher.events.FileWatchTerminationEvent;
-import com.github.jlangch.aviron.impl.util.OS;
 import com.github.jlangch.aviron.util.DemoFilestore;
+import com.github.jlangch.aviron.util.OS;
 
 
 public class FileWatcherExample {
@@ -548,19 +552,19 @@ public class FileWatcherExample {
                 // due to optimizations in regard of the file delete at the end!
 
                 demoFS.touchFilestoreFile("000", "test1.data");      // created
-                sleep(1);
+                sleep(1000);
 
                 demoFS.appendToFilestoreFile("000", "test1.data");   // modified
-                sleep(1);
+                sleep(1000);
 
                 demoFS.deleteFilestoreFile("000", "test1.data");     // deleted
 
                 // wait for all events to be processed before closing the watcher
-                sleep(3);
+                sleep(3000);
             }
 
             // wait to receive the termination event
-            sleep(1);
+            sleep(1000);
         }
     }
 
@@ -587,33 +591,20 @@ public class FileWatcherExample {
 
     private void onFileEvent(final FileWatchFileEvent event) {
         if (event.isFile()) {
-            printf("File Event: %-8s %s%n", event.getType(), event.getPath());
+            printfln("File Event: %-8s %s", event.getType(), event.getPath());
         }
         else if (event.isDir()) {
-            printf("Dir Event:  %-8s %s%n", event.getType(), event.getPath());
+            printfln("Dir Event:  %-8s %s", event.getType(), event.getPath());
         }
     }
 
     private void onErrorEvent(final FileWatchErrorEvent event) {
-        printf("Error:      %s %s%n", event.getPath(), event.getException().getMessage());
+        printfln("Error:      %s %s", event.getPath(), event.getException().getMessage());
     }
 
     private void onTerminationEvent(final FileWatchTerminationEvent event) {
-        printf("Terminated: %s%n", event.getPath());
+        printfln("Terminated: %s", event.getPath());
     }
-
-    private void printf(final String format, final Object... args) {
-        synchronized(lock) {
-            System.out.printf(format, args);
-        }
-    }
-
-    private void sleep(final int seconds) {
-        try { Thread.sleep(seconds * 1000); } catch(Exception ex) {}
-    }
-
-
-    private final Object lock = new Object();
 }
 ```
 
@@ -657,6 +648,7 @@ and the demo code:
 
 ```java
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
+import static com.github.jlangch.aviron.util.DemoUtil.printfln;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -667,10 +659,13 @@ import com.github.jlangch.aviron.admin.ClamdAdmin;
 import com.github.jlangch.aviron.admin.ClamdCpuLimiter;
 import com.github.jlangch.aviron.admin.CpuProfile;
 import com.github.jlangch.aviron.admin.DynamicCpuLimit;
+import com.github.jlangch.aviron.dto.ScanResult;
+import com.github.jlangch.aviron.events.ClamdCpuLimitChangeEvent;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.util.DemoFilestore;
 import com.github.jlangch.aviron.util.IDirCycler;
+
 
 public class ClamdCpuLimiterExample1 {
 
@@ -703,31 +698,35 @@ public class ClamdCpuLimiterExample1 {
                                             toList(
                                                 "00:00-05:59 @ 100%",
                                                 "06:00-08:59 @  50%",
-                                                "09:00-17:59 @   0%",
+                                                "09:00-17:59 @   0%", // no scans
                                                 "18:00-21:59 @  50%",
                                                 "22:00-23:59 @ 100%"));
 
             final String clamdPID = ClamdAdmin.getClamdPID();
 
             final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
+            limiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
 
             // get a IDirCycler to cycle sequentially through the demo file 
             // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ... 
             final IDirCycler fsDirCycler = demoFS.getFilestoreDirCycler();
 
             // inital CPU limit after startup
-            initialCpuLimit(limiter, clamdPID);
+            limiter.activateClamdCpuLimit(clamdPID);
 
             // scan the file store directories in an endless loop until we get 
             // killed or stopped
             while(!stop.get()) {
                 // update clamd CPU limit 
-                final int limit = updateCpuLimit(limiter, clamdPID);
+                limiter.activateClamdCpuLimit(clamdPID);
 
+                final int limit = limiter.getLastSeenLimit();
                 if (limit >= MIN_SCAN_LIMIT_PERCENT) {
-                    // scan next filestore directory
+                    // scan next file store directory
                     final File dir = fsDirCycler.nextDir();
-                    System.out.println(client.scan(dir.toPath(), true));
+                    final ScanResult result = client.scan(dir.toPath(), true);
+                    
+                    printfln("%s", result);
                 }
                 else {
                     Thread.sleep(30_000);  // wait 30s
@@ -736,34 +735,16 @@ public class ClamdCpuLimiterExample1 {
         }
     }
 
-    private void initialCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
-        limiter.activateClamdCpuLimit(clamdPID);
-        System.out.println(String.format(
-                            "Initial clamd CPU limit: %d%%",
-                            limiter.getLastSeenLimit()));
-    }
-
-    private int updateCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
-        // note: applied only if the new limit differs from the last one
-        final int lastSeenLimit = limiter.getLastSeenLimit();
-        if (limiter.activateClamdCpuLimit(clamdPID)) {
-            final int newLimit = limiter.getLastSeenLimit();
-            System.out.println(String.format(
-                                "Adjusted clamd CPU limit: %d%% -> %d%%",
-                                lastSeenLimit, newLimit));
-            return newLimit;
-        }
-        else {
-            return lastSeenLimit;
-        }
+    private void onCpuLimitChangeEvent(final ClamdCpuLimitChangeEvent event) {
+         printfln("Adjusted clamd CPU limit: %d%% -> %d%%", event.getOldLimit(), event.getNewLimit());
     }
 
     private void onQuarantineEvent(final QuarantineEvent event) {
         if (event.getException() != null) {
-            System.out.println("Error " + event.getException().getMessage());
+            printfln("Error %s", event.getException().getMessage());
         }
         else {
-            System.out.println("File " + event.getInfectedFile() + " moved to quarantine");
+            printfln("File %s moved to quarantine", event.getInfectedFile() + "");
         }
     }
 
