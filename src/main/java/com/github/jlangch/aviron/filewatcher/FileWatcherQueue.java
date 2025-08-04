@@ -45,6 +45,9 @@ import java.util.List;
  * the system! Therefore the queue is non blocking and has a fix capacity. As a
  * consequence it must discard old events if overrun. 
  * 
+ * <p>The AV Client might not keep up scanning files with the event producing
+ * files system. The FileWatcherQueue prevents such a situation.
+ * 
  * <p>File watchers (like the Java WatchService or the 'fswatch' tool) have the 
  * same behavior. If they get overrun with file change events they discard events 
  * and signal it by sending an 'OVERFLOW' event to their clients.

@@ -72,6 +72,9 @@ import com.github.jlangch.aviron.util.service.ServiceStatus;
  * <p>The FileWatcherQueue never blocks and never grows beyond limits to protect
  * the system! Therefore the queue is non blocking and has a fix capacity. As a
  * consequence it must discard old events if overrun. 
+ *
+ * <p>The AV Client might not keep up scanning files with the event producing
+ * files system. The FileWatcherQueue prevents such a situation.
  * 
  * <p>File watchers (like the Java WatchService or the 'fswatch' tool) have the 
  * same behavior. If they get overrun with file change events they discard events 
