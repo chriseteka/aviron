@@ -450,6 +450,11 @@ public class Client {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
 
+        if (mocking) {
+            sb.append("mocking: ENABLED");
+            sb.append(System.lineSeparator());
+        }
+
         sb.append("serverHostname: ");
         sb.append(server.getHostname());
         sb.append(System.lineSeparator());
@@ -498,9 +503,7 @@ public class Client {
     }
 
     public ScanResult mockScan(final Path path) {
-        if (Files.isRegularFile(path)
-                && path.toFile().getName().toLowerCase().contains("eicar")
-        ) {
+        if (isEicarTestFile(path)) {
             final Map<String, List<String>> viruses = new HashMap<>();
             viruses.put(path.toFile().getName(), CollectionUtils.toList("EICAR-AV-Test"));
             final ScanResult result = ScanResult.virusFound(viruses);
@@ -522,6 +525,11 @@ public class Client {
         catch(Exception ex) { };
         
         return ScanResult.ok();
+    }
+    
+    private boolean isEicarTestFile(final Path path) {
+        return Files.isRegularFile(path)
+                && path.toFile().getName().toLowerCase().contains("eicar");
     }
 
     private <T> T sendCommand(final Command<T> command) {
