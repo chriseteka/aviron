@@ -218,7 +218,7 @@ public class MockClient {
             && path.toFile().getName().toLowerCase().contains("eicar")
         ) {
             final Map<String, List<String>> viruses = new HashMap<>();
-            viruses.put(path.toFile().getName(), CollectionUtils.toList("Eicar virus signature"));
+            viruses.put(path.toFile().getName(), CollectionUtils.toList("EICAR-AV-Test"));
             final ScanResult result = ScanResult.virusFound(viruses);
             quarantine.handleQuarantineActions(result);
             return result;
