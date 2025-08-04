@@ -25,9 +25,12 @@ package com.github.jlangch.aviron;
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import com.github.jlangch.aviron.dto.CommandRunDetails;
@@ -51,6 +54,7 @@ import com.github.jlangch.aviron.impl.commands.scan.Scan;
 import com.github.jlangch.aviron.impl.quarantine.Quarantine;
 import com.github.jlangch.aviron.impl.server.ClamdServerIO;
 import com.github.jlangch.aviron.impl.util.AvironVersion;
+import com.github.jlangch.aviron.impl.util.CollectionUtils;
 import com.github.jlangch.aviron.impl.util.Lazy;
 
 
@@ -139,6 +143,8 @@ public class Client {
                                 builder.quarantineFileAction,
                                 builder.quarantineDir,
                                 builder.quarantineEventListener);
+        
+        this.mocking = builder.mocking;
     }
 
 
@@ -159,7 +165,9 @@ public class Client {
      *         <code>false</code>.
      */
     public boolean ping() {
-        return sendCommand(new Ping());
+        return mocking
+                ? true
+                : sendCommand(new Ping());
     }
 
     /**
@@ -168,7 +176,9 @@ public class Client {
      * @return the ClamAV version
      */
     public String clamAvVersion() {
-        return sendCommand(new Version());
+        return mocking
+                ? "0.0.0"
+                : sendCommand(new Version());
     }
 
     /**
@@ -178,21 +188,27 @@ public class Client {
      * @return the formatted scanning statistics
      */
     public String stats() {
-        return sendCommand(new Stats());
+        return mocking
+                ? ""
+                : sendCommand(new Stats());
     }
 
     /**
      * Reload the virus databases. 
      */
     public void reloadVirusDatabases() {
-        sendCommand(new Reload());
+        if (!mocking) {
+            sendCommand(new Reload());
+        }
     }
 
     /**
      * Shutdown the ClamAV server and perform a clean exit.
      */
     public void shutdownServer() {
-        sendCommand(new Shutdown());
+        if (!mocking) {
+            sendCommand(new Shutdown());
+        }
     }
 
     /**
@@ -212,7 +228,9 @@ public class Client {
         }
 
         // there is no quarantine action for streamed data
-        return scan(inputStream, InStream.DEFAULT_CHUNK_SIZE);
+        return mocking
+                ? discard(inputStream)
+                : scan(inputStream, InStream.DEFAULT_CHUNK_SIZE);
     }
 
     /**
@@ -236,7 +254,9 @@ public class Client {
         }
 
         // there is no quarantine action for streamed data
-        return sendCommand(new InStream(inputStream, chunkSize));
+        return mocking
+                ? discard(inputStream)
+                : sendCommand(new InStream(inputStream, chunkSize));
     }
 
     /**
@@ -251,9 +271,14 @@ public class Client {
             throw new IllegalArgumentException("A 'path' must not be null!");
         }
 
-        final ScanResult result = scan(path, false);
-        quarantine.handleQuarantineActions(result);
-        return result;
+        if (mocking) {
+            return mockScan(path);
+        }
+        else {
+            final ScanResult result = scan(path, false);
+            quarantine.handleQuarantineActions(result);
+            return result;
+        }
     }
 
     /**
@@ -270,12 +295,17 @@ public class Client {
             throw new IllegalArgumentException("A 'path' must not be null!");
         }
 
-        final String serverPath = server.toServerPath(path);
-        final ScanResult result = continueScan 
-                                    ? sendCommand(new ContScan(serverPath))
-                                    : sendCommand(new Scan(serverPath));
-        quarantine.handleQuarantineActions(result);
-        return result;
+        if (mocking) {
+            return mockScan(path);
+        }
+        else {
+            final String serverPath = server.toServerPath(path);
+            final ScanResult result = continueScan 
+                                        ? sendCommand(new ContScan(serverPath))
+                                        : sendCommand(new Scan(serverPath));
+            quarantine.handleQuarantineActions(result);
+            return result;
+        }
     }
 
     /**
@@ -289,9 +319,14 @@ public class Client {
             throw new IllegalArgumentException("A 'path' must not be null!");
         }
 
-        final ScanResult result = sendCommand(new MultiScan(server.toServerPath(path)));
-        quarantine.handleQuarantineActions(result);
-        return result;
+        if (mocking) {
+            return mockScan(path);
+        }
+        else {
+            final ScanResult result = sendCommand(new MultiScan(server.toServerPath(path)));
+            quarantine.handleQuarantineActions(result);
+            return result;
+        }
     }
 
     /**
@@ -301,7 +336,9 @@ public class Client {
      * @return <code>true</code> if the server is reachable else <code>false</code>.
      */
     public boolean isReachable() {
-        return server.isReachable();
+        return mocking
+                ? true
+                : server.isReachable();
     }
 
     /**
@@ -311,7 +348,9 @@ public class Client {
      * @return <code>true</code> if the server is reachable else <code>false</code>.
      */
     public boolean isReachable(final int timeoutMillis) {
-        return server.isReachable(timeoutMillis);
+        return mocking
+                ? true
+                : server.isReachable(timeoutMillis);
     }
 
     /**
@@ -323,7 +362,9 @@ public class Client {
      * @return the details on the last command run
      */
     public CommandRunDetails lastCommandRunDetails() {
-        return server.getLastCommandRunDetails();
+        return mocking
+                ? null
+                : server.getLastCommandRunDetails();
     }
 
     /**
@@ -456,6 +497,33 @@ public class Client {
         return new VersionCommands().send(server);
     }
 
+    public ScanResult mockScan(final Path path) {
+        if (Files.isRegularFile(path)
+                && path.toFile().getName().toLowerCase().contains("eicar")
+        ) {
+            final Map<String, List<String>> viruses = new HashMap<>();
+            viruses.put(path.toFile().getName(), CollectionUtils.toList("EICAR-AV-Test"));
+            final ScanResult result = ScanResult.virusFound(viruses);
+            quarantine.handleQuarantineActions(result);
+            return result;
+       }
+        else {
+            final ScanResult result = ScanResult.ok();
+            quarantine.handleQuarantineActions(result);
+           return result;
+        }
+    }
+
+    private ScanResult discard(final InputStream is) {
+        try {
+            byte[] buf=new byte[4096];
+            while ((is.read(buf))!=-1) { }
+        }
+        catch(Exception ex) { };
+        
+        return ScanResult.ok();
+    }
+
     private <T> T sendCommand(final Command<T> command) {
         try {
             if (memoizedAvCommands.get().contains(command.getCommandString())) {
@@ -585,6 +653,21 @@ public class Client {
             return this;
         }
 
+        /** 
+         * If set to <code>true</code> enables the mock mode. 
+         * 
+         * <p>In mocking mode the client will not physically communicate with
+         * the clamd daemon.
+         *
+         * @param mocking enable/disable mocking. Defaults to <code>false</code>.
+         * 
+         * @return this builder
+         */
+        public Builder mocking(final boolean mocking) {
+            this.mocking = mocking;
+            return this;
+        }
+
 
         private String serverHostname = ClamdServerIO.LOCALHOST;
         private int serverPort = ClamdServerIO.DEFAULT_SERVER_PORT;
@@ -594,6 +677,7 @@ public class Client {
         private QuarantineFileAction quarantineFileAction = QuarantineFileAction.NONE;
         private File quarantineDir = null;
         private Consumer<QuarantineEvent> quarantineEventListener;
+        private boolean mocking = false;
     }
 
 
@@ -603,5 +687,6 @@ public class Client {
 
     private final Quarantine quarantine;
     private final ClamdServerIO server;
+    private final boolean mocking;
     private final Lazy<List<String>> memoizedAvCommands = new Lazy<>(this::loadAvailableCommands);
 }
