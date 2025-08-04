@@ -42,10 +42,10 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.github.jlangch.aviron.filewatcher.events.FileWatchErrorEvent;
-import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEvent;
-import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEventType;
-import com.github.jlangch.aviron.filewatcher.events.FileWatchTerminationEvent;
+import com.github.jlangch.aviron.events.FileWatchErrorEvent;
+import com.github.jlangch.aviron.events.FileWatchFileEvent;
+import com.github.jlangch.aviron.events.FileWatchFileEventType;
+import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.util.service.Service;
 
 

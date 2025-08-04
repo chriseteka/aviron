@@ -20,18 +20,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.filewatcher.events;
+package com.github.jlangch.aviron.events;
+
+import java.nio.file.Path;
 
 
-public enum FileWatchFileEventType {
+public class FileWatchErrorEvent implements Event {
 
-    CREATED,   // file created
+    public FileWatchErrorEvent(final Path path, final Exception ex) {
+        this.path = path;
+        this.ex = ex;
+    }
 
-    MODIFIED,  // file modified
 
-    DELETED,   // file deleted
+    public Path getPath() {
+        return path;
+    }
 
-    OVERFLOW;  // a special event to indicate that events may have been 
-	           // lost or discarded.
+    public Exception getException() {
+        return ex;
+    }
 
+    
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append("Path: ");
+        sb.append(path);
+        sb.append(System.lineSeparator());
+        sb.append("Exception: ");
+        sb.append(ex == null ? "" : ex.getMessage());
+
+        return sb.toString();
+    }
+
+    
+    private final Path path;
+    private final Exception ex;
 }

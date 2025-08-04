@@ -28,12 +28,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import com.github.jlangch.aviron.events.FileWatchErrorEvent;
+import com.github.jlangch.aviron.events.FileWatchFileEvent;
 import com.github.jlangch.aviron.events.RealtimeScanEvent;
 import com.github.jlangch.aviron.ex.FileWatcherException;
 import com.github.jlangch.aviron.filewatcher.FileWatcherQueue;
 import com.github.jlangch.aviron.filewatcher.IFileWatcher;
-import com.github.jlangch.aviron.filewatcher.events.FileWatchErrorEvent;
-import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEvent;
 import com.github.jlangch.aviron.util.service.Service;
 import com.github.jlangch.aviron.util.service.ServiceStatus;
 

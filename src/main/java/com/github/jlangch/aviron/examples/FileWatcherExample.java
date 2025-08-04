@@ -28,13 +28,13 @@ import static com.github.jlangch.aviron.util.DemoUtil.sleep;
 
 import java.nio.file.Path;
 
+import com.github.jlangch.aviron.events.FileWatchErrorEvent;
+import com.github.jlangch.aviron.events.FileWatchFileEvent;
+import com.github.jlangch.aviron.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.ex.FileWatcherException;
 import com.github.jlangch.aviron.filewatcher.FileWatcher_FsWatch;
 import com.github.jlangch.aviron.filewatcher.FileWatcher_JavaWatchService;
 import com.github.jlangch.aviron.filewatcher.IFileWatcher;
-import com.github.jlangch.aviron.filewatcher.events.FileWatchErrorEvent;
-import com.github.jlangch.aviron.filewatcher.events.FileWatchFileEvent;
-import com.github.jlangch.aviron.filewatcher.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.util.DemoFilestore;
 import com.github.jlangch.aviron.util.OS;
 
