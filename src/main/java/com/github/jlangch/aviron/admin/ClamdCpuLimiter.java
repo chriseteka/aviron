@@ -57,11 +57,6 @@ import com.github.jlangch.aviron.impl.util.StringUtils;
  * To declare a scan free time period use the limit from the CpuProfile 
  * and simply do not run scan events at all!
  * 
- * <p>
- * To use the ClamdCpuLimiter in mock scenarios simply pass "mock" as clamd PID
- * in the activate/deactivate CPU limit functions. The ClamdCpuLimiter will 
- * operate as normal but not physically modifying the clamd's CPU limit!
- * 
  * @see #MIN_SCAN_LIMIT_PERCENT
  */
 public class ClamdCpuLimiter {
@@ -160,9 +155,7 @@ public class ClamdCpuLimiter {
                                                            lastSeen.limit, limit);
 
             lastSeen = newLimit;
-            if (!isMockClamdPID(clamdPID)) {
-                ClamdAdmin.deactivateClamdCpuLimit(clamdPID);
-            }
+            ClamdAdmin.deactivateClamdCpuLimit(clamdPID);
             if (limit != 100) {
                 // physically we do not go below MIN_SCAN_LIMIT_PERCENT for the
                 // clamd daemon CPU limit! Otherwise the daemon is not reactive any
@@ -171,11 +164,9 @@ public class ClamdCpuLimiter {
                 // To declare a scan free time period use the limit from the 
                 // CpuProfile and simply do not run scan events at all!
                 
-                if (!isMockClamdPID(clamdPID)) {
-                    ClamdAdmin.activateClamdCpuLimit(
-                        clamdPID, 
-                        Math.max(MIN_SCAN_LIMIT_PERCENT, limit));
-                }
+                ClamdAdmin.activateClamdCpuLimit(
+                    clamdPID, 
+                    Math.max(MIN_SCAN_LIMIT_PERCENT, limit));
             }
 
             fireEvent(event);
@@ -229,10 +220,8 @@ public class ClamdCpuLimiter {
                                                        lastSeen.limit, 100);
 
         lastSeen = new Limit(null, 100);
-        if (!isMockClamdPID(clamdPID)) {
-            ClamdAdmin.deactivateClamdCpuLimit(clamdPID);
-        }
- 
+        ClamdAdmin.deactivateClamdCpuLimit(clamdPID);
+
         fireEvent(event);
     }
 
@@ -252,10 +241,6 @@ public class ClamdCpuLimiter {
         if (listener != null) {
             safeRun(() -> listener.accept(event));
         }
-    }
-
-    private boolean isMockClamdPID(final String pid) {
-        return pid.toLowerCase().contains("mock");
     }
 
     private static void safeRun(final Runnable r) {

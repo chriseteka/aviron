@@ -12,6 +12,9 @@ All notable changes to this project will be documented in this file.
 - Enhanced the file watchers to be more flexible in accepting event listeners
 - Added a file watcher example
 - Enhanced ClamdCpuLimiter to send an event if the clamd cpu limit is changed
+- Enhanced Client and ClamdAdmin to mock out the physical connection
+  to the clamd daemon and processes thus allowing seamless mock tests before 
+  running real tests with the clamd daemon
 
 
 
