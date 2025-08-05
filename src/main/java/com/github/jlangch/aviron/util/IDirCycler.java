@@ -60,11 +60,24 @@ public interface IDirCycler {
     String lastDirName();
 
     /**
-     * Restores the cycler's state the passed dir name as last processed
-     * sub dir.
+     * Restores the cycler's last processed sub dir with the passed dir
      * 
      * @param dirName A sub dir name (may be <code>null</code>)
      */
     void restoreLastDirName(String dirName);
 
+    /**
+     * Loads cycler's state from a file. The file may be empty or not existing.
+     * 
+     * @param file a file
+     */
+    void loadStateFromFile(File file);
+
+    /**
+     * Saves the cycler's state to a file.
+     * 
+     * @param file a file
+     */
+    void saveStateToFile(File file);
+    
 }

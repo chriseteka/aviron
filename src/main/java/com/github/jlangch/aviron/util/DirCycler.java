@@ -23,10 +23,14 @@
 package com.github.jlangch.aviron.util;
 
 import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.github.jlangch.aviron.ex.AvironException;
 
 
 public class DirCycler implements IDirCycler {
@@ -89,6 +93,48 @@ public class DirCycler implements IDirCycler {
     public void restoreLastDirName(final String name) {
         refresh();
         lastDirIdx = getIndexOf(name);
+    }
+
+    @Override
+    public void loadStateFromFile(final File file) {
+        if (file == null) {
+            throw new IllegalArgumentException("The file must not be null!");
+        }
+ 
+        if (Files.isRegularFile(file.toPath())) {
+            try {
+                final String lastDir = new String(
+                                            Files.readAllBytes(file.toPath()),
+                                            Charset.forName("UTF-8"));
+
+                restoreLastDirName(lastDir);
+            }
+            catch(Exception ex) {
+                throw new AvironException(
+                        "Failed to load DirCycler state from file", ex);
+            }
+        }
+        else {
+            restoreLastDirName(null);
+        }
+    }
+
+    @Override
+    public void saveStateToFile(final File file) {
+        if (file == null) {
+            throw new IllegalArgumentException("The file must not be null!");
+        }
+
+        final String lastDir = lastDirName();
+
+        try {
+            final String data = lastDir == null ? "" : lastDir;
+            Files.write(file.toPath(), data.getBytes(Charset.forName("UTF-8")));
+        }
+        catch(Exception ex) {
+            throw new AvironException(
+                    "Failed to save DirCycler state to file", ex);
+        }
     }
 
 

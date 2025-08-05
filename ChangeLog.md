@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Enhanced Client and ClamdAdmin to mock out the physical connection
   to the clamd daemon and processes thus allowing seamless mock tests before 
   running real tests with the clamd daemon
+- Enhanced the DirCycle with save/load state from/to a file
 
 
 

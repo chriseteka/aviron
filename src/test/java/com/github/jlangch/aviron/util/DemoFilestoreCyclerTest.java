@@ -25,6 +25,7 @@ package com.github.jlangch.aviron.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
@@ -103,7 +104,7 @@ public class DemoFilestoreCyclerTest {
     }
 
     @Test 
-    void testSaveAnRestore() throws IOException {
+    void testSaveAnRestoreLastDir() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             final IDirCycler cycler = demoFS.getFilestoreDirCycler();
 
@@ -127,6 +128,52 @@ public class DemoFilestoreCyclerTest {
             assertEquals(last, cycler.lastDirName());
 
             assertEquals("002", cycler.nextDir().getName());
+            assertEquals("003", cycler.nextDir().getName());
+            assertEquals("000", cycler.nextDir().getName());
+        }
+    }
+
+    @Test 
+    void testLoadAndRestoreState() throws IOException {
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            final File cyclerStateFile = new File(demoFS.getRootDir(), "filestore-cycler.state");
+
+            final IDirCycler cycler = demoFS.getFilestoreDirCycler();
+
+            assertNull(cycler.lastDirName());
+
+            // load state from non existing state file
+            cycler.loadStateFromFile(cyclerStateFile);
+            assertNull(cycler.lastDirName());
+
+            // save point
+            cycler.saveStateToFile(cyclerStateFile);
+            cycler.refresh();
+            cycler.loadStateFromFile(cyclerStateFile);
+            assertNull(cycler.lastDirName());
+            
+            demoFS.createFilestoreSubDir("000");
+            demoFS.createFilestoreSubDir("001");
+            demoFS.createFilestoreSubDir("002");
+            demoFS.createFilestoreSubDir("003");
+
+            assertEquals("000", cycler.nextDir().getName());
+            assertEquals("001", cycler.nextDir().getName());
+
+            // save point
+            assertEquals("001", cycler.lastDirName());
+            cycler.saveStateToFile(cyclerStateFile);
+            cycler.refresh();
+            cycler.loadStateFromFile(cyclerStateFile);
+            assertEquals("001", cycler.lastDirName());
+
+            cycler.refresh();
+            assertNull(cycler.lastDirName());
+
+            // restore
+            cycler.restoreLastDirName("002");
+            assertEquals("002", cycler.lastDirName());
+
             assertEquals("003", cycler.nextDir().getName());
             assertEquals("000", cycler.nextDir().getName());
         }
