@@ -22,6 +22,8 @@
  */
 package com.github.jlangch.aviron;
 
+import static com.github.jlangch.aviron.util.Util.sleep;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -503,13 +505,15 @@ public class Client {
     }
 
     public ScanResult mockScan(final Path path) {
+        sleep(80);  // sleep 80ms to simulate a clamd scan
+        
         if (isEicarTestFile(path)) {
             final Map<String, List<String>> viruses = new HashMap<>();
             viruses.put(path.toFile().getName(), CollectionUtils.toList("EICAR-AV-Test"));
             final ScanResult result = ScanResult.virusFound(viruses);
             quarantine.handleQuarantineActions(result);
             return result;
-       }
+        }
         else {
             final ScanResult result = ScanResult.ok();
             quarantine.handleQuarantineActions(result);
@@ -523,6 +527,8 @@ public class Client {
             while ((is.read(buf))!=-1) { }
         }
         catch(Exception ex) { };
+        
+        sleep(80);  // sleep 80ms to simulate a clamd scan
         
         return ScanResult.ok();
     }
