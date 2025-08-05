@@ -23,7 +23,7 @@
 package com.github.jlangch.aviron.util;
 
 
-public class DemoUtil {
+public class Util {
 
     /**
      * Causes the currently executing thread to sleep (temporarily cease

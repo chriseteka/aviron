@@ -22,8 +22,8 @@
  */
 package com.github.jlangch.aviron.impl.incubation;
 
-import static com.github.jlangch.aviron.util.DemoUtil.printf;
-import static com.github.jlangch.aviron.util.DemoUtil.sleep;
+import static com.github.jlangch.aviron.util.Util.printf;
+import static com.github.jlangch.aviron.util.Util.sleep;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.file.Path;

@@ -23,7 +23,7 @@
 package com.github.jlangch.aviron.examples;
 
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
-import static com.github.jlangch.aviron.util.DemoUtil.printfln;
+import static com.github.jlangch.aviron.util.Util.printfln;
 
 import java.io.File;
 import java.util.concurrent.Executors;

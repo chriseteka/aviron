@@ -23,7 +23,7 @@
 package com.github.jlangch.aviron.impl.incubation;
 
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
-import static com.github.jlangch.aviron.util.DemoUtil.printfln;
+import static com.github.jlangch.aviron.util.Util.printfln;
 
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;

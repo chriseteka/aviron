@@ -22,9 +22,9 @@
  */
 package com.github.jlangch.aviron.examples;
 
-import static com.github.jlangch.aviron.util.DemoUtil.printf;
-import static com.github.jlangch.aviron.util.DemoUtil.printfln;
-import static com.github.jlangch.aviron.util.DemoUtil.sleep;
+import static com.github.jlangch.aviron.util.Util.printf;
+import static com.github.jlangch.aviron.util.Util.printfln;
+import static com.github.jlangch.aviron.util.Util.sleep;
 
 import java.nio.file.Path;
 
