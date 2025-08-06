@@ -11,11 +11,11 @@ All notable changes to this project will be documented in this file.
   `overflowCount` and `resetOverflowCount`)
 - Enhanced the file watchers to be more flexible in accepting event listeners
 - Added a file watcher example
-- Enhanced ClamdCpuLimiter to send an event if the clamd cpu limit is changed
-- Enhanced Client and ClamdAdmin to mock out the physical connection
+- Enhanced `ClamdCpuLimiter` to send an event if the clamd CPU limit is changed
+- Enhanced `Client` and `ClamdAdmin` to mock out the physical connection
   to the clamd daemon and processes thus allowing seamless mock tests before 
   running real tests with the clamd daemon
-- Enhanced the DirCycle with save/load state from/to a file
+- Enhanced the `DirCycle` class with save/load state from/to a file
 
 
 
