@@ -22,10 +22,12 @@
  */
 package com.github.jlangch.aviron.admin;
 
+import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.github.jlangch.aviron.impl.util.StringUtils;
 import com.github.jlangch.aviron.util.service.Service;
 
 
@@ -36,14 +38,36 @@ import com.github.jlangch.aviron.util.service.Service;
 public class ScheduledClamdCpuLimiter extends Service {
 
     public ScheduledClamdCpuLimiter(
+            final String clamdPid,
             final ClamdCpuLimiter limiter,
-            final String clamdPID,
             final long initialDelay,
             final long period,
             final TimeUnit unit
     ) {
+        this.clamdPid = clamdPid;
+        this.clamdPidFile = null;
         this.limiter = limiter;
-        this.clamdPID = clamdPID;
+        this.initialDelay = initialDelay;
+        this.period = period;
+        this.unit = unit;
+        this.es = Executors.newScheduledThreadPool(1);
+
+        if (unit.toSeconds(period) < 60) {
+            throw new IllegalArgumentException(
+                    "The specified scheduler period must not be less than 60s");
+        }
+    }
+
+    public ScheduledClamdCpuLimiter(
+            final File clamdPidFile,
+            final ClamdCpuLimiter limiter,
+            final long initialDelay,
+            final long period,
+            final TimeUnit unit
+    ) {
+        this.clamdPid = null;
+        this.clamdPidFile = clamdPidFile;
+        this.limiter = limiter;
         this.initialDelay = initialDelay;
         this.period = period;
         this.unit = unit;
@@ -61,7 +85,7 @@ public class ScheduledClamdCpuLimiter extends Service {
     }
 
     protected void onStart() {
-        final Runnable updateCpuLimitTask = () -> updateCpuLimit(limiter, clamdPID);
+        final Runnable updateCpuLimitTask = () -> updateCpuLimit(limiter);
 
         es.scheduleAtFixedRate(updateCpuLimitTask, initialDelay, period, unit);
     }
@@ -76,15 +100,25 @@ public class ScheduledClamdCpuLimiter extends Service {
     }
 
     private void updateCpuLimit(
-            final ClamdCpuLimiter limiter,
-            final String clamdPID
+            final ClamdCpuLimiter limiter
     ) {
-        limiter.activateClamdCpuLimit(clamdPID);
+        final String pid = getClamdPID();
+        if (StringUtils.isNotBlank(pid)) {
+            limiter.activateClamdCpuLimit(pid);
+        }
+    }
+
+    private String getClamdPID() {
+        final String pid = clamdPidFile != null
+                            ? ClamdAdmin.loadClamdPID(clamdPidFile)
+                            : clamdPid;
+        return ClamdAdmin.isProcessAlive(pid) ? pid : null;
     }
 
 
     private final ClamdCpuLimiter limiter;
-    private final String clamdPID;
+    private final String clamdPid;
+    private final File clamdPidFile;
     private final long initialDelay;
     private final long period;
     private final TimeUnit unit;

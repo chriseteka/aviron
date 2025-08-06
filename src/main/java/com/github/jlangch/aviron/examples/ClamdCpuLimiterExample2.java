@@ -121,8 +121,8 @@ public class ClamdCpuLimiterExample2 {
             updateCpuLimit(limiter, clamdPID);
 
             try (ScheduledClamdCpuLimiter ses = new ScheduledClamdCpuLimiter(
-                                                        limiter, clamdPID, 
-                                                        5, 5, TimeUnit.MINUTES)) {
+                                                        clamdPID, limiter, 
+                                                        0, 5, TimeUnit.MINUTES)) {
                 ses.start();
 
                 // scan the file store directories in an endless loop until we get 

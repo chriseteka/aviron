@@ -155,19 +155,16 @@ public class ClamdCpuLimiter {
                                                            lastSeen.limit, limit);
 
             lastSeen = newLimit;
-            ClamdAdmin.deactivateClamdCpuLimit(clamdPID);
-            if (limit != 100) {
-                // physically we do not go below MIN_SCAN_LIMIT_PERCENT for the
-                // clamd daemon CPU limit! Otherwise the daemon is not reactive any
-                // more.
-                //
-                // To declare a scan free time period use the limit from the 
-                // CpuProfile and simply do not run scan events at all!
-                
-                ClamdAdmin.activateClamdCpuLimit(
-                    clamdPID, 
-                    Math.max(MIN_SCAN_LIMIT_PERCENT, limit));
-            }
+            // physically we do not go below MIN_SCAN_LIMIT_PERCENT for the
+            // clamd daemon CPU limit! Otherwise the daemon is not reactive any
+            // more.
+            //
+            // To declare a scan free time period use the limit from the 
+            // CpuProfile and simply do not run scan events at all!
+            
+            ClamdAdmin.activateClamdCpuLimit(
+                clamdPID, 
+                Math.max(MIN_SCAN_LIMIT_PERCENT, limit));
 
             fireEvent(event);
 

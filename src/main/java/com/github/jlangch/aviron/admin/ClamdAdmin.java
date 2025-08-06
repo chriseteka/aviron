@@ -234,15 +234,20 @@ public class ClamdAdmin {
             throw new IllegalArgumentException("No Clamd PID!");
         }
 
-        try {
-            // /bin/sh -c "nohup /usr/bin/cpulimit -p 1234 -l 50 </dev/null &>/dev/null &"
+        // kill a possibly running cpulimit process before starting a new one
+        ClamdAdmin.deactivateClamdCpuLimit(clamdPID);
 
-            // run cpulimit as nohup process
-            Shell.execCmdBackgroundNohup("cpulimit", "--limit=" + limit, "--pid=" + clamdPID);
-        }
-        catch(IOException ex) {
-            throw new AvironException(
-                    "Failed to activate a CPU limit on the clamd process", ex);
+        if (limit != 100) {
+            try {
+                // /bin/sh -c "nohup /usr/bin/cpulimit -p 1234 -l 50 </dev/null &>/dev/null &"
+
+                // run cpulimit as nohup process
+                Shell.execCmdBackgroundNohup("cpulimit", "--limit=" + limit, "--pid=" + clamdPID);
+            }
+            catch(IOException ex) {
+                throw new AvironException(
+                        "Failed to activate a CPU limit on the clamd process", ex);
+            }
         }
     }
 

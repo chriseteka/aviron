@@ -16,6 +16,9 @@ All notable changes to this project will be documented in this file.
   to the clamd daemon and processes thus allowing seamless mock tests before 
   running real tests with the clamd daemon
 - Enhanced the `DirCycle` class with save/load state from/to a file
+- Improved `ClamdAdmin::activateClamdCpuLimit` to implicitly kill a cpulimit
+  process controlling the clamd daemon before starting a new cpulimit process 
+  with the new CPU limit. This makes calling `activateClamdCpuLimit` simpler
 
 
 
