@@ -20,16 +20,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.util;
+package com.github.jlangch.aviron.admin;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.github.jlangch.aviron.admin.ClamdCpuLimiter;
 import com.github.jlangch.aviron.util.service.Service;
 
 
+/**
+ * A service scheduler that updates the clamd daemon CPU limit in
+ * regular intervals
+ */
 public class ScheduledClamdCpuLimiter extends Service {
 
     public ScheduledClamdCpuLimiter(
@@ -44,7 +47,12 @@ public class ScheduledClamdCpuLimiter extends Service {
         this.initialDelay = initialDelay;
         this.period = period;
         this.unit = unit;
-        this.ses = Executors.newScheduledThreadPool(1);
+        this.es = Executors.newScheduledThreadPool(1);
+
+        if (unit.toSeconds(period) < 60) {
+            throw new IllegalArgumentException(
+                    "The specified scheduler period must not be less than 60s");
+        }
     }
 
 
@@ -55,12 +63,12 @@ public class ScheduledClamdCpuLimiter extends Service {
     protected void onStart() {
         final Runnable updateCpuLimitTask = () -> updateCpuLimit(limiter, clamdPID);
 
-        ses.scheduleAtFixedRate(updateCpuLimitTask, initialDelay, period, unit);
+        es.scheduleAtFixedRate(updateCpuLimitTask, initialDelay, period, unit);
     }
 
     protected void onClose() {
         try {
-           ses.shutdown();
+            es.shutdown();
         }
         catch(Exception ex) {
             // skipped
@@ -78,5 +86,5 @@ public class ScheduledClamdCpuLimiter extends Service {
     private final long period;
     private final TimeUnit unit;
 
-    private final ScheduledExecutorService ses;
+    private final ScheduledExecutorService es;
 }
