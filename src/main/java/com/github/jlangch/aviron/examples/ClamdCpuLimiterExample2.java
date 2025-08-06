@@ -26,8 +26,6 @@ import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 import static com.github.jlangch.aviron.util.Util.printfln;
 
 import java.io.File;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -43,6 +41,7 @@ import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.util.DemoFilestore;
 import com.github.jlangch.aviron.util.IDirCycler;
+import com.github.jlangch.aviron.util.ScheduledClamdCpuLimiter;
 
 
 /**
@@ -121,12 +120,10 @@ public class ClamdCpuLimiterExample2 {
             // inital CPU limit after startup
             updateCpuLimit(limiter, clamdPID);
 
-            try {
-                ses = Executors.newScheduledThreadPool(1);
-
-                // update CPU limit task, fired every 5 minutes
-                final Runnable updateCpuLimitTask = () -> updateCpuLimit(limiter, clamdPID);
-                ses.scheduleAtFixedRate(updateCpuLimitTask, 5, 5, TimeUnit.MINUTES);
+            try (ScheduledClamdCpuLimiter ses = new ScheduledClamdCpuLimiter(
+                                                        limiter, clamdPID, 
+                                                        5, 5, TimeUnit.MINUTES)) {
+                ses.start();
 
                 // scan the file store directories in an endless loop until we get 
                 // killed or stopped
@@ -143,14 +140,11 @@ public class ClamdCpuLimiterExample2 {
                     }
                 }
             }
-            finally { 
-                ses.shutdown();
-            }
         }
     }
-    
+
     private void updateCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
-    	limiter.activateClamdCpuLimit(clamdPID);
+        limiter.activateClamdCpuLimit(clamdPID);
     }
 
     private void onCpuLimitChangeEvent(final ClamdCpuLimitChangeEvent event) {
@@ -170,6 +164,4 @@ public class ClamdCpuLimiterExample2 {
     private static final int MIN_SCAN_LIMIT_PERCENT = 20;
 
     private final AtomicBoolean stop = new AtomicBoolean(false);
-
-    private ScheduledExecutorService ses;
 }
