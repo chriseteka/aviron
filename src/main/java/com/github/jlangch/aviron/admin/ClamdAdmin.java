@@ -88,13 +88,11 @@ public class ClamdAdmin {
 
         try {
             if (pidFile.isFile() && pidFile.canRead()) {
-                final String s = Files
-                                    .lines(pidFile.toPath(), Charset.defaultCharset())
-                                    .map(l -> l.trim())
-                                    .findFirst()
-                                    .orElse(null);
-
-                return s;
+                return Files
+                        .lines(pidFile.toPath(), Charset.defaultCharset())
+                        .map(l -> l.trim())
+                        .findFirst()
+                        .orElse(null);
             }
             else {
                 return null;
@@ -119,18 +117,52 @@ public class ClamdAdmin {
      * Note: This function is available for Linux and MacOS only!
      * 
      * @param pid a pid
-     * @return <i>true</i> if there is process running with the PID else <i>false</i> 
+     * @return <code>true</code> if there is process running with the PID else <code>false</code> 
      */
     public static boolean isProcessAlive(final String pid) {
         if (StringUtils.isBlank(pid)) {
             throw new IllegalArgumentException("A pid must not be blank!");
         }
 
+        Shell.validateLinuxOrMacOSX("Admin::isProcessAlive");
+
         if (mocking.get()) return false;
+
+        return Shell.isProcessAlive(pid);
+    }
+
+    /**
+     * Checks if the clamd process from a PID file is running.
+     * 
+     * <p>Runs the following shell command on the loaded PID:
+     * <pre>
+     * ps -p ${pid}
+     * </pre>
+     * 
+     * <p>
+     * Note: This function is available for Linux and MacOS only!
+     * 
+     * @param pidFile the pid file
+     * @return <code>true</code> if there is process running with the PID else 
+     *         <code>false</code> 
+     */
+    public static boolean isProcessAlive(final File pidFile) {
+        if (pidFile == null) {
+            throw new IllegalArgumentException("A pid file must not be null!");
+        }
 
         Shell.validateLinuxOrMacOSX("Admin::isProcessAlive");
 
-        return Shell.isProcessAlive(pid);
+        if (mocking.get()) return false;
+
+        final String pid = loadClamdPID(pidFile);
+
+        if (StringUtils.isBlank(pid)) {
+            return false;
+        }
+        else {
+            return Shell.isProcessAlive(pid);
+        }
     }
 
     /**
@@ -289,7 +321,6 @@ public class ClamdAdmin {
     public static int getNrOfCpus() {
         return Runtime.getRuntime().availableProcessors();
     }
-
 
     /**
      * Enable/disable mocking mode
