@@ -75,7 +75,10 @@ public class ScheduledClamdCpuLimiter extends Service {
         }
     }
 
-    private void updateCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
+    private void updateCpuLimit(
+            final ClamdCpuLimiter limiter,
+            final String clamdPID
+    ) {
         limiter.activateClamdCpuLimit(clamdPID);
     }
 
