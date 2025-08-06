@@ -233,14 +233,16 @@ public class DemoFilestore implements Closeable {
      * Create an eicar anti malware test file in file store's subdirectory.
      * 
      * @param subDir a subdirectory to write the test file to.
+     * @return the created file eicar file name
      * 
      * @see <a href="https://www.eicar.org/download-anti-malware-testfile/">Eicar</a>
      */
-    public void createEicarAntiMalwareTestFile(final String subDir) {
+    public File createEicarAntiMalwareTestFile(final String subDir) {
         final String fsFile = new File(subDir).getName() + "/eicar.txt";
         final File file = new File(filestoreDir,fsFile);
         try {
             Files.write(file.toPath(), toBytes(eicar.replace("_", "")));
+            return file;
         }
         catch(IOException ex) {
             throw new RuntimeException(
