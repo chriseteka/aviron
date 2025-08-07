@@ -33,6 +33,10 @@ import java.util.stream.Collectors;
 import com.github.jlangch.aviron.ex.AvironException;
 
 
+/**
+ * Cycles through all the subdirs of a directory. If the last subdir is
+ * reached it starts over with the first subdir.
+ */
 public class DirCycler implements IDirCycler {
 
     /**
