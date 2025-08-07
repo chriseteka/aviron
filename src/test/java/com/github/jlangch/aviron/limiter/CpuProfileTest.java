@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.admin;
+package com.github.jlangch.aviron.limiter;
 
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,6 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+
+import com.github.jlangch.aviron.limiter.CpuProfile;
+import com.github.jlangch.aviron.limiter.CpuProfileEntry;
 
 
 class CpuProfileTest {

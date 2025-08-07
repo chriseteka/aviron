@@ -25,7 +25,7 @@ package com.github.jlangch.aviron.examples;
 import java.time.LocalDateTime;
 import java.util.function.Function;
 
-import com.github.jlangch.aviron.admin.DynamicCpuLimit;
+import com.github.jlangch.aviron.limiter.DynamicCpuLimit;
 
 
 public class DynamicCpuLimitExample3 {

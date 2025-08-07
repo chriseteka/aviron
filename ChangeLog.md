@@ -21,6 +21,8 @@ All notable changes to this project will be documented in this file.
   process controlling the clamd daemon before starting a new cpulimit process 
   with the new CPU limit. This makes calling `activateClamdCpuLimit` simpler
 - Added `ScheduledClamdCpuLimiter` to simplify scheduled clamd CPU limit changes
+- Breaking change: moved the Clamd CPU limiter related classes to its own new 
+  package 'com.github.jlangch.aviron.limiter'
 
 
 

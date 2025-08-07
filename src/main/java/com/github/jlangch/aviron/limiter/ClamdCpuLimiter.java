@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.admin;
+package com.github.jlangch.aviron.limiter;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import com.github.jlangch.aviron.admin.ClamdAdmin;
 import com.github.jlangch.aviron.events.ClamdCpuLimitChangeEvent;
 import com.github.jlangch.aviron.impl.util.StringUtils;
 

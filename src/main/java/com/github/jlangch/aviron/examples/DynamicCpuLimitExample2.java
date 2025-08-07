@@ -26,9 +26,9 @@ import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 
 import java.util.List;
 
-import com.github.jlangch.aviron.admin.CpuProfile;
-import com.github.jlangch.aviron.admin.DynamicCpuLimit;
 import com.github.jlangch.aviron.impl.util.CollectionUtils;
+import com.github.jlangch.aviron.limiter.CpuProfile;
+import com.github.jlangch.aviron.limiter.DynamicCpuLimit;
 
 
 public class DynamicCpuLimitExample2 {

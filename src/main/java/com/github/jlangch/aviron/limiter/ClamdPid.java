@@ -20,11 +20,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.admin;
+package com.github.jlangch.aviron.limiter;
 
 import java.io.File;
 import java.util.function.Supplier;
 
+import com.github.jlangch.aviron.admin.ClamdAdmin;
 import com.github.jlangch.aviron.impl.util.StringUtils;
 
 

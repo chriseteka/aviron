@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.impl.incubation;
+package com.github.jlangch.aviron.realtime;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,12 +37,6 @@ import com.github.jlangch.aviron.filewatcher.IFileWatcher;
 import com.github.jlangch.aviron.util.service.Service;
 import com.github.jlangch.aviron.util.service.ServiceStatus;
 
-
-// +--------------------------------------------------------------------------+
-// |                                                                          |
-// |                NOT YET TESTED    -->   DO NOT USE                        |
-// |                                                                          |
-// +--------------------------------------------------------------------------+
 
 /**
  * Realtime file processor

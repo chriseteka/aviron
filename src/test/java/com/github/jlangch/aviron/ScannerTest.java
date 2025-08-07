@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Test;
 
@@ -37,7 +38,7 @@ import com.github.jlangch.aviron.ex.FileWatcherException;
 import com.github.jlangch.aviron.filewatcher.FileWatcher_FsWatch;
 import com.github.jlangch.aviron.filewatcher.FileWatcher_JavaWatchService;
 import com.github.jlangch.aviron.filewatcher.IFileWatcher;
-import com.github.jlangch.aviron.impl.incubation.RealtimeFileProcessor;
+import com.github.jlangch.aviron.realtime.RealtimeFileProcessor;
 import com.github.jlangch.aviron.util.DemoFilestore;
 import com.github.jlangch.aviron.util.IDirCycler;
 import com.github.jlangch.aviron.util.OS;
@@ -65,24 +66,28 @@ class ScannerTest {
                                             .quarantineDir(demoFS.getQuarantineDir())
                                             .quarantineEventListener(e -> quarantine.incrementAndGet())
                                             .build();
+            
+            final Consumer<Path> scan = (path) -> { final ScanResult result = client.scan(path);
+                                                    if (result.isOK()) {
+                                                        scanOK.incrementAndGet();
+                                                    }
+                                                    else {
+                                                        scanVirus.incrementAndGet();
+                                                    } };
 
             // get a IDirCycler to cycle sequentially through the demo file 
             // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ... 
             final IDirCycler fsDirCycler = demoFS.getFilestoreDirCycler();
-
+            
             // scan the file store directories in an endless loop until we get 
             // stopped
             final long stopAt = System.currentTimeMillis() + 5_000; // run 5s
             while(System.currentTimeMillis() < stopAt) {
                 // scan next file store directory
                 final File dir = fsDirCycler.nextDir();
-                final ScanResult result = client.scan(dir.toPath(), true);
-                if (result.isOK()) {
-                    scanOK.incrementAndGet();
-                }
-                else {
-                    scanVirus.incrementAndGet();
-                }
+                
+                scan.accept(dir.toPath());
+ 
                 Util.sleep(200);
              }
 
@@ -113,6 +118,14 @@ class ScannerTest {
                                             .quarantineDir(demoFS.getQuarantineDir())
                                             .quarantineEventListener(e -> quarantine.incrementAndGet())
                                             .build();
+            
+            final Consumer<Path> scan = (path) -> { final ScanResult result = client.scan(path);
+                                                    if (result.isOK()) {
+                                                        scanOK.incrementAndGet();
+                                                    }
+                                                    else {
+                                                        scanVirus.incrementAndGet();
+                                                    } };
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
 
@@ -123,13 +136,7 @@ class ScannerTest {
             try (RealtimeFileProcessor rtScanner = new RealtimeFileProcessor(
                                                         fw,
                                                         1,
-                                                        e -> {  final ScanResult result = client.scan(e.getPath());
-                                                                if (result.isOK()) {
-                                                                    scanOK.incrementAndGet();
-                                                                }
-                                                                else {
-                                                                    scanVirus.incrementAndGet();
-                                                                }},
+                                                        e -> scan.accept(e.getPath()),
                                                         e -> errors.incrementAndGet())
             ) {
                 rtScanner.start();
@@ -170,6 +177,14 @@ class ScannerTest {
                                             .quarantineDir(demoFS.getQuarantineDir())
                                             .quarantineEventListener(e -> quarantine.incrementAndGet())
                                             .build();
+            
+            final Consumer<Path> scan = (path) -> { final ScanResult result = client.scan(path);
+                                                    if (result.isOK()) {
+                                                        scanOK.incrementAndGet();
+                                                    }
+                                                    else {
+                                                        scanVirus.incrementAndGet();
+                                                    } };
 
             // get a IDirCycler to cycle sequentially through the demo file 
             // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ... 
@@ -184,13 +199,7 @@ class ScannerTest {
             try (RealtimeFileProcessor rtScanner = new RealtimeFileProcessor(
                                                         fw,
                                                         1,
-                                                        e -> {  final ScanResult result = client.scan(e.getPath());
-                                                                if (result.isOK()) {
-                                                                    scanOK.incrementAndGet();
-                                                                }
-                                                                else {
-                                                                    scanVirus.incrementAndGet();
-                                                                }},
+                                                        e -> scan.accept(e.getPath()),
                                                         e -> errors.incrementAndGet())
             ) {
                 rtScanner.start();
@@ -205,13 +214,9 @@ class ScannerTest {
                 while(System.currentTimeMillis() < stopAt) {
                     // scan next file store directory
                     final File dir = fsDirCycler.nextDir();
-                    final ScanResult result = client.scan(dir.toPath(), true);
-                    if (result.isOK()) {
-                        scanOK.incrementAndGet();
-                    }
-                    else {
-                        scanVirus.incrementAndGet();
-                    }
+                    
+                    scan.accept(dir.toPath());
+                    
                     Util.sleep(200);
                  }
             }
@@ -244,6 +249,14 @@ class ScannerTest {
                                             .quarantineDir(demoFS.getQuarantineDir())
                                             .quarantineEventListener(e -> quarantine.incrementAndGet())
                                             .build();
+            
+            final Consumer<Path> scan = (path) -> { final ScanResult result = client.scan(path);
+                                                    if (result.isOK()) {
+                                                        scanOK.incrementAndGet();
+                                                    }
+                                                    else {
+                                                        scanVirus.incrementAndGet();
+                                                    } };
 
             // get a IDirCycler to cycle sequentially through the demo file 
             // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ... 
@@ -264,13 +277,9 @@ class ScannerTest {
             while(System.currentTimeMillis() < stopAt) {
                 // scan next file store directory
                 final File dir = fsDirCycler.nextDir();
-                final ScanResult result = client.scan(dir.toPath(), true);
-                if (result.isOK()) {
-                    scanOK.incrementAndGet();
-                }
-                else {
-                    scanVirus.incrementAndGet();
-                }
+                
+                scan.accept(dir.toPath());
+                
                 Util.sleep(200);
              }
 
@@ -287,9 +296,9 @@ class ScannerTest {
     public void testFilestoreRealtimeScanWithVirus() {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             final AtomicLong scanOK = new AtomicLong();
-               final AtomicLong scanVirus = new AtomicLong();
-               final AtomicLong quarantine = new AtomicLong();
-               final AtomicLong errors = new AtomicLong();
+            final AtomicLong scanVirus = new AtomicLong();
+            final AtomicLong quarantine = new AtomicLong();
+            final AtomicLong errors = new AtomicLong();
             
             demoFS.createFilestoreSubDir("000");
             demoFS.createFilestoreSubDir("001");
@@ -302,6 +311,14 @@ class ScannerTest {
                                             .quarantineDir(demoFS.getQuarantineDir())
                                             .quarantineEventListener(e -> quarantine.incrementAndGet())
                                             .build();
+            
+            final Consumer<Path> scan = (path) -> { final ScanResult result = client.scan(path);
+                                                    if (result.isOK()) {
+                                                        scanOK.incrementAndGet();
+                                                    }
+                                                    else {
+                                                        scanVirus.incrementAndGet();
+                                                    } };
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
 
@@ -312,13 +329,7 @@ class ScannerTest {
             try (RealtimeFileProcessor rtScanner = new RealtimeFileProcessor(
                                                         fw,
                                                         1,
-                                                        e -> {  final ScanResult result = client.scan(e.getPath());
-                                                                if (result.isOK()) {
-                                                                    scanOK.incrementAndGet();
-                                                                }
-                                                                else {
-                                                                    scanVirus.incrementAndGet();
-                                                                }},
+                                                        e -> scan.accept(e.getPath()),
                                                         e -> errors.incrementAndGet())
             ) {
                 rtScanner.start();
@@ -347,9 +358,9 @@ class ScannerTest {
     public void testFilestoreBackgroundAndRealtimeScanWithVirus() {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             final AtomicLong scanOK = new AtomicLong();
-               final AtomicLong scanVirus = new AtomicLong();
-               final AtomicLong quarantine = new AtomicLong();
-               final AtomicLong errors = new AtomicLong();
+            final AtomicLong scanVirus = new AtomicLong();
+            final AtomicLong quarantine = new AtomicLong();
+            final AtomicLong errors = new AtomicLong();
             
             demoFS.populateWithDemoFiles(3, 5);  // 3 sub dirs, each with 5 files
 
@@ -361,6 +372,14 @@ class ScannerTest {
                                             .quarantineDir(demoFS.getQuarantineDir())
                                             .quarantineEventListener(e -> quarantine.incrementAndGet())
                                             .build();
+            
+            final Consumer<Path> scan = (path) -> { final ScanResult result = client.scan(path);
+                                                    if (result.isOK()) {
+                                                        scanOK.incrementAndGet();
+                                                    }
+                                                    else {
+                                                        scanVirus.incrementAndGet();
+                                                    } };
 
             // get a IDirCycler to cycle sequentially through the demo file 
             // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ... 
@@ -375,13 +394,7 @@ class ScannerTest {
             try (RealtimeFileProcessor rtScanner = new RealtimeFileProcessor(
                                                         fw,
                                                         1,
-                                                        e -> {  final ScanResult result = client.scan(e.getPath());
-                                                                if (result.isOK()) {
-                                                                    scanOK.incrementAndGet();
-                                                                }
-                                                                else {
-                                                                    scanVirus.incrementAndGet();
-                                                                }},
+                                                        e -> scan.accept(e.getPath()),
                                                         e -> errors.incrementAndGet())
             ) {
                 rtScanner.start();
@@ -398,13 +411,9 @@ class ScannerTest {
                 while(System.currentTimeMillis() < stopAt) {
                     // scan next file store directory
                     final File dir = fsDirCycler.nextDir();
-                    final ScanResult result = client.scan(dir.toPath(), true);
-                    if (result.isOK()) {
-                        scanOK.incrementAndGet();
-                    }
-                    else {
-                        scanVirus.incrementAndGet();
-                    }
+
+                    scan.accept(dir.toPath());
+                    
                     Util.sleep(200);
                  }
             }
