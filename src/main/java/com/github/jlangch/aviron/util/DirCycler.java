@@ -39,7 +39,6 @@ public class DirCycler implements IDirCycler {
         this(rootDir, null);
     }
 
-
     public DirCycler(final File rootDir, final File stateFile) {
         if (rootDir == null) {
             throw new IllegalArgumentException("The rootDir must not be null!");
