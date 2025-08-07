@@ -723,14 +723,14 @@ public class ClamdCpuLimiterExample1 {
             // scan the file store directories in an endless loop until we get 
             // killed or stopped
             while(!stop.get()) {
-                // explicitely update clamd CPU limit 
+                // explicitly update clamd CPU limit 
                 limiter.activateClamdCpuLimit();
 
                 final int limit = limiter.getLastSeenLimit();
                 if (limit >= MIN_SCAN_LIMIT_PERCENT) {
                     // scan next file store directory
                     final File dir = fsDirCycler.nextDir();
-                    
+
                     if (MOCKING) {
                         printfln("Simulated dir scan: %s", dir.toPath());
                         Thread.sleep(10_000);
@@ -767,7 +767,7 @@ public class ClamdCpuLimiterExample1 {
 
     // mocking turned on for demo
     private static final boolean MOCKING = true;
-
+    // below this cpu percentage file scanning is paused
     private static final int MIN_SCAN_LIMIT_PERCENT = 20;
 
     private final AtomicBoolean stop = new AtomicBoolean(false);

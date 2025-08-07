@@ -178,7 +178,7 @@ public class ClamdCpuLimiterExample2 {
 
     // mocking turned on for demo
     private static final boolean MOCKING = true;
-
+    // below this cpu percentage file scanning is paused
     private static final int MIN_SCAN_LIMIT_PERCENT = 20;
 
     private final AtomicBoolean stop = new AtomicBoolean(false);
