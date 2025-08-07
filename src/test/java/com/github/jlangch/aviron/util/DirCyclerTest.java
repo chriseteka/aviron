@@ -228,6 +228,10 @@ public class DirCyclerTest {
             cycler.refresh();
             assertNull(cycler.lastDirName());
 
+            cycler.refresh();
+            cycler = new DirCycler(demoFS.getFilestoreDir(), cyclerStateFile);
+            assertNull(cycler.lastDirName());
+
             // restore
             cycler.restoreLastDirName("002");
             assertEquals("002", cycler.lastDirName());

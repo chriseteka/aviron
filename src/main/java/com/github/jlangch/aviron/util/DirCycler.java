@@ -67,7 +67,7 @@ public class DirCycler implements IDirCycler {
         this.rootDir = rootDir;
         this.stateFile = stateFile;
 
-        refresh();
+        refreshDirs();
 
         if (stateFile != null) {
             loadStateFromFile(stateFile);
@@ -83,7 +83,7 @@ public class DirCycler implements IDirCycler {
     @Override
     public File nextDir() {
         if (subDirs.isEmpty()) {
-            refresh();  // check if new filestore dirs arrived
+            refreshDirs();  // check if new filestore dirs arrived
         }
 
         if (subDirs.isEmpty()) {
@@ -93,7 +93,7 @@ public class DirCycler implements IDirCycler {
         int dirIdx = lastDirIdx + 1;
         if (dirIdx >= subDirs.size()) {
             // we past the last directory -> refresh to reflect dir changes
-            refresh();
+            refreshDirs();
             if (subDirs.isEmpty()) {
                 return null;  // empty now
             }
@@ -102,7 +102,7 @@ public class DirCycler implements IDirCycler {
 
         lastDirIdx = dirIdx;
         final File next = subDirs.get(dirIdx);
-        
+
         if (stateFile != null) {
             saveStateToFile(stateFile);
         }
@@ -112,9 +112,11 @@ public class DirCycler implements IDirCycler {
 
     @Override
     public void refresh() {
-        subDirs.clear();
-        subDirs.addAll(dirs());
-        lastDirIdx = -1;
+        refreshDirs();
+
+        if (stateFile != null) {
+            saveStateToFile(stateFile);
+        }
     }
 
     @Override
@@ -126,8 +128,12 @@ public class DirCycler implements IDirCycler {
 
     @Override
     public void restoreLastDirName(final String name) {
-        refresh();
+        refreshDirs();
         lastDirIdx = getIndexOf(name);
+        
+        if (stateFile != null) {
+            saveStateToFile(stateFile);
+        }
     }
 
     @Override
@@ -178,6 +184,13 @@ public class DirCycler implements IDirCycler {
                      .filter(f -> f.isDirectory())
                      .sorted()
                      .collect(Collectors.toList());
+    }
+
+
+    private void refreshDirs() {
+        subDirs.clear();
+        subDirs.addAll(dirs());
+        lastDirIdx = -1;
     }
 
     private int getIndexOf(final String name) {
