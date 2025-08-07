@@ -655,17 +655,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
-import com.github.jlangch.aviron.admin.ClamdAdmin;
-import com.github.jlangch.aviron.admin.ClamdCpuLimiter;
-import com.github.jlangch.aviron.admin.CpuProfile;
-import com.github.jlangch.aviron.admin.DynamicCpuLimit;
 import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.events.ClamdCpuLimitChangeEvent;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
+import com.github.jlangch.aviron.limiter.ClamdCpuLimiter;
+import com.github.jlangch.aviron.limiter.ClamdPid;
+import com.github.jlangch.aviron.limiter.CpuProfile;
+import com.github.jlangch.aviron.limiter.DynamicCpuLimit;
 import com.github.jlangch.aviron.util.DemoFilestore;
 import com.github.jlangch.aviron.util.IDirCycler;
-
 
 public class ClamdCpuLimiterExample1 {
 
@@ -679,12 +678,15 @@ public class ClamdCpuLimiterExample1 {
     }
 
     public void scan() throws Exception {
+        printfln("Starting %s...", MOCKING ? "in MOCKING mode " : "");
+
         try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.populateWithDemoFiles(5, 10);  // 5 sub dirs, each with 10 files
 
             // demoFS.createEicarAntiMalwareTestFile("000");
 
             final Client client = new Client.Builder()
+                                            .mocking(MOCKING)  // turn mocking on/off
                                             .serverHostname("localhost")
                                             .serverFileSeparator(FileSeparator.UNIX)
                                             .quarantineFileAction(QuarantineFileAction.MOVE)
@@ -697,46 +699,60 @@ public class ClamdCpuLimiterExample1 {
                                             "weekday",
                                             toList(
                                                 "00:00-05:59 @ 100%",
-                                                "06:00-08:59 @  50%",
-                                                "09:00-17:59 @   0%", // no scans
+                                                "06:00-07:59 @   0%", // no scans
+                                                "08:00-17:59 @  50%",
                                                 "18:00-21:59 @  50%",
                                                 "22:00-23:59 @ 100%"));
 
-            final String clamdPID = ClamdAdmin.getClamdPID();
+            // replace the demo clamd pid file with your real one or pass clamd PID
+            final ClamdPid clamdPID = new ClamdPid(demoFS.getClamdPidFile());
 
-            final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
+            final ClamdCpuLimiter limiter = new ClamdCpuLimiter(clamdPID, new DynamicCpuLimit(everyday));
             limiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
+            limiter.mocking(MOCKING); // turn mocking on/off
 
             // get a IDirCycler to cycle sequentially through the demo file 
             // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ... 
             final IDirCycler fsDirCycler = demoFS.getFilestoreDirCycler();
 
-            // inital CPU limit after startup
-            limiter.activateClamdCpuLimit(clamdPID);
+            // initial CPU limit after startup
+            limiter.activateClamdCpuLimit();
+
+            printfln("Processing ...");
 
             // scan the file store directories in an endless loop until we get 
             // killed or stopped
             while(!stop.get()) {
-                // update clamd CPU limit 
-                limiter.activateClamdCpuLimit(clamdPID);
+                // explicitely update clamd CPU limit 
+                limiter.activateClamdCpuLimit();
 
                 final int limit = limiter.getLastSeenLimit();
                 if (limit >= MIN_SCAN_LIMIT_PERCENT) {
                     // scan next file store directory
                     final File dir = fsDirCycler.nextDir();
-                    final ScanResult result = client.scan(dir.toPath(), true);
                     
-                    printfln("%s", result);
+                    if (MOCKING) {
+                        printfln("Simulated dir scan: %s", dir.toPath());
+                        Thread.sleep(10_000);
+                    }
+                    else {
+                        final ScanResult result = client.scan(dir.toPath(), true);
+                        printfln("Scanned dir %s: %s", dir.toPath(), result);
+                    }
                 }
                 else {
-                    Thread.sleep(30_000);  // wait 30s
+                    // pause 30s due to temporarily suspended scanning (by CpuProfile)
+                    printfln("Scanning currently paused by CPU profile");
+                    Thread.sleep(30_000);
                 }
             }
+
+            printfln("Stopped");
         }
     }
 
     private void onCpuLimitChangeEvent(final ClamdCpuLimitChangeEvent event) {
-         printfln("Adjusted clamd CPU limit: %d%% -> %d%%", event.getOldLimit(), event.getNewLimit());
+        printfln("Adjusted %s", event);
     }
 
     private void onQuarantineEvent(final QuarantineEvent event) {
@@ -749,10 +765,12 @@ public class ClamdCpuLimiterExample1 {
     }
 
 
+    // mocking turned on for demo
+    private static final boolean MOCKING = true;
+
     private static final int MIN_SCAN_LIMIT_PERCENT = 20;
 
     private final AtomicBoolean stop = new AtomicBoolean(false);
-}
 ```
 
 
