@@ -773,7 +773,8 @@ public class ClamdCpuLimiterExample1 {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.populateWithDemoFiles(5, 10);  // 5 sub dirs, each with 10 files
 
-            // demoFS.createEicarAntiMalwareTestFile("000");
+            // create an infected file
+            demoFS.createEicarAntiMalwareTestFile("000");
 
             final Client client = new Client.Builder()
                                             .mocking(MOCKING)  // turn mocking on/off
@@ -823,6 +824,12 @@ public class ClamdCpuLimiterExample1 {
 
                     if (MOCKING) {
                         printfln("Simulated dir scan: %s", dir.toPath());
+                        final ScanResult result = client.scan(dir.toPath(), true);
+                        if (result.hasVirus()) {
+                            result.getVirusFound().forEach(
+                                (k,v) -> printfln("Virus detected: %s -> %s", first(v), k));
+                            printfln("Quarantine file count: %d", demoFS.countQuarantineFiles());
+                        }
                         Thread.sleep(10_000);
                     }
                     else {
@@ -850,7 +857,7 @@ public class ClamdCpuLimiterExample1 {
             printfln("Error %s", event.getException().getMessage());
         }
         else {
-            printfln("File %s moved to quarantine", event.getInfectedFile());
+            printfln("Quarantined file %s", event.getInfectedFile());
         }
     }
 
@@ -861,6 +868,7 @@ public class ClamdCpuLimiterExample1 {
     private static final int MIN_SCAN_LIMIT_PERCENT = 20;
 
     private final AtomicBoolean stop = new AtomicBoolean(false);
+}
 ```
 
 The output of a MOCK run:
@@ -871,6 +879,9 @@ Adjusted Clamd CPU limit: initial -> 50%
 Processing ...
 Simulated dir scan: /var/fo.../demo_2363070087703198259/filestore/000
 Simulated dir scan: /var/fo.../demo_2363070087703198259/filestore/001
+Quarantined file: /var/fo.../demo_2363070087703198259/filestore/000/eicar.txt
+Virus detected: EICAR-AV-Test ->  /var/fo.../demo_2363070087703198259/filestore/000/eicar.txt
+Quarantine file count: 1
 Simulated dir scan: /var/fo.../demo_2363070087703198259/filestore/002
 Simulated dir scan: /var/fo.../demo_2363070087703198259/filestore/003
 Simulated dir scan: /var/fo.../demo_2363070087703198259/filestore/004

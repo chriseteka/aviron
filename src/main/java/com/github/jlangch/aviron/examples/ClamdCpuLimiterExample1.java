@@ -91,7 +91,7 @@ public class ClamdCpuLimiterExample1 {
             demoFS.populateWithDemoFiles(5, 10);  // 5 sub dirs, each with 10 files
 
             // create an infected file
-            demoFS.createEicarAntiMalwareTestFile("000");
+            demoFS.createEicarAntiMalwareTestFile("001");
 
             final Client client = new Client.Builder()
                                             .mocking(MOCKING)  // turn mocking on/off
@@ -174,7 +174,7 @@ public class ClamdCpuLimiterExample1 {
             printfln("Error %s", event.getException().getMessage());
         }
         else {
-            printfln("Quarantined file %s", event.getInfectedFile());
+            printfln("Quarantined file: %s", event.getInfectedFile());
         }
     }
 
