@@ -139,6 +139,10 @@ public class ClamdCpuLimiterExample1 {
 
                     if (MOCKING) {
                         printfln("Simulated dir scan: %s", dir.toPath());
+                        final ScanResult result = client.scan(dir.toPath(), true);
+                        if (result.hasVirus()) {
+                        	printfln("Virus detected %s: %s", dir.toPath(), result);
+                        }
                         Thread.sleep(10_000);
                     }
                     else {

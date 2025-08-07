@@ -22,6 +22,7 @@
  */
 package com.github.jlangch.aviron;
 
+import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 import static com.github.jlangch.aviron.util.Util.sleep;
 
 import java.io.File;
@@ -30,10 +31,12 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import com.github.jlangch.aviron.dto.CommandRunDetails;
 import com.github.jlangch.aviron.dto.QuarantineFile;
@@ -274,7 +277,7 @@ public class Client {
         }
 
         if (mocking) {
-            return mockScan(path);
+            return mockScan(path,false);
         }
         else {
             final ScanResult result = scan(path, false);
@@ -298,7 +301,7 @@ public class Client {
         }
 
         if (mocking) {
-            return mockScan(path);
+            return mockScan(path, continueScan);
         }
         else {
             final String serverPath = server.toServerPath(path);
@@ -322,7 +325,7 @@ public class Client {
         }
 
         if (mocking) {
-            return mockScan(path);
+            return mockScan(path, true);
         }
         else {
             final ScanResult result = sendCommand(new MultiScan(server.toServerPath(path)));
@@ -504,20 +507,41 @@ public class Client {
         return new VersionCommands().send(server);
     }
 
-    public ScanResult mockScan(final Path path) {
+    public ScanResult mockScan(final Path path, final boolean continueScan) {
         sleep(80);  // sleep 80ms to simulate a clamd scan
         
-        if (isEicarTestFile(path)) {
+        if (Files.isRegularFile(path) && isEicarTestFile(path)) {
             final Map<String, List<String>> viruses = new HashMap<>();
             viruses.put(path.toFile().getPath(), CollectionUtils.toList("EICAR-AV-Test"));
             final ScanResult result = ScanResult.virusFound(viruses);
             quarantine.handleQuarantineActions(result);
             return result;
         }
+        else if (Files.isDirectory(path)) {
+            final List<Path> infected = Arrays.stream(path.toFile().listFiles())
+                                              .map(f -> f.toPath())
+                                              .filter(p -> Files.isRegularFile(p))
+                                              .filter(p -> isEicarTestFile(p))
+                                              .collect(Collectors.toList());
+            if (infected.isEmpty()) {
+                return ScanResult.ok();
+            }
+            else {
+                final List<Path> items = continueScan 
+                                            ? infected 
+                                            : infected.subList(0, 1);
+
+                final ScanResult result = ScanResult.virusFound(
+                                            items.stream()
+                                                 .collect(Collectors.toMap(
+                                                             p -> p.toString(),
+                                                             p -> toList("EICAR-AV-Test"))));
+                quarantine.handleQuarantineActions(result);
+                return result;
+            }
+        }
         else {
-            final ScanResult result = ScanResult.ok();
-            quarantine.handleQuarantineActions(result);
-           return result;
+            return ScanResult.ok();
         }
     }
 

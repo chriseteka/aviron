@@ -166,6 +166,10 @@ public class RealtimeScannerExample {
     private void onScan(final RealtimeScanEvent event) {
         if (MOCKING) {
             printfln("Simulated scan: %s", event.getPath());
+            final ScanResult result = client.get().scan(event.getPath(), true);
+            if (result.hasVirus()) {
+            	printfln("Virus detected %s: %s", event.getPath(), result);
+            }
         }
         else {
             final ScanResult result = client.get().scan(event.getPath(), true);
