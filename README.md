@@ -773,6 +773,22 @@ public class ClamdCpuLimiterExample1 {
     private final AtomicBoolean stop = new AtomicBoolean(false);
 ```
 
+The output of a MOCK run:
+
+```
+Starting in MOCKING mode ...
+Adjusted Clamd CPU limit: initial -> 50%
+Processing ...
+Simulated dir scan: /var/fo.../demo_2363070087703198259/filestoreDir/000
+Simulated dir scan: /var/fo.../demo_2363070087703198259/filestoreDir/001
+Simulated dir scan: /var/fo.../demo_2363070087703198259/filestoreDir/002
+Simulated dir scan: /var/fo.../demo_2363070087703198259/filestoreDir/003
+Simulated dir scan: /var/fo.../demo_2363070087703198259/filestoreDir/004
+Simulated dir scan: /var/fo.../demo_2363070087703198259/filestoreDir/000
+Simulated dir scan: /var/fo.../demo_2363070087703198259/filestoreDir/001
+  :
+```
+
 
 ## Getting the latest release
 
