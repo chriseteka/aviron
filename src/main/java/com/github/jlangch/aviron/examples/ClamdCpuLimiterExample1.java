@@ -120,28 +120,35 @@ public class ClamdCpuLimiterExample1 {
             // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ... 
             final IDirCycler fsDirCycler = demoFS.getFilestoreDirCycler();
 
-            // inital CPU limit after startup
+            // initial CPU limit after startup
             limiter.activateClamdCpuLimit();
+
+            printfln("Processing ...");
 
             // scan the file store directories in an endless loop until we get 
             // killed or stopped
             while(!stop.get()) {
-                printfln("Processing ...");
-
-                // update clamd CPU limit 
+                // explicitely update clamd CPU limit 
                 limiter.activateClamdCpuLimit();
 
                 final int limit = limiter.getLastSeenLimit();
                 if (limit >= MIN_SCAN_LIMIT_PERCENT) {
                     // scan next file store directory
                     final File dir = fsDirCycler.nextDir();
-                    final ScanResult result = client.scan(dir.toPath(), true);
-
-                    printfln("%s", result);
+                    
+                    if (MOCKING) {
+                        printfln("Simulated dir scan: %s", dir.toPath());
+                        Thread.sleep(10_000);
+                    }
+                    else {
+                        final ScanResult result = client.scan(dir.toPath(), true);
+                        printfln("Scanned dir %s: %s", dir.toPath(), result);
+                    }
                 }
                 else {
                     // pause 30s due to temporarily suspended scanning (by CpuProfile)
-                    Thread.sleep(30_000);  // 
+                    printfln("Scanning currently paused by CPU profile");
+                    Thread.sleep(30_000);
                 }
             }
 

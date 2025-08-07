@@ -26,6 +26,7 @@ import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 import static com.github.jlangch.aviron.util.Util.printfln;
 
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -45,6 +46,7 @@ import com.github.jlangch.aviron.limiter.ClamdCpuLimiter;
 import com.github.jlangch.aviron.limiter.ClamdPid;
 import com.github.jlangch.aviron.limiter.CpuProfile;
 import com.github.jlangch.aviron.limiter.DynamicCpuLimit;
+import com.github.jlangch.aviron.limiter.ScheduledClamdCpuLimiter;
 import com.github.jlangch.aviron.realtime.RealtimeFileProcessor;
 import com.github.jlangch.aviron.util.DemoFilestore;
 import com.github.jlangch.aviron.util.OS;
@@ -81,19 +83,16 @@ public class RealtimeScannerExample {
                                             "weekday",
                                             toList(
                                                 "00:00-05:59 @ 100%",
-                                                "06:00-08:59 @  50%",
-                                                "09:00-17:59 @  50%",
-                                                "18:00-21:59 @  50%",
+                                                "06:00-21:59 @  50%",
                                                 "22:00-23:59 @ 100%"));
 
             // replace the demo clamd pid file with your real one or pass clamd PID
             final ClamdPid clamdPID = new ClamdPid(demoFS.getClamdPidFile());
 
             // setup the clamd CPU limiter
-            final ClamdCpuLimiter cpuLimiter = new ClamdCpuLimiter(clamdPID, new DynamicCpuLimit(everyday));
-            cpuLimiter.mocking(MOCKING); // turn mocking on/off
-            cpuLimiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
-            limiter.set(cpuLimiter);
+            final ClamdCpuLimiter limiter = new ClamdCpuLimiter(clamdPID, new DynamicCpuLimit(everyday));
+            limiter.mocking(MOCKING); // turn mocking on/off
+            limiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
             final boolean registerAllSubDirs = true;
@@ -102,31 +101,36 @@ public class RealtimeScannerExample {
 
             final int sleepTimeSecondsOnIdle = 5;
 
-            // inital CPU limit after startup
-            limiter.get().activateClamdCpuLimit();
+            try (ScheduledClamdCpuLimiter ses = new ScheduledClamdCpuLimiter(
+                                                        limiter, 
+                                                        0, 5, TimeUnit.MINUTES)) {
+                ses.start();
 
-            // start the realtime file processor and process the incoming
-            // file events in the onScan() listener
-            try (RealtimeFileProcessor rtScanner = new RealtimeFileProcessor(
-                                                        fw,
-                                                        sleepTimeSecondsOnIdle,
-                                                        this::onScan,
-                                                        this::onErrorEvent)
-            ) {
-                rtScanner.start();
+                printfln("Clamd CPU limiter started ...");
 
-                printfln("Processing ...");
+                // start the realtime file processor and process the incoming
+                // file events in the onScan() listener
+                try (RealtimeFileProcessor rtScanner = new RealtimeFileProcessor(
+                                                            fw,
+                                                            sleepTimeSecondsOnIdle,
+                                                            this::onScan,
+                                                            this::onErrorEvent)
+                ) {
+                    rtScanner.start();
 
-                Thread.sleep(1000);
+                    printfln("Processing ...");
 
-                demoFS.createFilestoreFile("000", "test1.data");
-
-                Thread.sleep(1000);
-
-                // demoFS.createEicarAntiMalwareTestFile("0000");
-
-                while(!stop.get()) {
                     Thread.sleep(1000);
+
+                    demoFS.createFilestoreFile("000", "test1.data");
+
+                    Thread.sleep(1000);
+
+                    // demoFS.createEicarAntiMalwareTestFile("0000");
+
+                    while(!stop.get()) {
+                        Thread.sleep(1000);
+                    }
                 }
             }
         }
@@ -160,15 +164,12 @@ public class RealtimeScannerExample {
     }
 
     private void onScan(final RealtimeScanEvent event) {
-        final ClamdCpuLimiter l = limiter.get();
-
-        // update clamd CPU limit 
-        l.activateClamdCpuLimit();
-
-        final int limit = l.getLastSeenLimit();
-        if (limit >= MIN_SCAN_LIMIT_PERCENT) {
+        if (MOCKING) {
+            printfln("Simulated scan: %s", event.getPath());
+        }
+        else {
             final ScanResult result = client.get().scan(event.getPath(), true);
-            printfln("%s", result);
+            printfln("Scanned %s: ", event.getPath(), result);
         }
     }
 
@@ -189,10 +190,7 @@ public class RealtimeScannerExample {
     // mocking turned on for demo
     private static final boolean MOCKING = true;
 
-    private static final int MIN_SCAN_LIMIT_PERCENT = 20;
-
     private final AtomicBoolean stop = new AtomicBoolean(false);
 
     private final AtomicReference<Client> client = new AtomicReference<>();
-    private final AtomicReference<ClamdCpuLimiter> limiter = new AtomicReference<>();
 }

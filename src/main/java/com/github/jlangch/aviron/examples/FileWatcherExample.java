@@ -51,6 +51,8 @@ public class FileWatcherExample {
     }
 
     public void run() throws Exception {
+        printfln("Starting ...");
+
         try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.createFilestoreSubDir("000");
             demoFS.createFilestoreSubDir("001");
@@ -84,6 +86,8 @@ public class FileWatcherExample {
 
             // wait to receive the termination event
             sleep(1000);
+
+            printfln("Stopped");
         }
     }
 

@@ -107,7 +107,7 @@ public class ClamdCpuLimiterExample2 {
                                             toList(
                                                 "00:00-05:59 @ 100%",
                                                 "06:00-08:59 @  50%",
-                                                "09:00-17:59 @   0%", // no scans
+                                                "09:00-17:59 @  50%", // no scans
                                                 "18:00-21:59 @  50%",
                                                 "22:00-23:59 @ 100%"));
 
@@ -130,20 +130,27 @@ public class ClamdCpuLimiterExample2 {
                                                         0, 5, TimeUnit.MINUTES)) {
                 ses.start();
 
+                printfln("Processing ...");
+
                 // scan the file store directories in an endless loop until we get 
                 // killed or stopped
                 while(!stop.get()) {
-                    printfln("Processing ...");
-
                     if (limiter.getLastSeenLimit() >= MIN_SCAN_LIMIT_PERCENT) {
                         // scan next file store directory
                         final File dir = fsDirCycler.nextDir();
-                        final ScanResult result = client.scan(dir.toPath(), true);
 
-                        printfln("%s", result);
+                        if (MOCKING) {
+                            printfln("Simulated dir scan: %s", dir.toPath());
+                            Thread.sleep(10_000);
+                        }
+                        else {
+                            final ScanResult result = client.scan(dir.toPath(), true);
+                            printfln("Scanned dir %s: %s", dir.toPath(), result);
+                        }
                     }
                     else {
                         // pause 30s due to temporarily suspended scanning (by CpuProfile)
+                        printfln("Scanning currently paused by CPU profile");
                         Thread.sleep(30_000);
                     }
                 }
