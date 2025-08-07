@@ -877,16 +877,16 @@ The output of a MOCK run:
 Starting in MOCKING mode ...
 Adjusted Clamd CPU limit: initial -> 50%
 Processing ...
-Simulated dir scan: /var/fo.../demo_2363070087703198259/filestore/000
-Simulated dir scan: /var/fo.../demo_2363070087703198259/filestore/001
-Quarantined file: /var/fo.../demo_2363070087703198259/filestore/000/eicar.txt
-Virus detected: EICAR-AV-Test ->  /var/fo.../demo_2363070087703198259/filestore/000/eicar.txt
+Simulated dir scan: /var/fo.../demo_234/filestore/000
+Simulated dir scan: /var/fo.../demo_234/filestore/001
+Quarantined file: /var/fo.../demo_234/filestore/000/eicar.txt
+Virus detected: EICAR-AV-Test ->  /var/fo.../demo_234/filestore/000/eicar.txt
 Quarantine file count: 1
-Simulated dir scan: /var/fo.../demo_2363070087703198259/filestore/002
-Simulated dir scan: /var/fo.../demo_2363070087703198259/filestore/003
-Simulated dir scan: /var/fo.../demo_2363070087703198259/filestore/004
-Simulated dir scan: /var/fo.../demo_2363070087703198259/filestore/000
-Simulated dir scan: /var/fo.../demo_2363070087703198259/filestore/001
+Simulated dir scan: /var/fo.../demo_234/filestore/002
+Simulated dir scan: /var/fo.../demo_234/filestore/003
+Simulated dir scan: /var/fo.../demo_234/filestore/004
+Simulated dir scan: /var/fo.../demo_234/filestore/000
+Simulated dir scan: /var/fo.../demo_234/filestore/001
   :
 ```
 
