@@ -23,6 +23,7 @@
 package com.github.jlangch.aviron.examples;
 
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
+import static com.github.jlangch.aviron.impl.util.CollectionUtils.first;
 import static com.github.jlangch.aviron.util.Util.printfln;
 
 import java.io.File;
@@ -91,7 +92,8 @@ public class ClamdCpuLimiterExample2 {
        try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.populateWithDemoFiles(5, 10);  // 5 sub dirs, each with 10 files
 
-            // demoFS.createEicarAntiMalwareTestFile("000");
+            // create an infected file
+            demoFS.createEicarAntiMalwareTestFile("000");
 
             final Client client = new Client.Builder()
                                             .mocking(MOCKING)  // turn mocking on/off
@@ -144,7 +146,9 @@ public class ClamdCpuLimiterExample2 {
                             printfln("Simulated dir scan: %s", dir.toPath());
                             final ScanResult result = client.scan(dir.toPath(), true);
                             if (result.hasVirus()) {
-                            	printfln("Virus detected %s: %s", dir.toPath(), result);
+                                result.getVirusFound().forEach(
+                                    (k,v) -> printfln("Virus detected: %s -> %s", first(v), k));
+                                printfln("Quarantine file count: %d", demoFS.countQuarantineFiles());
                             }
                             Thread.sleep(10_000);
                         }
@@ -175,7 +179,7 @@ public class ClamdCpuLimiterExample2 {
             printfln("Error %s", event.getException().getMessage());
         }
         else {
-            printfln("File %s moved to quarantine", event.getInfectedFile() + "");
+            printfln("Quarantined file %s", event.getInfectedFile());
         }
     }
 

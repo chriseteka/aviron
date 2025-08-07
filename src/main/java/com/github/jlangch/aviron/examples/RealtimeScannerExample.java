@@ -22,6 +22,7 @@
  */
 package com.github.jlangch.aviron.examples;
 
+import static com.github.jlangch.aviron.impl.util.CollectionUtils.first;
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 import static com.github.jlangch.aviron.util.Util.printfln;
 
@@ -126,7 +127,8 @@ public class RealtimeScannerExample {
 
                     Thread.sleep(1000);
 
-                    // demoFS.createEicarAntiMalwareTestFile("0000");
+                    // create an infected file
+                    demoFS.createEicarAntiMalwareTestFile("000");
 
                     while(!stop.get()) {
                         Thread.sleep(1000);
@@ -166,9 +168,10 @@ public class RealtimeScannerExample {
     private void onScan(final RealtimeScanEvent event) {
         if (MOCKING) {
             printfln("Simulated scan: %s", event.getPath());
-            final ScanResult result = client.get().scan(event.getPath(), true);
+            final ScanResult result = client.get().scan(event.getPath());
             if (result.hasVirus()) {
-            	printfln("Virus detected %s: %s", event.getPath(), result);
+                result.getVirusFound().forEach(
+                    (k,v) -> printfln("Virus detected: %s -> %s", first(v), k));
             }
         }
         else {
