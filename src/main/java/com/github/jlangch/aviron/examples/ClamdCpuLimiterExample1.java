@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
-import com.github.jlangch.aviron.admin.ClamdAdmin;
 import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.events.ClamdCpuLimitChangeEvent;
 import com.github.jlangch.aviron.events.QuarantineEvent;
@@ -90,6 +89,7 @@ public class ClamdCpuLimiterExample1 {
             // demoFS.createEicarAntiMalwareTestFile("000");
 
             final Client client = new Client.Builder()
+                                            .mocking(MOCKING)  // turn mocking on/off
                                             .serverHostname("localhost")
                                             .serverFileSeparator(FileSeparator.UNIX)
                                             .quarantineFileAction(QuarantineFileAction.MOVE)
@@ -107,10 +107,12 @@ public class ClamdCpuLimiterExample1 {
                                                 "18:00-21:59 @  50%",
                                                 "22:00-23:59 @ 100%"));
 
-            final ClamdPid clamdPID = new ClamdPid(ClamdAdmin.getClamdPID());
+            // replace the demo clamd pid file with your real one or pass clamd PID
+            final ClamdPid clamdPID = new ClamdPid(demoFS.getClamdPidFile());
 
             final ClamdCpuLimiter limiter = new ClamdCpuLimiter(clamdPID, new DynamicCpuLimit(everyday));
             limiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
+            limiter.mocking(MOCKING); // turn mocking on/off
 
             // get a IDirCycler to cycle sequentially through the demo file 
             // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ... 
@@ -153,6 +155,9 @@ public class ClamdCpuLimiterExample1 {
         }
     }
 
+    
+    // mocking turned on for demo
+    private static final boolean MOCKING = true;
 
     private static final int MIN_SCAN_LIMIT_PERCENT = 20;
 

@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.impl.incubation;
+package com.github.jlangch.aviron.examples;
 
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 import static com.github.jlangch.aviron.util.Util.printfln;
@@ -31,7 +31,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
-import com.github.jlangch.aviron.admin.ClamdAdmin;
 import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.events.ClamdCpuLimitChangeEvent;
 import com.github.jlangch.aviron.events.FileWatchErrorEvent;
@@ -51,12 +50,6 @@ import com.github.jlangch.aviron.util.DemoFilestore;
 import com.github.jlangch.aviron.util.OS;
 
 
-// +--------------------------------------------------------------------------+
-// |                                                                          |
-// |                NOT YET TESTED    -->   DO NOT USE                        |
-// |                                                                          |
-// +--------------------------------------------------------------------------+
-
 public class RealtimeScannerExample {
 
     public static void main(String[] args) {
@@ -73,6 +66,7 @@ public class RealtimeScannerExample {
             demoFS.populateWithDemoFiles(5, 10);  // 5 sub dirs, each with 10 files
 
             client.set(new Client.Builder()
+                                 .mocking(MOCKING)  // turn mocking on/off
                                  .serverHostname("localhost")
                                  .serverFileSeparator(FileSeparator.UNIX)
                                  .quarantineFileAction(QuarantineFileAction.MOVE)
@@ -90,10 +84,12 @@ public class RealtimeScannerExample {
                                                 "18:00-21:59 @  50%",
                                                 "22:00-23:59 @ 100%"));
 
-            final ClamdPid clamdPID = new ClamdPid(ClamdAdmin.getClamdPID());
-            
+            // replace the demo clamd pid file with your real one or pass clamd PID
+            final ClamdPid clamdPID = new ClamdPid(demoFS.getClamdPidFile());
+
             // setup the clamd CPU limiter
             final ClamdCpuLimiter cpuLimiter = new ClamdCpuLimiter(clamdPID, new DynamicCpuLimit(everyday));
+            cpuLimiter.mocking(MOCKING); // turn mocking on/off
             cpuLimiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
             limiter.set(cpuLimiter);
 
@@ -183,6 +179,9 @@ public class RealtimeScannerExample {
         printfln("File Watch Error: %s %s", event.getPath(), event.getException().getMessage());
     }
 
+
+    // mocking turned on for demo
+    private static final boolean MOCKING = true;
 
     private static final int MIN_SCAN_LIMIT_PERCENT = 20;
 

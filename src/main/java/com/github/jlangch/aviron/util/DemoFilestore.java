@@ -122,6 +122,10 @@ public class DemoFilestore implements Closeable {
         return quarantineDir;
     }
 
+    public File getClamdPidFile() {
+        return new File(rootDir, "clamd.pid");
+    }
+
     @Override
     public void close() {
         try {
