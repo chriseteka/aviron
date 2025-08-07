@@ -13,10 +13,10 @@ All notable changes to this project will be documented in this file.
 - Added a file watcher example
 - Added `ClamdPid` factory to allow more flexibility on handling clamd PIDs
 - Enhanced `ClamdCpuLimiter` to send an event if the clamd CPU limit is changed
-- Enhanced `Client` and `ClamdAdmin` to mock out the physical connection
+- Enhanced `Client` and `ClamdCpuLimiter` to mock out the physical connection
   to the clamd daemon and processes thus allowing seamless mock tests before 
   running real tests with the clamd daemon
-- Enhanced the `DirCycle` class with save/load state from/to a file
+- Enhanced the `DirCycle` class to support save/load state to a file
 - Improved `ClamdAdmin::activateClamdCpuLimit` to implicitly kill a cpulimit
   process controlling the clamd daemon before starting a new cpulimit process 
   with the new CPU limit. This makes calling `activateClamdCpuLimit` simpler
