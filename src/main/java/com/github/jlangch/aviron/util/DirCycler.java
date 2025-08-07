@@ -47,11 +47,12 @@ public class DirCycler implements IDirCycler {
     /**
      * Create a DirCycler on a directory with an optional state file. 
      * 
-     * <p>If the state file is given (it must not necessarily exist) the
-     * cycler saves its state automatically to this file. 
+     * <p>If the state file is given (it must not necessarily exist at 
+     * construction time) the cycler saves its state automatically to this 
+     * file. 
      * 
      * <p>If the state file exists at construction time the cycler loads
-     * the state from from the file and proceeds where it has left off.
+     * the state from the file and proceeds where it has left off.
      * 
      * @param rootDir  the mandatory root directory
      * @param stateFile an optional state file
