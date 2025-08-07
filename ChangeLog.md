@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file.
 - Breaking change: moved the Clamd CPU limiter related classes to its own new 
   package 'com.github.jlangch.aviron.limiter'
 - All examples can be run in REAL or MOCK mode
+- Enhanced the `DirCycler` to optionally auto save its state
 
 
 

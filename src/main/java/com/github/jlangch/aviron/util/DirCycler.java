@@ -36,6 +36,11 @@ import com.github.jlangch.aviron.ex.AvironException;
 public class DirCycler implements IDirCycler {
 
     public DirCycler(final File rootDir) {
+        this(rootDir, null);
+    }
+
+
+    public DirCycler(final File rootDir, final File stateFile) {
         if (rootDir == null) {
             throw new IllegalArgumentException("The rootDir must not be null!");
         }
@@ -44,7 +49,15 @@ public class DirCycler implements IDirCycler {
         }
 
         this.rootDir = rootDir;
+        this.stateFile = stateFile;
+
+        refresh();
+
+        if (stateFile != null) {
+            loadStateFromFile(stateFile);
+        }
     }
+
 
     @Override
     public File rootDir() {
@@ -72,7 +85,13 @@ public class DirCycler implements IDirCycler {
         }
 
         lastDirIdx = dirIdx;
-        return subDirs.get(dirIdx);
+        final File next = subDirs.get(dirIdx);
+        
+        if (stateFile != null) {
+            saveStateToFile(stateFile);
+        }
+
+        return next;
     }
 
     @Override
@@ -137,8 +156,8 @@ public class DirCycler implements IDirCycler {
         }
     }
 
-
-    private List<File> dirs() {
+    @Override
+    public List<File> dirs() {
         return Arrays.stream(rootDir.listFiles())
                      .filter(f -> f.isDirectory())
                      .sorted()
@@ -157,7 +176,8 @@ public class DirCycler implements IDirCycler {
     }
 
 
-   private final File rootDir;
-   private int lastDirIdx = -1;
-   private final List<File> subDirs = new ArrayList<>();
+    private final File rootDir;
+    private final File stateFile;
+    private int lastDirIdx = -1;
+    private final List<File> subDirs = new ArrayList<>();
 }

@@ -27,11 +27,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 
-public class DemoFilestoreCyclerTest {
+public class DirCyclerTest {
 
     @Test 
     void testNextDirEmpty() throws IOException {
@@ -104,6 +105,26 @@ public class DemoFilestoreCyclerTest {
     }
 
     @Test 
+    void testDirs() throws IOException {
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            final IDirCycler cycler = demoFS.getFilestoreDirCycler();
+
+            List<File> dirs = cycler.dirs();
+            assertEquals(0, dirs.size());
+
+            demoFS.createFilestoreSubDir("000");
+            demoFS.createFilestoreSubDir("001");
+            demoFS.createFilestoreSubDir("002");
+
+            dirs = cycler.dirs();
+            assertEquals(3, dirs.size());
+            assertEquals("000", dirs.get(0).getName());
+            assertEquals("001", dirs.get(1).getName());
+            assertEquals("002", dirs.get(2).getName());
+        }
+    }
+
+    @Test 
     void testSaveAnRestoreLastDir() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             final IDirCycler cycler = demoFS.getFilestoreDirCycler();
@@ -165,6 +186,43 @@ public class DemoFilestoreCyclerTest {
             cycler.saveStateToFile(cyclerStateFile);
             cycler.refresh();
             cycler.loadStateFromFile(cyclerStateFile);
+            assertEquals("001", cycler.lastDirName());
+
+            cycler.refresh();
+            assertNull(cycler.lastDirName());
+
+            // restore
+            cycler.restoreLastDirName("002");
+            assertEquals("002", cycler.lastDirName());
+
+            assertEquals("003", cycler.nextDir().getName());
+            assertEquals("000", cycler.nextDir().getName());
+        }
+    }
+
+
+    @Test 
+    void testAutoStoreState() throws IOException {
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            final File cyclerStateFile = new File(demoFS.getRootDir(), "filestore-cycler.state");
+
+            IDirCycler cycler = new DirCycler(demoFS.getFilestoreDir(), cyclerStateFile);
+            assertNull(cycler.lastDirName());
+
+            demoFS.createFilestoreSubDir("000");
+            demoFS.createFilestoreSubDir("001");
+            demoFS.createFilestoreSubDir("002");
+            demoFS.createFilestoreSubDir("003");
+
+            // start where the cycler left off
+            cycler = new DirCycler(demoFS.getFilestoreDir(), cyclerStateFile);
+            assertNull(cycler.lastDirName());
+
+            assertEquals("000", cycler.nextDir().getName());
+            assertEquals("001", cycler.nextDir().getName());
+
+            // start where the cycler left off
+            cycler = new DirCycler(demoFS.getFilestoreDir(), cyclerStateFile);
             assertEquals("001", cycler.lastDirName());
 
             cycler.refresh();

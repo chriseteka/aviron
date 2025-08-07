@@ -23,6 +23,7 @@
 package com.github.jlangch.aviron.util;
 
 import java.io.File;
+import java.util.List;
 
 
 /**
@@ -58,6 +59,13 @@ public interface IDirCycler {
      *         to next()
      */
     String lastDirName();
+
+    /**
+     * Returns a list of the managed subdirs
+     * 
+     * @return a list of the managed subdirs
+     */
+    public List<File> dirs();
 
     /**
      * Restores the cycler's last processed sub dir with the passed dir
