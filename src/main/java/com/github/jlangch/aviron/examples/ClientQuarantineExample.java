@@ -33,11 +33,11 @@ import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 
 
-public class ScanQuarantineExample {
+public class ClientQuarantineExample {
 
     public static void main(String[] args) throws Exception {
         try {
-            new ScanExample().scan();
+            new ClientExample().scan();
         }
         catch(Exception ex) {
             ex.printStackTrace();

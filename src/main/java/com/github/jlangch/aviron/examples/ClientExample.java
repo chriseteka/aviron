@@ -29,11 +29,11 @@ import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
 
 
-public class ScanExample {
+public class ClientExample {
 
     public static void main(String[] args) {
         try {
-            new ScanExample().scan();
+            new ClientExample().scan();
         }
         catch(Exception ex) {
             ex.printStackTrace();

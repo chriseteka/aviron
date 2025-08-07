@@ -23,6 +23,7 @@ All notable changes to this project will be documented in this file.
 - Added `ScheduledClamdCpuLimiter` to simplify scheduled clamd CPU limit changes
 - Breaking change: moved the Clamd CPU limiter related classes to its own new 
   package 'com.github.jlangch.aviron.limiter'
+- All examples can be run in REAL or MOCK mode
 
 
 
