@@ -125,12 +125,12 @@ provide and real-time information on created, modified, or deleted files.
 
 **Realtime File Processor**
 
-The *RealtimeFileProcessor* orchestrates the file watcher and a 
-file watcher queue to deliver file scan events to an AV client. It applies
-optimizations to file watching events on deleted files and it helps
-keeping the scan pipeline safe and sound even if the pipeline is overrun by 
-file watching events and the AV scanner is too slow process all the scan
-jobs fast enough.
+The *RealtimeFileProcessor* coordinates the file watcher and its event queue 
+to deliver file scan events to an AV client. It applies optimizations 
+for handling file watch events on deleted files and helps maintain the 
+stability of the scanning pipeline, even when it’s overwhelmed by a 
+high volume of events or when the AV scanner is too slow to keep 
+up with the scan jobs.
 
 
 
