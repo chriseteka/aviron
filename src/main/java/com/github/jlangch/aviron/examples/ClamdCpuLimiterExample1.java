@@ -136,7 +136,8 @@ public class ClamdCpuLimiterExample1 {
                     printfln("%s", result);
                 }
                 else {
-                    Thread.sleep(30_000);  // wait 30s
+                    // pause 30s due to temporarily suspended scanning
+                    Thread.sleep(30_000);  // 
                 }
             }
         }
