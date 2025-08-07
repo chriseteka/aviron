@@ -95,9 +95,7 @@ the scanning statistics.
 
 The *ClamAV client* communicates through a <i>Socket</i> with the clamd daemon.
 
-Just with the *ClamAV client* you can write simple AV scan jobs for files or 
-directories. The optional quarantine module can move/copy infected files 
-automatically to a quarantine directory.
+With just the *ClamAV client*, you can create simple antivirus scan jobs for files or directories. The optional quarantine module can automatically move or copy infected files to a designated quarantine directory.
 
 For more sophisticated scanners file watchers offer realtime support 
 and CPU limiters allow the precise control of the clamd daemons CPU usage.
