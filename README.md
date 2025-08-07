@@ -83,7 +83,7 @@ any CPU limiting features.
    │           File Watcher           │       │         Clamd CPU Limiter        │
    └──────────────────────────────────┘       └──────────────────────────────────┘      
    ┌──────────────────────────────────┐       ┌──────────────────────────────────┐
-   │      Realtime File Processor     │       │    Scheduled  Clamd CPU Limiter  │
+   │      Realtime File Processor     │       │    Scheduled Clamd CPU Limiter   │
    └──────────────────────────────────┘       └──────────────────────────────────┘
 ```
 
@@ -124,13 +124,27 @@ realtime information on created, modified, or deleted files.
 
 **Realtime File Processor**
 
-«in work»
+The *RealtimeFileProcessor* orchestrates the file watcher and the 
+file watcher queue to deliver file scan events to an AV client. It applies
+optimizations to file watching events on deleted files and it helps
+keep the scan pipeline safe and sound even if the pipeline is overrun by 
+file watching events.
 
 
 
 **CPU Limiter**
 
-«in work»
+The CPU Limiter module provides functions to precisely control the CPU 
+usage of a clamd daemon. 
+
+* A *CPU Profile* defines a single 24h CPU profile
+* A *Dynamic CPU Limit* defines CPU profiles for a full week Mon - Sun with
+  individual profiles for each day. For exotic requirements it supports
+  a pluggable CPU limit function that allows an application to freely 
+  define the CPU usage based on the current time.
+* The *Clamd CPU Limiter* controls a clamd's CPU usage based on *Dynamic CPU Limit*
+* The *Scheduled Clamd CPU Limiter* is a configurable scheduler to controls a 
+  clamd's CPU usage based on a *Clamd CPU Limiter*
 
 
 
