@@ -100,7 +100,7 @@ directories. The optional quarantine module can move/copy infected files
 automatically to a quarantine directory.
 
 For more sophisticated scanners file watchers offer realtime support 
-and CPU limiter allow the precise control of the clamd daemons CPU usage.
+and CPU limiters allow the precise control of the clamd daemons CPU usage.
  
 
 
