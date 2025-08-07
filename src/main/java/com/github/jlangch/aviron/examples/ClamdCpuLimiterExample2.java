@@ -85,7 +85,7 @@ public class ClamdCpuLimiterExample2 {
     }
 
     public void scan() throws Exception {
-        printfln("Starting ...");
+        printfln("Starting %s...", MOCKING ? "in MOCKING mode " : "");
 
        try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.populateWithDemoFiles(5, 10);  // 5 sub dirs, each with 10 files
