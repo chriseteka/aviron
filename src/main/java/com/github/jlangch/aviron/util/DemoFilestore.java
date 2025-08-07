@@ -99,7 +99,7 @@ public class DemoFilestore implements Closeable {
 
     public DemoFilestore() {
         this.rootDir = createTempDir();
-        this.filestoreDir = new File(rootDir, "filestoreDir");
+        this.filestoreDir = new File(rootDir, "filestore");
         this.quarantineDir = new File(rootDir, "quarantine");
 
         this.filestoreDir.mkdir();
