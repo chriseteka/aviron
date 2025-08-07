@@ -41,6 +41,7 @@ import com.github.jlangch.aviron.limiter.CpuProfile;
 import com.github.jlangch.aviron.limiter.DynamicCpuLimit;
 import com.github.jlangch.aviron.limiter.ScheduledClamdCpuLimiter;
 import com.github.jlangch.aviron.util.DemoFilestore;
+import com.github.jlangch.aviron.util.DirCycler;
 import com.github.jlangch.aviron.util.IDirCycler;
 
 
@@ -118,9 +119,9 @@ public class ClamdCpuLimiterExample2 {
             limiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
             limiter.mocking(MOCKING); // turn mocking on/off
 
-            // get a IDirCycler to cycle sequentially through the demo file 
+            // create a IDirCycler to cycle sequentially through the demo file 
             // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ... 
-            final IDirCycler fsDirCycler = demoFS.getFilestoreDirCycler();
+            final IDirCycler fsDirCycler = new DirCycler(demoFS.getFilestoreDir());
 
             // inital CPU limit after startup
             limiter.activateClamdCpuLimit();

@@ -711,9 +711,9 @@ public class ClamdCpuLimiterExample1 {
             limiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
             limiter.mocking(MOCKING); // turn mocking on/off
 
-            // get a IDirCycler to cycle sequentially through the demo file 
+            // create a IDirCycler to cycle sequentially through the demo file 
             // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ... 
-            final IDirCycler fsDirCycler = demoFS.getFilestoreDirCycler();
+            final IDirCycler fsDirCycler = new DirCycler(demoFS.getFilestoreDir());
 
             // initial CPU limit after startup
             limiter.activateClamdCpuLimit();
