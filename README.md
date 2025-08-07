@@ -117,24 +117,25 @@ The *Clamd Admin* module offers functions to manage the clamd daemon, like:
 
 **File Watcher**
 
-File watchers based on the *Java WatchService* or the *fswatch* tool provide 
-realtime information on created, modified, or deleted files.
+File watchers are based on the *Java WatchService* or the *fswatch* tool 
+provide and real-time information on created, modified, or deleted files.
 
 
 
 **Realtime File Processor**
 
-The *RealtimeFileProcessor* orchestrates the file watcher and the 
+The *RealtimeFileProcessor* orchestrates the file watcher and a 
 file watcher queue to deliver file scan events to an AV client. It applies
 optimizations to file watching events on deleted files and it helps
-keep the scan pipeline safe and sound even if the pipeline is overrun by 
-file watching events.
+keeping the scan pipeline safe and sound even if the pipeline is overrun by 
+file watching events and the AV scanner is too slow process all the scan
+jobs fast enough.
 
 
 
 **CPU Limiter**
 
-The CPU Limiter module provides functions to precisely control the CPU 
+The *CPU Limiter* module provides functions to precisely control the CPU 
 usage of a clamd daemon. 
 
 * A *CPU Profile* defines a single 24h CPU profile
@@ -143,7 +144,7 @@ usage of a clamd daemon.
   a pluggable CPU limit function that allows an application to freely 
   define the CPU usage based on the current time.
 * The *Clamd CPU Limiter* controls a clamd's CPU usage based on *Dynamic CPU Limit*
-* The *Scheduled Clamd CPU Limiter* is a configurable scheduler to controls a 
+* The *Scheduled Clamd CPU Limiter* is a configurable scheduler to control a 
   clamd's CPU usage based on a *Clamd CPU Limiter*
 
 
