@@ -33,6 +33,7 @@ import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
 import com.github.jlangch.aviron.admin.ClamdAdmin;
 import com.github.jlangch.aviron.admin.ClamdCpuLimiter;
+import com.github.jlangch.aviron.admin.ClamdPid;
 import com.github.jlangch.aviron.admin.CpuProfile;
 import com.github.jlangch.aviron.admin.DynamicCpuLimit;
 import com.github.jlangch.aviron.dto.ScanResult;
@@ -88,12 +89,12 @@ public class RealtimeScannerExample {
                                                 "18:00-21:59 @  50%",
                                                 "22:00-23:59 @ 100%"));
 
-            limiter.set(new ClamdCpuLimiter(
-                                new DynamicCpuLimit(everyday),
-                                this::onCpuLimitChangeEvent));
-
-            final String pid = ClamdAdmin.getClamdPID();
-            clamdPID.set(pid);
+            final ClamdPid clamdPID = new ClamdPid(ClamdAdmin.getClamdPID());
+            
+            // setup the clamd CPU limiter
+            final ClamdCpuLimiter cpuLimiter = new ClamdCpuLimiter(clamdPID, new DynamicCpuLimit(everyday));
+            cpuLimiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
+            limiter.set(cpuLimiter);
 
             final Path mainDir = demoFS.getFilestoreDir().toPath();
             final boolean registerAllSubDirs = true;
@@ -103,7 +104,7 @@ public class RealtimeScannerExample {
             final int sleepTimeSecondsOnIdle = 5;
 
             // inital CPU limit after startup
-            limiter.get().activateClamdCpuLimit(pid);
+            limiter.get().activateClamdCpuLimit();
 
             // start the realtime file processor and process the incoming
             // file events in the onScan() listener
@@ -159,7 +160,7 @@ public class RealtimeScannerExample {
         final ClamdCpuLimiter l = limiter.get();
 
         // update clamd CPU limit 
-        l.activateClamdCpuLimit(clamdPID.get());
+        l.activateClamdCpuLimit();
 
         final int limit = l.getLastSeenLimit();
         if (limit >= MIN_SCAN_LIMIT_PERCENT) {
@@ -188,5 +189,4 @@ public class RealtimeScannerExample {
 
     private final AtomicReference<Client> client = new AtomicReference<>();
     private final AtomicReference<ClamdCpuLimiter> limiter = new AtomicReference<>();
-    private final AtomicReference<String> clamdPID = new AtomicReference<>();
 }

@@ -5,12 +5,13 @@ All notable changes to this project will be documented in this file.
 
 
 
-## [1.6.1] - 2025-08-xx
+## [1.7.0] - 2025-08-xx
 
 - Enhanced the FileWatcherQueue with an overflow count (added two methods: 
   `overflowCount` and `resetOverflowCount`)
 - Enhanced the file watchers to be more flexible in accepting event listeners
 - Added a file watcher example
+- Added `ClamdPid` factory to allow more flexibility on handling clamd PIDs
 - Enhanced `ClamdCpuLimiter` to send an event if the clamd CPU limit is changed
 - Enhanced `Client` and `ClamdAdmin` to mock out the physical connection
   to the clamd daemon and processes thus allowing seamless mock tests before 

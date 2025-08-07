@@ -26,9 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.github.jlangch.aviron.ex.AvironException;
 import com.github.jlangch.aviron.ex.NotRunningException;
@@ -67,8 +65,6 @@ public class ClamdAdmin {
      */
     public static String getClamdPID() {
         Shell.validateLinuxOrMacOSX("Admin::getClamdPID");
-
-        if (mocking.get()) return null;
 
         final List<String> pids = Shell.pgrep("clamd");
         return pids.isEmpty() ? null : pids.get(0);
@@ -126,8 +122,6 @@ public class ClamdAdmin {
 
         Shell.validateLinuxOrMacOSX("Admin::isProcessAlive");
 
-        if (mocking.get()) return false;
-
         return Shell.isProcessAlive(pid);
     }
 
@@ -152,8 +146,6 @@ public class ClamdAdmin {
         }
 
         Shell.validateLinuxOrMacOSX("Admin::isProcessAlive");
-
-        if (mocking.get()) return false;
 
         final String pid = loadClamdPID(pidFile);
 
@@ -181,8 +173,6 @@ public class ClamdAdmin {
      */
     public static List<String> getCpulimitPIDs() {
         Shell.validateLinuxOrMacOSX("Admin::getCpulimitPIDs");
-
-        if (mocking.get()) return new ArrayList<>();
 
         return Shell.pgrep("cpulimit");
     }
@@ -228,8 +218,6 @@ public class ClamdAdmin {
                     "A limit value must not be negative!");
         }
 
-        if (mocking.get()) return;
-
         if (StringUtils.isBlank(clamdPID)) {
             throw new IllegalArgumentException("No Clamd PID!");
         }
@@ -268,8 +256,6 @@ public class ClamdAdmin {
     public static void deactivateClamdCpuLimit(final String clamdPID) {
         Shell.validateLinuxOrMacOSX("Admin::deactivateClamdCpuLimit");
 
-        if (mocking.get()) return;
-
         if (StringUtils.isBlank(clamdPID)) {
             throw new NotRunningException("No Clamd PID!");
         }
@@ -303,8 +289,6 @@ public class ClamdAdmin {
     public static void killClamd() {
         Shell.validateLinuxOrMacOSX("Admin::killClamd");
 
-        if (mocking.get()) return;
-
         final String clamdPID = getClamdPID();
         if (!StringUtils.isBlank(clamdPID)) {
             Shell.kill(Signal.SIGTERM, getClamdPID());
@@ -327,15 +311,4 @@ public class ClamdAdmin {
         return Runtime.getRuntime().availableProcessors();
     }
 
-    /**
-     * Enable/disable mocking mode
-     * 
-     * @param mock enable/disable mocking mode
-     */
-    public static void mocking(final boolean mock) {
-        mocking.set(mock);
-    }
-
-
-    private static final AtomicBoolean mocking = new AtomicBoolean(false);
 }

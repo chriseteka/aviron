@@ -24,6 +24,7 @@ package com.github.jlangch.aviron.admin;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -61,23 +62,14 @@ import com.github.jlangch.aviron.impl.util.StringUtils;
  */
 public class ClamdCpuLimiter {
 
-    public ClamdCpuLimiter() {
-        this(null);
-    }
-
-    public ClamdCpuLimiter(final DynamicCpuLimit dynamicCpuLimit) {
-        this(dynamicCpuLimit, null);
-    }
-
-
     public ClamdCpuLimiter(
-            final DynamicCpuLimit dynamicCpuLimit,
-            final Consumer<ClamdCpuLimitChangeEvent> listener
+            final ClamdPid clamdPid,
+            final DynamicCpuLimit dynamicCpuLimit
     ) {
+        this.clamdPid = clamdPid;
         this.dynamicCpuLimit = dynamicCpuLimit == null 
                                   ? new DynamicCpuLimit() 
                                   : dynamicCpuLimit;
-        this.limitChangeListener.set(listener);
     }
 
     /**
@@ -89,6 +81,26 @@ public class ClamdCpuLimiter {
             final Consumer<ClamdCpuLimitChangeEvent> listener
     ) {
         limitChangeListener.set(listener);
+    }
+
+    /**
+     * @return the associated clamd pid
+     */
+    public ClamdPid getClamdPid() {
+        return clamdPid;
+    }
+
+    /**
+     * Enable/disable mocking mode.
+     * 
+     * <p>If mocking is enabled modifying the physical clamd daemon CPU limit
+     * will be skipped. Apart from this ClamdCpuLimiter is behaving as in non
+     * mocking mode. 
+     * 
+     * @param mock enable/disable mocking mode
+     */
+    public void mocking(final boolean mock) {
+        mocking.set(mock);
     }
 
     /**
@@ -122,104 +134,96 @@ public class ClamdCpuLimiter {
      * </ul>
      * 
      * 
-     * @param clamdPID a clamd PID
      * @param limit a percent value 0..LIMIT
      * @return Returns <code>true</code> if the limit has been changed to the
      *         new value else <code>false</code> if the limit was already at
      *         the desired value.
      * 
-     * @see ClamdAdmin#activateClamdCpuLimit(String,int)
-     * @see ClamdCpuLimiter#activateClamdCpuLimit(String)
-     * @see ClamdCpuLimiter#deactivateClamdCpuLimit(String)
+     * @see ClamdCpuLimiter#activateClamdCpuLimit()
+     * @see ClamdCpuLimiter#deactivateClamdCpuLimit()
      */
     public synchronized boolean activateClamdCpuLimit(
-            final String clamdPID, 
             final int limit
     ) {
-        if (StringUtils.isBlank(clamdPID)) {
-            throw new IllegalArgumentException("No Clamd PID!");
-        }
-
         if (limit < 0) {
             throw new IllegalArgumentException(
                     "A limit value must not be negative!");
         }
 
-        final Limit newLimit = new Limit(clamdPID, limit);
+        if (!mocking.get()) {
+            // get the clamd daemon pid
+            final String pid = clamdPid.getPid();
 
-        if (Objects.equals(clamdPID, lastSeen.pid) && limit == lastSeen.limit) {
-            return false;  // no change
+            if (!StringUtils.isBlank(pid)) {
+                final Limit newLimit = new Limit(pid, limit);
+
+                if (Objects.equals(pid, lastSeen.pid) && limit == lastSeen.limit) {
+                    return false;  // no change
+                }
+                else {
+                    final ClamdCpuLimitChangeEvent event = new ClamdCpuLimitChangeEvent(
+                                                                   lastSeen.limit, limit);
+
+                    lastSeen = newLimit;
+                    
+                    // physically we do not go below MIN_SCAN_LIMIT_PERCENT for the
+                    // clamd daemon CPU limit! Otherwise the daemon is not reactive any
+                    // more.
+                    //
+                    // To declare a scan free time period use the limit from the 
+                    // CpuProfile and simply do not run scan events at all!
+                    ClamdAdmin.activateClamdCpuLimit(
+                        pid, 
+                        Math.max(MIN_SCAN_LIMIT_PERCENT, limit));
+
+                    fireEvent(event);
+
+                    return true;
+                }
+            }
         }
-        else {
-            final ClamdCpuLimitChangeEvent event = new ClamdCpuLimitChangeEvent(
-                                                           lastSeen.limit, limit);
 
-            lastSeen = newLimit;
-            // physically we do not go below MIN_SCAN_LIMIT_PERCENT for the
-            // clamd daemon CPU limit! Otherwise the daemon is not reactive any
-            // more.
-            //
-            // To declare a scan free time period use the limit from the 
-            // CpuProfile and simply do not run scan events at all!
-            
-            ClamdAdmin.activateClamdCpuLimit(
-                clamdPID, 
-                Math.max(MIN_SCAN_LIMIT_PERCENT, limit));
-
-            fireEvent(event);
-
-            return true;
-        }
+        return false;
     }
 
     /**
      * Activates the current limit obtained from the dynamic limit computation 
      * on the <i>clamd</i> process.
      * 
-     * @param clamdPID a clamd PID
      * @return Returns <code>true</code> if the limit has been changed to the
      *         new value else <code>false</code> if the limit was already at
      *         the desired value.
      * 
-     * @see ClamdAdmin#activateClamdCpuLimit(String,int)
-     * @see ClamdCpuLimiter#activateClamdCpuLimit(String,int)
-     * @see ClamdCpuLimiter#deactivateClamdCpuLimit(String)
+     * @see ClamdCpuLimiter#activateClamdCpuLimit(int)
+     * @see ClamdCpuLimiter#deactivateClamdCpuLimit()
      */
-    public synchronized boolean activateClamdCpuLimit(
-            final String clamdPID
-    ) {
-        if (StringUtils.isBlank(clamdPID)) {
-            throw new IllegalArgumentException("No Clamd PID!");
-        }
-
+    public synchronized boolean activateClamdCpuLimit() {
         final int limit = dynamicCpuLimit.computeCpuLimit();
 
-        return activateClamdCpuLimit(clamdPID, limit);
+        return activateClamdCpuLimit(limit);
     }
 
     /**
      * Deactivates the CPU limit on the <i>clamd</i> process
      * 
-     * @param clamdPID a clamd PID
-     * 
-     * @see ClamdAdmin#deactivateClamdCpuLimit(String)
-     * @see ClamdCpuLimiter#activateClamdCpuLimit(String,int)
-     * @see ClamdCpuLimiter#activateClamdCpuLimit(String)
+     * @see ClamdCpuLimiter#activateClamdCpuLimit()
+     * @see ClamdCpuLimiter#activateClamdCpuLimit(int)
      */
-    public synchronized void deactivateClamdCpuLimit(
-            final String clamdPID
-    ) {
-        if (StringUtils.isBlank(clamdPID)) {
-            throw new IllegalArgumentException("No Clamd PID!");
+    public synchronized void deactivateClamdCpuLimit() {
+        if (!mocking.get()) {
+            // get the clamd daemon pid
+            final String pid = clamdPid.getPid();
+
+            if (!StringUtils.isBlank(pid)) {
+               final ClamdCpuLimitChangeEvent event = new ClamdCpuLimitChangeEvent(
+                                                               lastSeen.limit, 100);
+
+                lastSeen = new Limit(null, 100);
+                
+                ClamdAdmin.deactivateClamdCpuLimit(pid);
+                fireEvent(event);
+            }
         }
-
-        final ClamdCpuLimitChangeEvent event = new ClamdCpuLimitChangeEvent(
-                                                       lastSeen.limit, 100);
-
-        lastSeen = new Limit(null, 100);
-        ClamdAdmin.deactivateClamdCpuLimit(clamdPID);
-
-        fireEvent(event);
     }
 
     public String formatProfilesAsTableByHour() {
@@ -270,6 +274,8 @@ public class ClamdCpuLimiter {
 
     private Limit lastSeen = new Limit(null, -1);
 
+    private final ClamdPid clamdPid;
+    private final AtomicBoolean mocking = new AtomicBoolean(false);
     private final AtomicReference<Consumer<ClamdCpuLimitChangeEvent>> limitChangeListener = new AtomicReference<>();
     private final DynamicCpuLimit dynamicCpuLimit;
 }

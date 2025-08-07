@@ -32,6 +32,7 @@ import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
 import com.github.jlangch.aviron.admin.ClamdAdmin;
 import com.github.jlangch.aviron.admin.ClamdCpuLimiter;
+import com.github.jlangch.aviron.admin.ClamdPid;
 import com.github.jlangch.aviron.admin.CpuProfile;
 import com.github.jlangch.aviron.admin.DynamicCpuLimit;
 import com.github.jlangch.aviron.dto.ScanResult;
@@ -106,9 +107,9 @@ public class ClamdCpuLimiterExample1 {
                                                 "18:00-21:59 @  50%",
                                                 "22:00-23:59 @ 100%"));
 
-            final String clamdPID = ClamdAdmin.getClamdPID();
+            final ClamdPid clamdPID = new ClamdPid(ClamdAdmin.getClamdPID());
 
-            final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
+            final ClamdCpuLimiter limiter = new ClamdCpuLimiter(clamdPID, new DynamicCpuLimit(everyday));
             limiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
 
             // get a IDirCycler to cycle sequentially through the demo file 
@@ -116,13 +117,13 @@ public class ClamdCpuLimiterExample1 {
             final IDirCycler fsDirCycler = demoFS.getFilestoreDirCycler();
 
             // inital CPU limit after startup
-            limiter.activateClamdCpuLimit(clamdPID);
+            limiter.activateClamdCpuLimit();
 
             // scan the file store directories in an endless loop until we get 
             // killed or stopped
             while(!stop.get()) {
                 // update clamd CPU limit 
-                limiter.activateClamdCpuLimit(clamdPID);
+                limiter.activateClamdCpuLimit();
 
                 final int limit = limiter.getLastSeenLimit();
                 if (limit >= MIN_SCAN_LIMIT_PERCENT) {

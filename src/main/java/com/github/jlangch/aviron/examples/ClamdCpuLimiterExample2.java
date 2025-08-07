@@ -33,6 +33,7 @@ import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
 import com.github.jlangch.aviron.admin.ClamdAdmin;
 import com.github.jlangch.aviron.admin.ClamdCpuLimiter;
+import com.github.jlangch.aviron.admin.ClamdPid;
 import com.github.jlangch.aviron.admin.CpuProfile;
 import com.github.jlangch.aviron.admin.DynamicCpuLimit;
 import com.github.jlangch.aviron.admin.ScheduledClamdCpuLimiter;
@@ -108,9 +109,9 @@ public class ClamdCpuLimiterExample2 {
                                                 "18:00-21:59 @  50%",
                                                 "22:00-23:59 @ 100%"));
 
-            final String clamdPID = ClamdAdmin.getClamdPID();
+            final ClamdPid clamdPID = new ClamdPid(ClamdAdmin.getClamdPID());
 
-            final ClamdCpuLimiter limiter = new ClamdCpuLimiter(new DynamicCpuLimit(everyday));
+            final ClamdCpuLimiter limiter = new ClamdCpuLimiter(clamdPID, new DynamicCpuLimit(everyday));
             limiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
 
             // get a IDirCycler to cycle sequentially through the demo file 
@@ -118,10 +119,10 @@ public class ClamdCpuLimiterExample2 {
             final IDirCycler fsDirCycler = demoFS.getFilestoreDirCycler();
 
             // inital CPU limit after startup
-            updateCpuLimit(limiter, clamdPID);
+            limiter.activateClamdCpuLimit();
 
             try (ScheduledClamdCpuLimiter ses = new ScheduledClamdCpuLimiter(
-                                                        clamdPID, limiter, 
+                                                        limiter, 
                                                         0, 5, TimeUnit.MINUTES)) {
                 ses.start();
 
@@ -143,9 +144,6 @@ public class ClamdCpuLimiterExample2 {
         }
     }
 
-    private void updateCpuLimit(final ClamdCpuLimiter limiter, final String clamdPID) {
-        limiter.activateClamdCpuLimit(clamdPID);
-    }
 
     private void onCpuLimitChangeEvent(final ClamdCpuLimitChangeEvent event) {
         printfln("Adjusted clamd CPU limit: %d%% -> %d%%", event.getOldLimit(), event.getNewLimit());
