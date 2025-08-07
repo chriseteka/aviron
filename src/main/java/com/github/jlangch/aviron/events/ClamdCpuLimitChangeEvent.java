@@ -22,7 +22,6 @@
  */
 package com.github.jlangch.aviron.events;
 
-
 public class ClamdCpuLimitChangeEvent implements Event {
 
     public ClamdCpuLimitChangeEvent(
@@ -52,15 +51,12 @@ public class ClamdCpuLimitChangeEvent implements Event {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-
-        sb.append("Old Limit: ");
-        sb.append(oldLimit);
-        sb.append(System.lineSeparator());
-        sb.append("New Limit: ");
-        sb.append(newLimit);
-
-        return sb.toString();
+        if (oldLimit < 0) {
+           return String.format("Clamd CPU limit: initial -> %d%%", newLimit);
+        }
+        else {
+           return String.format("Clamd CPU limit: %d%% -> %d%%", oldLimit, newLimit);
+        }
     }
 
 

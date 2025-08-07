@@ -183,6 +183,17 @@ public class ClamdCpuLimiter {
                 }
             }
         }
+        else {
+            // simulate limit in mocking mode
+            if (limit == lastSeen.limit) {
+                return false;  // no change
+            }
+            else {
+                fireEvent(new ClamdCpuLimitChangeEvent(lastSeen.limit, limit));
+                lastSeen = new Limit(null, limit);
+                return true;
+            }
+        }
 
         return false;
     }
@@ -211,20 +222,19 @@ public class ClamdCpuLimiter {
      * @see ClamdCpuLimiter#activateClamdCpuLimit(int)
      */
     public synchronized void deactivateClamdCpuLimit() {
+        final ClamdCpuLimitChangeEvent event = new ClamdCpuLimitChangeEvent(lastSeen.limit, 100);
+        lastSeen = new Limit(null, 100);  // reset
+
         if (!mocking.get()) {
             // get the clamd daemon pid
             final String pid = clamdPid.getPid();
 
             if (!StringUtils.isBlank(pid)) {
-               final ClamdCpuLimitChangeEvent event = new ClamdCpuLimitChangeEvent(
-                                                               lastSeen.limit, 100);
-
-                lastSeen = new Limit(null, 100);
-                
                 ClamdAdmin.deactivateClamdCpuLimit(pid);
-                fireEvent(event);
             }
         }
+
+        fireEvent(event);
     }
 
     public String formatProfilesAsTableByHour() {

@@ -160,7 +160,7 @@ public class RealtimeScannerExample {
     }
 
     private void onCpuLimitChangeEvent(final ClamdCpuLimitChangeEvent event) {
-        printfln("Adjusted clamd CPU limit: %d%% -> %d%%", event.getOldLimit(), event.getNewLimit());
+        printfln("Adjusted %s", event);
     }
 
     private void onScan(final RealtimeScanEvent event) {

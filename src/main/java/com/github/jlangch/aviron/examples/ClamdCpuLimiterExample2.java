@@ -106,8 +106,8 @@ public class ClamdCpuLimiterExample2 {
                                             "weekday",
                                             toList(
                                                 "00:00-05:59 @ 100%",
-                                                "06:00-08:59 @  50%",
-                                                "09:00-17:59 @  50%", // no scans
+                                                "06:00-07:59 @   0%", // no scans
+                                                "08:00-17:59 @  50%",
                                                 "18:00-21:59 @  50%",
                                                 "22:00-23:59 @ 100%"));
 
@@ -162,7 +162,7 @@ public class ClamdCpuLimiterExample2 {
 
 
     private void onCpuLimitChangeEvent(final ClamdCpuLimitChangeEvent event) {
-        printfln("Adjusted clamd CPU limit: %d%% -> %d%%", event.getOldLimit(), event.getNewLimit());
+        printfln("Adjusted %s", event);
     }
 
     private void onQuarantineEvent(final QuarantineEvent event) {
@@ -174,7 +174,7 @@ public class ClamdCpuLimiterExample2 {
         }
     }
 
-    
+
     // mocking turned on for demo
     private static final boolean MOCKING = true;
 
