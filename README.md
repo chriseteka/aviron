@@ -36,6 +36,9 @@ any CPU limiting features.
 
 ## Table of Content
 
+* [Aviron Toolbox](#aviron-toolbox)
+
+
 * [Scan Examples](#scan-examples)
     * [Simple scanning](#simple-scanning)
     * [Scanning with quarantine support](#scanning-with-quarantine-support)
@@ -57,6 +60,87 @@ any CPU limiting features.
 ## Change Log
 
 [Change Log](ChangeLog.md)
+
+
+
+## Aviron Toolbox
+
+```
+       ┌──────────────────────────────────┐
+       │                                  │
+       │             Client               │
+       │                                  │
+       │                 ┌────────────────┤
+       │                 │   Quarantine   │
+       └─────────────────┴────────────────┘      
+       ┌──────────────────────────────────┐
+       │           Clamd Admin            │
+       └──────────────────────────────────┘
+       
+       
+       ┌──────────────────────────────────┐
+       │           File Watcher           │
+       └──────────────────────────────────┘      
+       ┌──────────────────────────────────┐
+       │      Realtime File Processor     │
+       └──────────────────────────────────┘
+       
+       
+       ┌──────────────────────────────────┐
+       │           CPU Limiter            │
+       └──────────────────────────────────┘
+       ┌─────────────┐  ┌─────────────────┐
+       │ CPU Profile │  │Dynamic CPU Limit│
+       └─────────────┘  └─────────────────┘       
+       ┌──────────────────────────────────┐
+       │         Clamd CPU Limiter        │
+       └──────────────────────────────────┘
+       ┌──────────────────────────────────┐
+       │    Scheduled  Clamd CPU Limiter  │
+       └──────────────────────────────────┘
+```
+
+**Client**
+
+The *ClamAV client* provides access to the ClamAV daemon (clamd) functions 
+like file scanning, updating the daemon's ClamAV virus databases, or getting 
+the scanning statistics.
+
+The *ClamAV client* communicates through a <i>Socket</i> with the clamd daemon.
+
+With the *ClamAV client* you can write simple AV scan jobs for files or 
+directories. With the optional quarantine module infected files can be 
+moved/copied automatically to a quarantine directory.
+
+
+**Clamd Admin**
+
+The *Clamd Admin* module offers functions to manage the clamd daemon, like:
+  * get the PID of a running clamd daemon
+  * load the PID from the clamd daemon's pid file
+  * checking if the clamd daemon is running
+  * activate/decativate a CPU limit on the clamd daemon
+  * kill a clamd daemon
+
+
+
+**File Watcher**
+
+File watchers based on the *Java WatchService* or the *fswatch* tool provide 
+realtime information on created, modified, or deleted files.
+
+
+
+**Realtime File Processor**
+
+...
+
+
+
+**CPU Limiter**
+
+...
+
 
 
 ## Scan Examples
