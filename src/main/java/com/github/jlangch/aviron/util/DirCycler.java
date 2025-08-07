@@ -35,10 +35,27 @@ import com.github.jlangch.aviron.ex.AvironException;
 
 public class DirCycler implements IDirCycler {
 
+    /**
+     * Create a DirCycler on a directory.
+     * 
+     * @param rootDir the mandatory root directory
+     */
     public DirCycler(final File rootDir) {
         this(rootDir, null);
     }
 
+    /**
+     * Create a DirCycler on a directory with an optional state file. 
+     * 
+     * <p>If the state file is given (it must not necessarily exist) the
+     * cycler saves its state automatically to this file. 
+     * 
+     * <p>If the state file exists at construction time the cycler loads
+     * the state from from the file and proceeds where it has left off.
+     * 
+     * @param rootDir  the mandatory root directory
+     * @param stateFile an optional state file
+     */
     public DirCycler(final File rootDir, final File stateFile) {
         if (rootDir == null) {
             throw new IllegalArgumentException("The rootDir must not be null!");
