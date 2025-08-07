@@ -95,9 +95,13 @@ the scanning statistics.
 
 The *ClamAV client* communicates through a <i>Socket</i> with the clamd daemon.
 
-With the *ClamAV client* you can write simple AV scan jobs for files or 
-directories. With the optional quarantine module infected files can be 
-moved/copied automatically to a quarantine directory.
+Just with the *ClamAV client* you can write simple AV scan jobs for files or 
+directories. The optional quarantine module can move/copy infected files 
+automatically to a quarantine directory.
+
+For more sophisticated scanners file watchers support realtime file scanners 
+and CPU limiter allow the precise control of the clamd daemons CPU usage.
+ 
 
 
 **Clamd Admin**
@@ -120,13 +124,13 @@ realtime information on created, modified, or deleted files.
 
 **Realtime File Processor**
 
-...
+«in work»
 
 
 
 **CPU Limiter**
 
-...
+«in work»
 
 
 
