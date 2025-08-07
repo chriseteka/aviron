@@ -83,6 +83,8 @@ public class ClamdCpuLimiterExample1 {
     }
 
     public void scan() throws Exception {
+        printfln("Starting ...");
+
         try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.populateWithDemoFiles(5, 10);  // 5 sub dirs, each with 10 files
 
@@ -124,6 +126,8 @@ public class ClamdCpuLimiterExample1 {
             // scan the file store directories in an endless loop until we get 
             // killed or stopped
             while(!stop.get()) {
+                printfln("Processing ...");
+
                 // update clamd CPU limit 
                 limiter.activateClamdCpuLimit();
 
@@ -132,7 +136,7 @@ public class ClamdCpuLimiterExample1 {
                     // scan next file store directory
                     final File dir = fsDirCycler.nextDir();
                     final ScanResult result = client.scan(dir.toPath(), true);
-                    
+
                     printfln("%s", result);
                 }
                 else {
@@ -140,6 +144,8 @@ public class ClamdCpuLimiterExample1 {
                     Thread.sleep(30_000);  // 
                 }
             }
+
+            printfln("Stopped");
         }
     }
 

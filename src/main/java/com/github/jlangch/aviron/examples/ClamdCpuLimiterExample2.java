@@ -85,7 +85,9 @@ public class ClamdCpuLimiterExample2 {
     }
 
     public void scan() throws Exception {
-        try(DemoFilestore demoFS = new DemoFilestore()) {
+        printfln("Starting ...");
+
+       try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.populateWithDemoFiles(5, 10);  // 5 sub dirs, each with 10 files
 
             // demoFS.createEicarAntiMalwareTestFile("000");
@@ -131,11 +133,13 @@ public class ClamdCpuLimiterExample2 {
                 // scan the file store directories in an endless loop until we get 
                 // killed or stopped
                 while(!stop.get()) {
+                    printfln("Processing ...");
+
                     if (limiter.getLastSeenLimit() >= MIN_SCAN_LIMIT_PERCENT) {
                         // scan next file store directory
                         final File dir = fsDirCycler.nextDir();
                         final ScanResult result = client.scan(dir.toPath(), true);
-                        
+
                         printfln("%s", result);
                     }
                     else {
@@ -143,6 +147,8 @@ public class ClamdCpuLimiterExample2 {
                         Thread.sleep(30_000);
                     }
                 }
+
+                printfln("Stopped");
             }
         }
     }

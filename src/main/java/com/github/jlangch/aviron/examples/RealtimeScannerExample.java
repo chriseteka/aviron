@@ -62,6 +62,8 @@ public class RealtimeScannerExample {
     }
 
     public void scan() throws Exception {
+        printfln("Starting ...");
+
         try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.populateWithDemoFiles(5, 10);  // 5 sub dirs, each with 10 files
 
@@ -113,6 +115,8 @@ public class RealtimeScannerExample {
             ) {
                 rtScanner.start();
 
+                printfln("Processing ...");
+
                 Thread.sleep(1000);
 
                 demoFS.createFilestoreFile("000", "test1.data");
@@ -126,6 +130,8 @@ public class RealtimeScannerExample {
                 }
             }
         }
+
+        printfln("Stopped");
     }
 
 
