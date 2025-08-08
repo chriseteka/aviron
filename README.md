@@ -935,7 +935,7 @@ You can can pull it from the central Maven repositories:
 <dependency>
   <groupId>com.github.jlangch</groupId>
   <artifactId>aviron</artifactId>
-  <version>1.7.0</version>
+  <version>1.8.0</version>
 </dependency>
 ```
 
