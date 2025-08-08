@@ -28,8 +28,21 @@ import java.util.List;
 
 
 /**
- * Cycles through all the subdirs of a directory. If the last subdir is
- * reached it starts over with the first subdir.
+ * Cycles through all the subdirectories of a directory. If the last 
+ * subdirectory is reached it starts over with the first subdirectory.
+ * 
+ * <p>The dir cycler helps breaking down large file store scans into smaller
+ * chunks. 
+ * 
+ * <p>Recursively scanning a large file store in a single run can cause the 
+ * clamd daemon to take many hours to return results, delaying the quarantine 
+ * of infected files.
+ * 
+ * <p>For faster and more responsive scanning, large file stores should be 
+ * divided into smaller chunks. In most cases, file stores are already 
+ * segmented into subdirectories to prevent exceeding filesystem limits on 
+ * the number of files per directory. These subdirectories are ideal for 
+ * defining scan chunks.
  */
 public interface IDirCycler {
 
