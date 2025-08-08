@@ -149,6 +149,7 @@ public class ClamdPid {
      * @param limit a percent value 0..LIMIT
      * 
      * @see #deactivateCpuLimit()
+     * @see #getNrOfCpus()
      */
     public void activateCpuLimit(final int limit) {
         Shell.validateLinuxOrMacOSX("ClamdPid::activateCpuLimit");
