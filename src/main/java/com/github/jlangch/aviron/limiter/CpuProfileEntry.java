@@ -65,11 +65,14 @@ public class CpuProfileEntry {
 
     public static CpuProfileEntry parse(final String s) {
         try {
+        	// format: "09:00 - 15:30 @ 100%"
             final String[] e = s.trim().split(" *[@:\\-%] *");
             return new CpuProfileEntry(
                         LocalTime.of(parseInt(e[0]), parseInt(e[1])),
                         LocalTime.of(parseInt(e[2]), parseInt(e[3])),
                         parseInt(e[4]));
+            
+        	// format (future): "09:00 - 15:30 @ 100%, fs, rt"  fs=filstore scan, rt=realtime scan
         }
         catch(Exception ex) {
             throw new AvironException(
@@ -121,6 +124,7 @@ public class CpuProfileEntry {
                 "%02d:%02d - %02d:%02d @ %d%%", 
                 start.getHour(), start.getMinute(),end.getHour(), end.getMinute(), limit);
     }
+    
 
 
     private final LocalTime start;

@@ -757,11 +757,11 @@ import com.github.jlangch.aviron.limiter.DynamicCpuLimit;
 import com.github.jlangch.aviron.util.DemoFilestore;
 import com.github.jlangch.aviron.util.IDirCycler;
 
-public class ClamdCpuLimiterExample1 {
+public class ClamdCpuLimiterExample2 {
 
     public static void main(String[] args) {
         try {
-            new ClamdCpuLimiterExample1().scan();
+            new ClamdCpuLimiterExample2().scan();
         }
         catch(Exception ex) {
             ex.printStackTrace();
@@ -771,11 +771,11 @@ public class ClamdCpuLimiterExample1 {
     public void scan() throws Exception {
         printfln("Starting %s...", MOCKING ? "in MOCKING mode " : "");
 
-        try(DemoFilestore demoFS = new DemoFilestore()) {
+       try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.populateWithDemoFiles(5, 10);  // 5 sub dirs, each with 10 files
 
             // create an infected file
-            demoFS.createEicarAntiMalwareTestFile("000");
+            demoFS.createEicarAntiMalwareTestFile("001");
 
             final Client client = new Client.Builder()
                                             .mocking(MOCKING)  // turn mocking on/off
@@ -796,7 +796,7 @@ public class ClamdCpuLimiterExample1 {
                                                 "18:00-21:59 @  50%",
                                                 "22:00-23:59 @ 100%"));
 
-            // replace the demo clamd pid file with your real one or pass clamd PID
+            // replace the demo clamd PID file with your real one or pass a clamd PID
             final ClamdPid clamdPID = new ClamdPid(demoFS.getClamdPidFile());
 
             final ClamdCpuLimiter limiter = new ClamdCpuLimiter(clamdPID, new DynamicCpuLimit(everyday));
@@ -807,45 +807,49 @@ public class ClamdCpuLimiterExample1 {
             // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ... 
             final IDirCycler fsDirCycler = new DirCycler(demoFS.getFilestoreDir());
 
-            // initial CPU limit after startup
+            // inital CPU limit after startup
             limiter.activateClamdCpuLimit();
 
-            printfln("Processing ...");
+            try (ScheduledClamdCpuLimiter ses = new ScheduledClamdCpuLimiter(
+                                                        limiter, 
+                                                        0, 5, TimeUnit.MINUTES)) {
+                ses.start();
 
-            // scan the file store directories in an endless loop until we get 
-            // killed or stopped
-            while(!stop.get()) {
-                // explicitly update clamd CPU limit 
-                limiter.activateClamdCpuLimit();
+                printfln("Processing ...");
 
-                final int limit = limiter.getLastSeenLimit();
-                if (limit >= MIN_SCAN_LIMIT_PERCENT) {
-                    // scan next file store directory
-                    final File dir = fsDirCycler.nextDir();
-
-                    if (MOCKING) {
-                        printfln("Simulated dir scan: %s", dir.toPath());
-                        final ScanResult result = client.scan(dir.toPath(), true);
-                        if (result.hasVirus()) {
-                            result.getVirusFound().forEach(
-                                (k,v) -> printfln("Virus detected: %s -> %s", first(v), k));
-                            printfln("Quarantine file count: %d", demoFS.countQuarantineFiles());
-                        }
-                        Thread.sleep(10_000);
+                // scan the file store directories in an endless loop until we get 
+                // killed or stopped
+                while(!stop.get()) {
+                    if (limiter.getLastSeenLimit() >= MIN_SCAN_LIMIT_PERCENT) {
+                        // scan next file store directory
+                        onScanDir(fsDirCycler.nextDir(), client, demoFS);
                     }
                     else {
-                        final ScanResult result = client.scan(dir.toPath(), true);
-                        printfln("Scanned dir %s: %s", dir.toPath(), result);
+                        // pause 30s due to temporarily suspended scanning (by CpuProfile)
+                        printfln("Scanning currently paused by CPU profile");
+                        Thread.sleep(30_000);
                     }
                 }
-                else {
-                    // pause 30s due to temporarily suspended scanning (by CpuProfile)
-                    printfln("Scanning currently paused by CPU profile");
-                    Thread.sleep(30_000);
-                }
-            }
 
-            printfln("Stopped");
+                printfln("Stopped");
+            }
+        }
+    }
+
+    private void onScanDir(
+            final File dir, 
+            final Client client, 
+            final DemoFilestore demoFS
+    ) throws Exception {
+        printfln("Scanning dir: %s", dir.toPath());
+        if (MOCKING) {
+            final ScanResult result = client.scan(dir.toPath(), true);
+            printVirusInfo(result, demoFS.countQuarantineFiles());
+            Thread.sleep(10_000);
+        }
+        else {
+            final ScanResult result = client.scan(dir.toPath(), true);
+            printVirusInfo(result, demoFS.countQuarantineFiles());
         }
     }
 
@@ -855,10 +859,18 @@ public class ClamdCpuLimiterExample1 {
 
     private void onQuarantineEvent(final QuarantineEvent event) {
         if (event.getException() != null) {
-            printfln("Error %s", event.getException().getMessage());
+            printfln("   Error %s", event.getException().getMessage());
         }
         else {
-            printfln("Quarantined file %s", event.getInfectedFile());
+            printfln("   Quarantined file: %s", event.getInfectedFile());
+        }
+    }
+
+    private void printVirusInfo(final ScanResult result, final long quarantineCount) {
+        if (result.hasVirus()) {
+            result.getVirusFound().forEach(
+                (k,v) -> printfln("   Virus detected:   %s -> %s", first(v), k));
+            printfln("   Quarantine count: %d", quarantineCount);
         }
     }
 
@@ -878,18 +890,19 @@ The output of a MOCK run:
 Starting in MOCKING mode ...
 Adjusted Clamd CPU limit: initial -> 50%
 Processing ...
-Simulated dir scan: /var/fo.../demo_234/filestore/000
-Simulated dir scan: /var/fo.../demo_234/filestore/001
-Quarantined file: /var/fo.../demo_234/filestore/000/eicar.txt
-Virus detected: EICAR-AV-Test ->  /var/fo.../demo_234/filestore/000/eicar.txt
-Quarantine file count: 1
-Simulated dir scan: /var/fo.../demo_234/filestore/002
-Simulated dir scan: /var/fo.../demo_234/filestore/003
-Simulated dir scan: /var/fo.../demo_234/filestore/004
-Simulated dir scan: /var/fo.../demo_234/filestore/000
-Simulated dir scan: /var/fo.../demo_234/filestore/001
+Scanning dir: /var/fo.../demo_234/filestore/000
+Scanning dir: /var/fo.../demo_234/filestore/001
+   Quarantined file: /var/fo.../demo_234/filestore/001/eicar.txt
+   Virus detected:   EICAR-AV-Test -> /var/fo.../demo_234/filestore/001/eicar.txt
+   Quarantine count: 1
+Scanning dir: /var/fo.../demo_234/filestore/002
+Scanning dir: /var/fo.../demo_234/filestore/003
+Scanning dir: /var/fo.../demo_234/filestore/004
+Scanning dir: /var/fo.../demo_234/filestore/000
+Scanning dir: /var/fo.../demo_234/filestore/001
   :
 ```
+
 
 
 ## Getting the latest release

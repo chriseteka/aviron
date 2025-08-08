@@ -112,19 +112,18 @@ public class ClamdCpuLimiterExample1 {
                                                 "18:00-21:59 @  50%",
                                                 "22:00-23:59 @ 100%"));
 
-            // replace the demo clamd pid file with your real one or pass clamd PID
+            // replace the demo clamd PID file with your real one or pass a clamd PID
             final ClamdPid clamdPID = new ClamdPid(demoFS.getClamdPidFile());
 
-            final ClamdCpuLimiter limiter = new ClamdCpuLimiter(clamdPID, new DynamicCpuLimit(everyday));
+            final ClamdCpuLimiter limiter = new ClamdCpuLimiter(
+                                                clamdPID, 
+                                                new DynamicCpuLimit(everyday));
             limiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
             limiter.mocking(MOCKING); // turn mocking on/off
 
             // create a IDirCycler to cycle sequentially through the demo file 
             // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ... 
             final IDirCycler fsDirCycler = new DirCycler(demoFS.getFilestoreDir());
-
-            // initial CPU limit after startup
-            limiter.activateClamdCpuLimit();
 
             printfln("Processing ...");
 
@@ -137,22 +136,7 @@ public class ClamdCpuLimiterExample1 {
                 final int limit = limiter.getLastSeenLimit();
                 if (limit >= MIN_SCAN_LIMIT_PERCENT) {
                     // scan next file store directory
-                    final File dir = fsDirCycler.nextDir();
-
-                    if (MOCKING) {
-                        printfln("Simulated dir scan: %s", dir.toPath());
-                        final ScanResult result = client.scan(dir.toPath(), true);
-                        if (result.hasVirus()) {
-                            result.getVirusFound().forEach(
-                                (k,v) -> printfln("Virus detected: %s -> %s", first(v), k));
-                            printfln("Quarantine file count: %d", demoFS.countQuarantineFiles());
-                        }
-                        Thread.sleep(10_000);
-                    }
-                    else {
-                        final ScanResult result = client.scan(dir.toPath(), true);
-                        printfln("Scanned dir %s: %s", dir.toPath(), result);
-                    }
+                    onScanDir(fsDirCycler.nextDir(), client, demoFS);
                 }
                 else {
                     // pause 30s due to temporarily suspended scanning (by CpuProfile)
@@ -165,16 +149,41 @@ public class ClamdCpuLimiterExample1 {
         }
     }
 
+    private void onScanDir(
+            final File dir, 
+            final Client client, 
+            final DemoFilestore demoFS
+    ) throws Exception {
+        printfln("Scanning dir: %s", dir.toPath());
+        if (MOCKING) {
+            final ScanResult result = client.scan(dir.toPath(), true);
+            printVirusInfo(result, demoFS.countQuarantineFiles());
+            Thread.sleep(10_000);
+        }
+        else {
+            final ScanResult result = client.scan(dir.toPath(), true);
+            printVirusInfo(result, demoFS.countQuarantineFiles());
+        }
+    }
+
     private void onCpuLimitChangeEvent(final ClamdCpuLimitChangeEvent event) {
         printfln("Adjusted %s", event);
     }
 
     private void onQuarantineEvent(final QuarantineEvent event) {
         if (event.getException() != null) {
-            printfln("Error %s", event.getException().getMessage());
+            printfln("   Error %s", event.getException().getMessage());
         }
         else {
-            printfln("Quarantined file: %s", event.getInfectedFile());
+            printfln("   Quarantined file: %s", event.getInfectedFile());
+        }
+    }
+
+    private void printVirusInfo(final ScanResult result, final long quarantineCount) {
+        if (result.hasVirus()) {
+            result.getVirusFound().forEach(
+                (k,v) -> printfln("   Virus detected:   %s -> %s", first(v), k));
+            printfln("   Quarantine count: %d", quarantineCount);
         }
     }
 
