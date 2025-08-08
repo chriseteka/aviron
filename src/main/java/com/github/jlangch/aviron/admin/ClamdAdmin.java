@@ -42,6 +42,8 @@ import com.github.jlangch.aviron.limiter.ClamdPid;
  * Alma Linux:         » dnf install cpulimit
  * MacOS (Homebrew):   » brew install cpulimit
  * </pre>
+ * 
+ * Note: ClamdAdmin is going to be removed in favor of the ClamdPid class!
  */
 public class ClamdAdmin {
 
