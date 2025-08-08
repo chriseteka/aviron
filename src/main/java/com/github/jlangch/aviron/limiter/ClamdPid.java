@@ -43,6 +43,15 @@ import com.github.jlangch.aviron.impl.util.StringUtils;
  *    <li>a PID file to retrieve the PID on demand from the file</li>
  *    <li>a PID supplier function to retrieve the PID on demand</li>
  * </ul>
+ * 
+ * <p>
+ * In order to use the CPU limit functions the <i>cpulimit</i> tool must 
+ * be installed:
+ * 
+ * <pre>
+ * Alma Linux:         » dnf install cpulimit
+ * MacOS (Homebrew):   » brew install cpulimit
+ * </pre>
  */
 public class ClamdPid {
 
