@@ -24,6 +24,7 @@ package com.github.jlangch.aviron.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -124,6 +125,31 @@ public class DirCyclerTest {
         }
     }
 
+
+    @Test 
+    void testLastDirTimestamp() throws IOException {
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            final File cyclerStateFile = new File(demoFS.getRootDir(), "cycler.state");
+
+            demoFS.createFilestoreSubDir("000");
+            demoFS.createFilestoreSubDir("001");
+            demoFS.createFilestoreSubDir("002");
+
+            IDirCycler cycler = new DirCycler(demoFS.getFilestoreDir(), cyclerStateFile);
+
+            List<File> dirs = cycler.dirs();
+            assertEquals(3, dirs.size());
+
+            assertNull(cycler.lastDirName());
+            assertNull(cycler.lastDirTimestamp());
+
+            cycler.nextDir();
+
+            assertNotNull(cycler.lastDirName());
+            assertNotNull(cycler.lastDirTimestamp());
+        }
+    }
+
     @Test 
     void testSaveAnRestoreLastDir() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
@@ -157,7 +183,7 @@ public class DirCyclerTest {
     @Test 
     void testLoadAndRestoreState() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
-            final File cyclerStateFile = new File(demoFS.getRootDir(), "filestore-cycler.state");
+            final File cyclerStateFile = new File(demoFS.getRootDir(), "cycler.state");
 
             final IDirCycler cycler = demoFS.getFilestoreDirCycler();
 
@@ -200,11 +226,10 @@ public class DirCyclerTest {
         }
     }
 
-
     @Test 
     void testAutoStoreState() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
-            final File cyclerStateFile = new File(demoFS.getRootDir(), "filestore-cycler.state");
+            final File cyclerStateFile = new File(demoFS.getRootDir(), "cycler.state");
 
             IDirCycler cycler = new DirCycler(demoFS.getFilestoreDir(), cyclerStateFile);
             assertNull(cycler.lastDirName());

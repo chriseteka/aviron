@@ -136,7 +136,10 @@ public class DirCycler implements IDirCycler {
 
     @Override
     public LocalDateTime lastDirTimestamp() {
-        if (stateFile != null && Files.isReadable(stateFile.toPath())) {
+        if (stateFile != null 
+            && Files.isReadable(stateFile.toPath())
+            && lastDirIdx >= 0
+        ) {
             return Instant.ofEpochMilli(stateFile.lastModified())
                           .atZone(ZoneId.systemDefault())
                           .toLocalDateTime();
