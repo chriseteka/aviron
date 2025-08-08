@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.function.Supplier;
 
 import com.github.jlangch.aviron.ex.AvironException;
@@ -214,6 +215,25 @@ public class ClamdPid {
         if (StringUtils.isNotBlank(pid)) {
             Shell.kill(Signal.SIGTERM, pid);
         }
+    }
+
+    /**
+     * Returns the PIDs of the running <i>cpulimit</i> processes.
+     * 
+     * <p>Runs the following shell command to get the pid:
+     * <pre>
+     * pgrep -x cpulimit
+     * </pre>
+     * 
+     * <p>
+     * Note: This function is available for Linux and MacOS only!
+     * 
+     * @return the list with PIDs
+     */
+    public static List<String> getCpulimitPIDs() {
+        Shell.validateLinuxOrMacOSX("ClamdPid::getCpulimitPIDs");
+
+        return Shell.pgrep("cpulimit");
     }
 
     /**
