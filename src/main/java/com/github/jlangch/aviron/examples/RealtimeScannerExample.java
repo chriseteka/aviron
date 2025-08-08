@@ -166,31 +166,29 @@ public class RealtimeScannerExample {
     }
 
     private void onScan(final RealtimeScanEvent event) {
-        if (MOCKING) {
-            printfln("Simulated scan: %s", event.getPath());
-            final ScanResult result = client.get().scan(event.getPath());
-            if (result.hasVirus()) {
-                result.getVirusFound().forEach(
-                    (k,v) -> printfln("Virus detected: %s -> %s", first(v), k));
-            }
-        }
-        else {
-            final ScanResult result = client.get().scan(event.getPath(), true);
-            printfln("Scanned %s: ", event.getPath(), result);
-        }
+        printfln("Scanning: %s", event.getPath());
+        final ScanResult result = client.get().scan(event.getPath(), true);
+        printVirusInfo(result);
     }
 
     private void onQuarantineEvent(final QuarantineEvent event) {
         if (event.getException() != null) {
-            printfln("Quarantine Error %s", event.getException().getMessage());
+            printfln("Quarantine error: %s", event.getException().getMessage());
         }
         else {
-            printfln("File %s moved to quarantine!", event.getInfectedFile());
+            printfln("Quarantined file: %s", event.getInfectedFile());
         }
     }
 
     private void onErrorEvent(final FileWatchErrorEvent event) {
-        printfln("File Watch Error: %s %s", event.getPath(), event.getException().getMessage());
+        printfln("File Watch error: %s %s", event.getPath(), event.getException().getMessage());
+    }
+    
+    private void printVirusInfo(final ScanResult result) {
+        if (result.hasVirus()) {
+            result.getVirusFound().forEach(
+                (k,v) -> printfln("Virus detected: %s -> %s", first(v), k));
+        }
     }
 
 
