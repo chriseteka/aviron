@@ -64,7 +64,7 @@ public class ClamdAdmin {
      * @return the <i>clamd</i> PID or <code>null</code> if <i>clamd</i> is not running.
      */
     public static String getClamdPID() {
-        Shell.validateLinuxOrMacOSX("Admin::getClamdPID");
+        Shell.validateLinuxOrMacOSX("ClamdAdmin::getClamdPID");
 
         final List<String> pids = Shell.pgrep("clamd");
         return pids.isEmpty() ? null : pids.get(0);
@@ -120,7 +120,7 @@ public class ClamdAdmin {
             throw new IllegalArgumentException("A pid must not be blank!");
         }
 
-        Shell.validateLinuxOrMacOSX("Admin::isProcessAlive");
+        Shell.validateLinuxOrMacOSX("ClamdAdmin::isProcessAlive");
 
         return Shell.isProcessAlive(pid);
     }
@@ -145,7 +145,7 @@ public class ClamdAdmin {
             throw new IllegalArgumentException("A pid file must not be null!");
         }
 
-        Shell.validateLinuxOrMacOSX("Admin::isProcessAlive");
+        Shell.validateLinuxOrMacOSX("ClamdAdmin::isProcessAlive");
 
         final String pid = loadClamdPID(pidFile);
 
@@ -172,7 +172,7 @@ public class ClamdAdmin {
      * @return the list with PIDs
      */
     public static List<String> getCpulimitPIDs() {
-        Shell.validateLinuxOrMacOSX("Admin::getCpulimitPIDs");
+        Shell.validateLinuxOrMacOSX("ClamdAdmin::getCpulimitPIDs");
 
         return Shell.pgrep("cpulimit");
     }
@@ -211,7 +211,7 @@ public class ClamdAdmin {
             final String clamdPID, 
             final int limit
     ) {
-        Shell.validateLinuxOrMacOSX("Admin::activateClamdCpuLimit");
+        Shell.validateLinuxOrMacOSX("ClamdAdmin::activateClamdCpuLimit");
 
         if (limit < 0) {
             throw new IllegalArgumentException(
@@ -254,7 +254,7 @@ public class ClamdAdmin {
      * @see ClamdAdmin#activateClamdCpuLimit(String,int)
      */
     public static void deactivateClamdCpuLimit(final String clamdPID) {
-        Shell.validateLinuxOrMacOSX("Admin::deactivateClamdCpuLimit");
+        Shell.validateLinuxOrMacOSX("ClamdAdmin::deactivateClamdCpuLimit");
 
         if (StringUtils.isBlank(clamdPID)) {
             throw new NotRunningException("No Clamd PID!");
@@ -287,7 +287,7 @@ public class ClamdAdmin {
      * Note: This function is available for Linux and MacOS only!
      */
     public static void killClamd() {
-        Shell.validateLinuxOrMacOSX("Admin::killClamd");
+        Shell.validateLinuxOrMacOSX("ClamdAdmin::killClamd");
 
         final String clamdPID = getClamdPID();
         if (!StringUtils.isBlank(clamdPID)) {
