@@ -610,92 +610,121 @@ import com.github.jlangch.aviron.filewatcher.events.FileWatchTerminationEvent;
 import com.github.jlangch.aviron.util.DemoFilestore;
 import com.github.jlangch.aviron.util.OS;
 
-
-public class FileWatcherExample {
+public class ClamdCpuLimiterExample1 {
 
     public static void main(String[] args) {
         try {
-            new FileWatcherExample().run();
+            new ClamdCpuLimiterExample1().scan();
         }
         catch(Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public void run() throws Exception {
+    public void scan() throws Exception {
+        printfln("Starting %s...", MOCKING ? "in MOCKING mode " : "");
+
         try(DemoFilestore demoFS = new DemoFilestore()) {
-            demoFS.createFilestoreSubDir("000");
-            demoFS.createFilestoreSubDir("001");
+            demoFS.populateWithDemoFiles(5, 10);  // 5 sub dirs, each with 10 files
 
-            final Path mainDir = demoFS.getFilestoreDir().toPath();
-            final boolean registerAllSubDirs = true;
+            // create an infected file
+            demoFS.createEicarAntiMalwareTestFile("001");
 
-            try(final IFileWatcher fw = createPlatformFileWatcher(mainDir, registerAllSubDirs)) {
-                fw.setFileListener(this::onFileEvent);
-                fw.setErrorListener(this::onErrorEvent);
-                fw.setTerminationListener(this::onTerminationEvent);
+            final Client client = new Client.Builder()
+                                            .mocking(MOCKING)  // turn mocking on/off
+                                            .serverHostname("localhost")
+                                            .serverFileSeparator(FileSeparator.UNIX)
+                                            .quarantineFileAction(QuarantineFileAction.MOVE)
+                                            .quarantineDir(demoFS.getQuarantineDir())
+                                            .quarantineEventListener(this::onQuarantineEvent)
+                                            .build();
 
-                fw.start();
+            // Use the same day profile for Mon - Sun
+            final CpuProfile everyday = CpuProfile.of(
+                                            "weekday",
+                                            toList(
+                                                "00:00-05:59 @ 100%",
+                                                "06:00-07:59 @   0%", // no scans
+                                                "08:00-17:59 @  50%",
+                                                "18:00-21:59 @  50%",
+                                                "22:00-23:59 @ 100%"));
 
-                printf("Ready to watch «%s»%n%n", mainDir);
+            // replace the demo clamd PID file with your real one or pass a clamd PID
+            final ClamdPid clamdPID = new ClamdPid(demoFS.getClamdPidFile());
 
-                // wait a bit between actions, otherwise fswatch discards event
-                // due to optimizations in regard of the file delete at the end!
+            final ClamdCpuLimiter limiter = new ClamdCpuLimiter(
+                                                clamdPID, 
+                                                new DynamicCpuLimit(everyday));
+            limiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
+            limiter.mocking(MOCKING); // turn mocking on/off
 
-                demoFS.touchFilestoreFile("000", "test1.data");      // created
-                sleep(1000);
+            // create a IDirCycler to cycle sequentially through the demo file 
+            // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ... 
+            final IDirCycler fsDirCycler = new DirCycler(demoFS.getFilestoreDir());
 
-                demoFS.appendToFilestoreFile("000", "test1.data");   // modified
-                sleep(1000);
+            printfln("Processing ...");
 
-                demoFS.deleteFilestoreFile("000", "test1.data");     // deleted
+            // scan the file store directories in an endless loop until we get 
+            // killed or stopped
+            while(!stop.get()) {
+                // explicitly update clamd CPU limit 
+                limiter.activateClamdCpuLimit();
 
-                // wait for all events to be processed before closing the watcher
-                sleep(3000);
+                final int limit = limiter.getLastSeenLimit();
+                if (limit >= MIN_SCAN_LIMIT_PERCENT) {
+                    // scan next file store directory
+                    onScanDir(fsDirCycler.nextDir(), client, demoFS);
+                    if (MOCKING) Thread.sleep(10_000);
+                }
+                else {
+                    // pause 30s due to temporarily suspended scanning (by CpuProfile)
+                    printfln("Scanning currently paused by CPU profile");
+                    Thread.sleep(30_000);
+                }
             }
 
-            // wait to receive the termination event
-            sleep(1000);
+            printfln("Stopped");
         }
     }
 
-
-    private IFileWatcher createPlatformFileWatcher(
-            final Path mainDir, 
-            final boolean registerAllSubDirs
+    private void onScanDir(
+            final File dir, 
+            final Client client, 
+            final DemoFilestore demoFS
     ) {
-        if (OS.isLinux()) {
-            return new FileWatcher_JavaWatchService(mainDir, registerAllSubDirs);
-        }
-        else if (OS.isMacOSX()) {
-            return new FileWatcher_FsWatch(
-                         mainDir,
-                         registerAllSubDirs,
-                         null, // default fswatch monitor
-                         FileWatcher_FsWatch.HOMEBREW_FSWATCH_PROGRAM);
+        printfln("Scanning dir: %s", dir.toPath());
+        final ScanResult result = client.scan(dir.toPath(), true);
+        printVirusInfo(result, demoFS.countQuarantineFiles());
+    }
+
+    private void onCpuLimitChangeEvent(final ClamdCpuLimitChangeEvent event) {
+        printfln("Adjusted %s", event);
+    }
+
+    private void onQuarantineEvent(final QuarantineEvent event) {
+        if (event.getException() != null) {
+            printfln("   Error %s", event.getException().getMessage());
         }
         else {
-            throw new FileWatcherException(
-                    "FileWatcher is not supported on platforms other than Linux/MacOS!");
+            printfln("   Quarantined file: %s", event.getInfectedFile());
         }
     }
 
-    private void onFileEvent(final FileWatchFileEvent event) {
-        if (event.isFile()) {
-            printfln("File Event: %-8s %s", event.getType(), event.getPath());
-        }
-        else if (event.isDir()) {
-            printfln("Dir Event:  %-8s %s", event.getType(), event.getPath());
+    private void printVirusInfo(final ScanResult result, final long quarantineCount) {
+        if (result.hasVirus()) {
+            result.getVirusFound().forEach(
+                (k,v) -> printfln("   Virus detected:   %s -> %s", first(v), k));
+            printfln("   Quarantine count: %d", quarantineCount);
         }
     }
 
-    private void onErrorEvent(final FileWatchErrorEvent event) {
-        printfln("Error:      %s %s", event.getPath(), event.getException().getMessage());
-    }
 
-    private void onTerminationEvent(final FileWatchTerminationEvent event) {
-        printfln("Terminated: %s", event.getPath());
-    }
+    // mocking turned on for demo
+    private static final boolean MOCKING = true;
+    // below this cpu percentage file scanning is paused
+    private static final int MIN_SCAN_LIMIT_PERCENT = 20;
+
+    private final AtomicBoolean stop = new AtomicBoolean(false);
 }
 ```
 

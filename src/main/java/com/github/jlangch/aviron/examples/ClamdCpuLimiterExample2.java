@@ -141,6 +141,7 @@ public class ClamdCpuLimiterExample2 {
                     if (limiter.getLastSeenLimit() >= MIN_SCAN_LIMIT_PERCENT) {
                         // scan next file store directory
                         onScanDir(fsDirCycler.nextDir(), client, demoFS);
+                        if (MOCKING) Thread.sleep(10_000);
                     }
                     else {
                         // pause 30s due to temporarily suspended scanning (by CpuProfile)
@@ -158,17 +159,10 @@ public class ClamdCpuLimiterExample2 {
             final File dir, 
             final Client client, 
             final DemoFilestore demoFS
-    ) throws Exception {
+    ) {
         printfln("Scanning dir: %s", dir.toPath());
-        if (MOCKING) {
-            final ScanResult result = client.scan(dir.toPath(), true);
-            printVirusInfo(result, demoFS.countQuarantineFiles());
-            Thread.sleep(10_000);
-        }
-        else {
-            final ScanResult result = client.scan(dir.toPath(), true);
-            printVirusInfo(result, demoFS.countQuarantineFiles());
-        }
+        final ScanResult result = client.scan(dir.toPath(), true);
+        printVirusInfo(result, demoFS.countQuarantineFiles());
     }
 
     private void onCpuLimitChangeEvent(final ClamdCpuLimitChangeEvent event) {
