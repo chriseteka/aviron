@@ -109,7 +109,7 @@ limiters enable precise control over the CPU usage of the ClamAV daemon
 The *Clamd* class is an abstraction for a clamd daemon process represented 
 by a PID or a PID file.
 
-It offers function to control the clamd daemon:
+It offers functions to control the clamd daemon:
   * get the PID of a running clamd daemon
   * load the PID from the clamd daemon's pid file
   * checking if the clamd daemon is running
