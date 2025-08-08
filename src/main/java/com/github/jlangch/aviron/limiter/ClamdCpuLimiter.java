@@ -28,7 +28,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import com.github.jlangch.aviron.admin.ClamdAdmin;
 import com.github.jlangch.aviron.events.ClamdCpuLimitChangeEvent;
 import com.github.jlangch.aviron.impl.util.StringUtils;
 
@@ -173,9 +172,7 @@ public class ClamdCpuLimiter {
                     //
                     // To declare a scan free time period use the limit from the 
                     // CpuProfile and simply do not run scan events at all!
-                    ClamdAdmin.activateClamdCpuLimit(
-                        pid, 
-                        Math.max(MIN_SCAN_LIMIT_PERCENT, limit));
+                    clamdPid.activateCpuLimit(Math.max(MIN_SCAN_LIMIT_PERCENT, limit));
 
                     fireEvent(event);
 
@@ -226,12 +223,7 @@ public class ClamdCpuLimiter {
         lastSeen = new Limit(null, 100);  // reset
 
         if (!mocking.get()) {
-            // get the clamd daemon pid
-            final String pid = clamdPid.getPid();
-
-            if (!StringUtils.isBlank(pid)) {
-                ClamdAdmin.deactivateClamdCpuLimit(pid);
-            }
+            clamdPid.deactivateCpuLimit();
         }
 
         fireEvent(event);
