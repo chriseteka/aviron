@@ -23,16 +23,12 @@
 package com.github.jlangch.aviron.admin;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.List;
 
-import com.github.jlangch.aviron.ex.AvironException;
-import com.github.jlangch.aviron.ex.NotRunningException;
+import com.github.jlangch.aviron.impl.util.CollectionUtils;
 import com.github.jlangch.aviron.impl.util.Shell;
-import com.github.jlangch.aviron.impl.util.Signal;
 import com.github.jlangch.aviron.impl.util.StringUtils;
+import com.github.jlangch.aviron.limiter.ClamdPid;
 
 
 /**
@@ -66,8 +62,7 @@ public class ClamdAdmin {
     public static String getClamdPID() {
         Shell.validateLinuxOrMacOSX("ClamdAdmin::getClamdPID");
 
-        final List<String> pids = Shell.pgrep("clamd");
-        return pids.isEmpty() ? null : pids.get(0);
+        return CollectionUtils.first(ClamdPid.getPids());
     }
 
     /**
@@ -82,23 +77,7 @@ public class ClamdAdmin {
             throw new IllegalArgumentException("A pid file must not be null!");
         }
 
-        try {
-            if (pidFile.isFile() && pidFile.canRead()) {
-                return Files
-                        .lines(pidFile.toPath(), Charset.defaultCharset())
-                        .map(l -> l.trim())
-                        .findFirst()
-                        .orElse(null);
-            }
-            else {
-                return null;
-            }
-        }
-        catch(Exception ex) {
-            throw new AvironException(
-                    "Failed to load PID from file «" + pidFile + "»", 
-                    ex);
-        }
+        return new ClamdPid(pidFile).getPid();
     }
 
     /**
@@ -122,7 +101,7 @@ public class ClamdAdmin {
 
         Shell.validateLinuxOrMacOSX("ClamdAdmin::isProcessAlive");
 
-        return Shell.isProcessAlive(pid);
+        return new ClamdPid(pid).isProcessAlive();
     }
 
     /**
@@ -147,14 +126,7 @@ public class ClamdAdmin {
 
         Shell.validateLinuxOrMacOSX("ClamdAdmin::isProcessAlive");
 
-        final String pid = loadClamdPID(pidFile);
-
-        if (StringUtils.isBlank(pid)) {
-            return false;
-        }
-        else {
-            return Shell.isProcessAlive(pid);
-        }
+        return new ClamdPid(pidFile).isProcessAlive();
     }
 
     /**
@@ -174,7 +146,7 @@ public class ClamdAdmin {
     public static List<String> getCpulimitPIDs() {
         Shell.validateLinuxOrMacOSX("ClamdAdmin::getCpulimitPIDs");
 
-        return Shell.pgrep("cpulimit");
+        return ClamdPid.getCpulimitPids();
     }
 
     /**
@@ -213,30 +185,7 @@ public class ClamdAdmin {
     ) {
         Shell.validateLinuxOrMacOSX("ClamdAdmin::activateClamdCpuLimit");
 
-        if (limit < 0) {
-            throw new IllegalArgumentException(
-                    "A limit value must not be negative!");
-        }
-
-        if (StringUtils.isBlank(clamdPID)) {
-            throw new IllegalArgumentException("No Clamd PID!");
-        }
-
-        // kill a possibly running cpulimit process before starting a new one
-        ClamdAdmin.deactivateClamdCpuLimit(clamdPID);
-
-        if (limit != 100) {
-            try {
-                // /bin/sh -c "nohup /usr/bin/cpulimit -p 1234 -l 50 </dev/null &>/dev/null &"
-
-                // run cpulimit as nohup process
-                Shell.execCmdBackgroundNohup("cpulimit", "--limit=" + limit, "--pid=" + clamdPID);
-            }
-            catch(IOException ex) {
-                throw new AvironException(
-                        "Failed to activate a CPU limit on the clamd process", ex);
-            }
-        }
+        new ClamdPid(clamdPID).activateCpuLimit(limit);
     }
 
     /**
@@ -256,23 +205,7 @@ public class ClamdAdmin {
     public static void deactivateClamdCpuLimit(final String clamdPID) {
         Shell.validateLinuxOrMacOSX("ClamdAdmin::deactivateClamdCpuLimit");
 
-        if (StringUtils.isBlank(clamdPID)) {
-            throw new NotRunningException("No Clamd PID!");
-        }
-
-        try {
-            // best effort, do not check the exit code
-            //
-            // note: if there are no cpulimit processes running on the {clamdPID} pid
-            //       pkill returns the exit code 1. we don't want to throw an exception
-            //       in this case
-            Shell.execCmd("pkill", "-f", "cpulimit.*" + clamdPID);
-        }
-        catch(IOException ex) {
-            throw new AvironException(
-                    "Failed to deactivate CPU limit on the clamd process" + clamdPID, 
-                    ex);
-        }
+        new ClamdPid(clamdPID).deactivateCpuLimit();
     }
 
     /**
@@ -289,9 +222,9 @@ public class ClamdAdmin {
     public static void killClamd() {
         Shell.validateLinuxOrMacOSX("ClamdAdmin::killClamd");
 
-        final String clamdPID = getClamdPID();
-        if (!StringUtils.isBlank(clamdPID)) {
-            Shell.kill(Signal.SIGTERM, getClamdPID());
+        final String pid = CollectionUtils.first(ClamdPid.getPids());
+        if (StringUtils.isNotBlank(pid)) {
+            new ClamdPid(pid).kill();
         }
     }
 
@@ -308,7 +241,7 @@ public class ClamdAdmin {
      * @return the number of CPUs
      */
     public static int getNrOfCpus() {
-        return Runtime.getRuntime().availableProcessors();
+        return ClamdPid.getNrOfCpus();
     }
 
 }
