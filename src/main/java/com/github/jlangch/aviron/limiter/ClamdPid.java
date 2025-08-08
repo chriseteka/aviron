@@ -181,7 +181,7 @@ public class ClamdPid {
      * </pre>
      * 
      * <p>
-     * Note: If the <i>clamd</i> process terminates the controlling <i>cpulimit</i>
+     * Note: If the <i>clamd</i> process terminates, the controlling <i>cpulimit</i>
      *       process will terminate automatically as well.
      * 
      * <p>
