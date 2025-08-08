@@ -61,8 +61,8 @@ public class Clamd {
      * 
      * @param pid a non blank PID
      * 
-     * @see #ClamdPid(File)
-     * @see #ClamdPid(Supplier)
+     * @see #Clamd(File)
+     * @see #Clamd(Supplier)
      * @see #getPids()
      */
     public Clamd(final String pid) {
@@ -80,8 +80,8 @@ public class Clamd {
      * 
      * @param pidFile a mandatory PID file
      * 
-     * @see #ClamdPid(String)
-     * @see #ClamdPid(Supplier)
+     * @see #Clamd(String)
+     * @see #Clamd(Supplier)
      * @see #getPids()
      */
     public Clamd(final File pidFile) {
@@ -99,8 +99,8 @@ public class Clamd {
      * 
      * @param pidSupplier a mandatory PID supplier function
      * 
-     * @see #ClamdPid(String)
-     * @see #ClamdPid(File)
+     * @see #Clamd(String)
+     * @see #Clamd(File)
      * @see #getPids()
      */
     public Clamd(final Supplier<String> pidSupplier) {
