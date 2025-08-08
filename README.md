@@ -890,16 +890,16 @@ The output of a MOCK run:
 Starting in MOCKING mode ...
 Adjusted Clamd CPU limit: initial -> 50%
 Processing ...
-Scanning dir: /var/fo.../demo_234/filestore/000
-Scanning dir: /var/fo.../demo_234/filestore/001
-   Quarantined file: /var/fo.../demo_234/filestore/001/eicar.txt
-   Virus detected:   EICAR-AV-Test -> /var/fo.../demo_234/filestore/001/eicar.txt
+Scanning dir: /var/../filestore/000
+Scanning dir: /var/../filestore/001
+   Quarantined file: /var/../filestore/001/eicar.txt
+   Virus detected:   EICAR-AV-Test -> /var/../filestore/001/eicar.txt
    Quarantine count: 1
-Scanning dir: /var/fo.../demo_234/filestore/002
-Scanning dir: /var/fo.../demo_234/filestore/003
-Scanning dir: /var/fo.../demo_234/filestore/004
-Scanning dir: /var/fo.../demo_234/filestore/000
-Scanning dir: /var/fo.../demo_234/filestore/001
+Scanning dir: /var/../filestore/002
+Scanning dir: /var/../filestore/003
+Scanning dir: /var/../filestore/004
+Scanning dir: /var/../filestore/000
+Scanning dir: /var/../filestore/001
   :
 ```
 
