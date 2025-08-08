@@ -57,12 +57,6 @@ any CPU limiting features.
 
 
 
-## Change Log
-
-[Change Log](ChangeLog.md)
-
-
-
 ## Aviron Toolbox
 
 ```
@@ -924,6 +918,12 @@ Scanning dir: /var/../filestore/000
 Scanning dir: /var/../filestore/001
   :
 ```
+
+
+
+## Change Log
+
+[Change Log](ChangeLog.md)
 
 
 
