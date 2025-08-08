@@ -69,8 +69,8 @@ public interface IDirCycler {
     /**
      * Returns the last sub dir name in the cycle.
      * 
-     * @return the last sub dir or <code>null</code> if there not yet a call 
-     *         to next()
+     * @return the last sub dir or <code>null</code> if there was not yet a 
+     *         call to next()
      */
     String lastDirName();
 
