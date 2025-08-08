@@ -36,7 +36,7 @@ import com.github.jlangch.aviron.impl.util.StringUtils;
 
 
 /**
- * Abstraction for a clamd daemon.
+ * Representation for a clamd daemon.
  * 
  * <p>A clamd daemon can be specified in terms of its PID as:
  * <ul>
