@@ -25,6 +25,9 @@ package com.github.jlangch.aviron.util;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -132,10 +135,22 @@ public class DirCycler implements IDirCycler {
     }
 
     @Override
+    public LocalDateTime lastDirTimestamp() {
+        if (stateFile != null && Files.isReadable(stateFile.toPath())) {
+            return Instant.ofEpochMilli(stateFile.lastModified())
+                          .atZone(ZoneId.systemDefault())
+                          .toLocalDateTime();
+        }
+        else {
+            return null;
+        }
+    }
+
+    @Override
     public void restoreLastDirName(final String name) {
         refreshDirs();
         lastDirIdx = getIndexOf(name);
-        
+
         if (stateFile != null) {
             saveStateToFile(stateFile);
         }

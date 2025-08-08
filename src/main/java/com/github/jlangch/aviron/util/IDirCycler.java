@@ -23,6 +23,7 @@
 package com.github.jlangch.aviron.util;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -59,6 +60,13 @@ public interface IDirCycler {
      *         to next()
      */
     String lastDirName();
+
+    /**
+     * Returns the timestamp the last sub dir was run.
+     * 
+     * @return a timestamp or <code>null</code> if not available;
+     */
+    LocalDateTime lastDirTimestamp();
 
     /**
      * Returns a list of the managed subdirs
