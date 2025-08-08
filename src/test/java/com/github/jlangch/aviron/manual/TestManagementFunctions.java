@@ -24,9 +24,9 @@ package com.github.jlangch.aviron.manual;
 
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.first;
 
+import com.github.jlangch.aviron.Clamd;
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
-import com.github.jlangch.aviron.limiter.ClamdPid;
 
 
 public class TestManagementFunctions {
@@ -73,7 +73,7 @@ public class TestManagementFunctions {
         System.out.println();
 
         System.out.println("[clamd PID]");
-        System.out.println(first(ClamdPid.getPids()));
+        System.out.println(first(Clamd.getPids()));
         System.out.println();
         System.out.println();
     }

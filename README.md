@@ -71,7 +71,7 @@ any CPU limiting features.
    │             Client               │
    │                                  │
    │                 ┌────────────────┤     ┌──────────────────────────────────┐
-   │                 │   Quarantine   │     │             ClamdPid             │
+   │                 │   Quarantine   │     │               Clamd              │
    └─────────────────┴────────────────┘     └──────────────────────────────────┘
    
     ─────────── CPU Limiter ──────────
@@ -104,9 +104,9 @@ limiters enable precise control over the CPU usage of the ClamAV daemon
 
 
 
-**ClamdPid**
+**Clamd**
 
-The *ClamdPid* class is an abstraction for a clamd daemon process represented 
+The *Clamd* class is an abstraction for a clamd daemon process represented 
 by a PID or a PID file.
 
 It offers function to control the clamd daemon:

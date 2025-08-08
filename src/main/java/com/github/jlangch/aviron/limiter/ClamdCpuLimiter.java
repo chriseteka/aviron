@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import com.github.jlangch.aviron.Clamd;
 import com.github.jlangch.aviron.events.ClamdCpuLimitChangeEvent;
 import com.github.jlangch.aviron.impl.util.StringUtils;
 
@@ -63,10 +64,10 @@ import com.github.jlangch.aviron.impl.util.StringUtils;
 public class ClamdCpuLimiter {
 
     public ClamdCpuLimiter(
-            final ClamdPid clamdPid,
+            final Clamd clamd,
             final DynamicCpuLimit dynamicCpuLimit
     ) {
-        this.clamdPid = clamdPid;
+        this.clamd = clamd;
         this.dynamicCpuLimit = dynamicCpuLimit == null 
                                   ? new DynamicCpuLimit() 
                                   : dynamicCpuLimit;
@@ -84,10 +85,10 @@ public class ClamdCpuLimiter {
     }
 
     /**
-     * @return the associated clamd pid
+     * @return the associated clamd
      */
-    public ClamdPid getClamdPid() {
-        return clamdPid;
+    public Clamd getClamd() {
+        return clamd;
     }
 
     /**
@@ -152,7 +153,7 @@ public class ClamdCpuLimiter {
 
         if (!mocking.get()) {
             // get the clamd daemon pid
-            final String pid = clamdPid.getPid();
+            final String pid = clamd.getPid();
 
             if (!StringUtils.isBlank(pid)) {
                 final Limit newLimit = new Limit(pid, limit);
@@ -172,7 +173,7 @@ public class ClamdCpuLimiter {
                     //
                     // To declare a scan free time period use the limit from the 
                     // CpuProfile and simply do not run scan events at all!
-                    clamdPid.activateCpuLimit(Math.max(MIN_SCAN_LIMIT_PERCENT, limit));
+                    clamd.activateCpuLimit(Math.max(MIN_SCAN_LIMIT_PERCENT, limit));
 
                     fireEvent(event);
 
@@ -223,7 +224,7 @@ public class ClamdCpuLimiter {
         lastSeen = new Limit(null, 100);  // reset
 
         if (!mocking.get()) {
-            clamdPid.deactivateCpuLimit();
+            clamd.deactivateCpuLimit();
         }
 
         fireEvent(event);
@@ -277,7 +278,7 @@ public class ClamdCpuLimiter {
 
     private Limit lastSeen = new Limit(null, -1);
 
-    private final ClamdPid clamdPid;
+    private final Clamd clamd;
     private final AtomicBoolean mocking = new AtomicBoolean(false);
     private final AtomicReference<Consumer<ClamdCpuLimitChangeEvent>> limitChangeListener = new AtomicReference<>();
     private final DynamicCpuLimit dynamicCpuLimit;

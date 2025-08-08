@@ -30,6 +30,7 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.github.jlangch.aviron.Clamd;
 import com.github.jlangch.aviron.Client;
 import com.github.jlangch.aviron.FileSeparator;
 import com.github.jlangch.aviron.dto.ScanResult;
@@ -37,7 +38,6 @@ import com.github.jlangch.aviron.events.ClamdCpuLimitChangeEvent;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.limiter.ClamdCpuLimiter;
-import com.github.jlangch.aviron.limiter.ClamdPid;
 import com.github.jlangch.aviron.limiter.CpuProfile;
 import com.github.jlangch.aviron.limiter.DynamicCpuLimit;
 import com.github.jlangch.aviron.limiter.ScheduledClamdCpuLimiter;
@@ -115,9 +115,9 @@ public class ClamdCpuLimiterExample2 {
                                                 "22:00-23:59 @ 100%"));
 
             // replace the demo clamd PID file with your real one or pass a clamd PID
-            final ClamdPid clamdPID = new ClamdPid(demoFS.getClamdPidFile());
+            final Clamd clamd = new Clamd(demoFS.getClamdPidFile());
 
-            final ClamdCpuLimiter limiter = new ClamdCpuLimiter(clamdPID, new DynamicCpuLimit(everyday));
+            final ClamdCpuLimiter limiter = new ClamdCpuLimiter(clamd, new DynamicCpuLimit(everyday));
             limiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
             limiter.mocking(MOCKING); // turn mocking on/off
 

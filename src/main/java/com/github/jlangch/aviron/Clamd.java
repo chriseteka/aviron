@@ -20,7 +20,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jlangch.aviron.limiter;
+package com.github.jlangch.aviron;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +36,7 @@ import com.github.jlangch.aviron.impl.util.StringUtils;
 
 
 /**
- * Abstraction for a clamd daemon represented by a PID.
+ * Abstraction for a clamd daemon.
  * 
  * <p>A clamd daemon can be specified in terms of its PID as:
  * <ul>
@@ -54,7 +54,7 @@ import com.github.jlangch.aviron.impl.util.StringUtils;
  * MacOS (Homebrew):   » brew install cpulimit
  * </pre>
  */
-public class ClamdPid {
+public class Clamd {
 
     /**
      * Create a clamd representation from a clamd PID.
@@ -65,7 +65,7 @@ public class ClamdPid {
      * @see #ClamdPid(Supplier)
      * @see #getPids()
      */
-    public ClamdPid(final String pid) {
+    public Clamd(final String pid) {
         if (StringUtils.isBlank(pid)) {
             throw new IllegalArgumentException("A pid must not be blank!");
         }
@@ -84,7 +84,7 @@ public class ClamdPid {
      * @see #ClamdPid(Supplier)
      * @see #getPids()
      */
-    public ClamdPid(final File pidFile) {
+    public Clamd(final File pidFile) {
         if (pidFile == null) {
             throw new IllegalArgumentException("A pidFile must not be null!");
         }
@@ -103,7 +103,7 @@ public class ClamdPid {
      * @see #ClamdPid(File)
      * @see #getPids()
      */
-    public ClamdPid(final Supplier<String> pidSupplier) {
+    public Clamd(final Supplier<String> pidSupplier) {
         if (pidSupplier == null) {
             throw new IllegalArgumentException("A pidSupplier must not be null!");
         }

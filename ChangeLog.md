@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 ## [1.8.0] - 2025-08-xx
 
 - Improved examples
+- Breaking change: renamed ClamdPid to Clamd, making Clamd the sole abstraction 
+  for a clamd daemon. Removed the ClamdAdmin class in favor of the Clamd class.
 
 
 
