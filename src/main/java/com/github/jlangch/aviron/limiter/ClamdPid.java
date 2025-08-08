@@ -168,7 +168,7 @@ public class ClamdPid {
         if (StringUtils.isNotBlank(pid)) {
             // kill a possibly running cpulimit process before starting a new one
             deactivateCpuLimit(pid);
-            
+
             activateCpuLimit(pid, limit);
         }
     }
@@ -218,7 +218,7 @@ public class ClamdPid {
     }
 
     /**
-     * Returns the PIDs of the running <i>cpulimit</i> processes.
+     * Returns the PIDs of all running <i>cpulimit</i> processes.
      * 
      * <p>Runs the following shell command to get the pid:
      * <pre>
@@ -230,10 +230,29 @@ public class ClamdPid {
      * 
      * @return the list with PIDs
      */
-    public static List<String> getCpulimitPIDs() {
-        Shell.validateLinuxOrMacOSX("ClamdPid::getCpulimitPIDs");
+    public static List<String> getCpulimitPids() {
+        Shell.validateLinuxOrMacOSX("ClamdPid::getCpulimitPids");
 
         return Shell.pgrep("cpulimit");
+    }
+
+    /**
+     * Returns the PIDs of all running <i>clamd</i> processes.
+     * 
+     * <p>Runs the following shell command to get the pid:
+     * <pre>
+     * pgrep -x clamd
+     * </pre>
+     * 
+     * <p>
+     * Note: This function is available for Linux and MacOS only!
+     * 
+     * @return the list with PIDs
+     */
+    public static List<String> getPids() {
+        Shell.validateLinuxOrMacOSX("ClamdPid::getPids");
+
+        return Shell.pgrep("clamd");
     }
 
     /**
