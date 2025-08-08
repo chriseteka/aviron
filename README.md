@@ -56,6 +56,19 @@ any CPU limiting features.
 * [Controlling the Clamd CPU usage](#controlling-the-clamd-cpu-usage)
 
 
+* [Change Log](#change-log)
+
+
+* [Getting the latest release](#getting-the-latest-release)
+
+
+* [Contributing](#contributing)
+
+
+* [License](#license)
+
+
+
 
 ## Aviron Toolbox
 
