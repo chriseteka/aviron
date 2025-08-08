@@ -44,6 +44,8 @@ import com.github.jlangch.aviron.limiter.ClamdPid;
  * </pre>
  * 
  * Note: ClamdAdmin is going to be removed in favor of the ClamdPid class!
+ * 
+ * @deprecated
  */
 public class ClamdAdmin {
 

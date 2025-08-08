@@ -70,21 +70,20 @@ any CPU limiting features.
    │                                  │
    │             Client               │
    │                                  │
-   │                 ┌────────────────┤
-   │                 │   Quarantine   │
-   └─────────────────┴────────────────┘      
-   ┌──────────────────────────────────┐
-   │           Clamd Admin            │
-   └──────────────────────────────────┘        ─────────── CPU Limiter ──────────
-                                              ┌─────────────┐  ┌─────────────────┐
-                                              │ CPU Profile │  │Dynamic CPU Limit│
-    ──────────── Realtime ────────────        └─────────────┘  └─────────────────┘       
-   ┌──────────────────────────────────┐       ┌──────────────────────────────────┐
-   │           File Watcher           │       │         Clamd CPU Limiter        │
-   └──────────────────────────────────┘       └──────────────────────────────────┘      
-   ┌──────────────────────────────────┐       ┌──────────────────────────────────┐
-   │      Realtime File Processor     │       │    Scheduled Clamd CPU Limiter   │
-   └──────────────────────────────────┘       └──────────────────────────────────┘
+   │                 ┌────────────────┤     ┌──────────────────────────────────┐
+   │                 │   Quarantine   │     │             ClamdPid             │
+   └─────────────────┴────────────────┘     └──────────────────────────────────┘
+   
+    ─────────── CPU Limiter ──────────
+   ┌─────────────┐  ┌─────────────────┐
+   │ CPU Profile │  │Dynamic CPU Limit│
+   └─────────────┘  └─────────────────┘      ──────────── Realtime ────────────
+   ┌──────────────────────────────────┐     ┌──────────────────────────────────┐
+   │         Clamd CPU Limiter        │     │           File Watcher           │
+   └──────────────────────────────────┘     └──────────────────────────────────┘
+   ┌──────────────────────────────────┐     ┌──────────────────────────────────┐
+   │    Scheduled Clamd CPU Limiter   │     │      Realtime File Processor     │
+   └──────────────────────────────────┘     └──────────────────────────────────┘
 ```
 
 **Client**
@@ -102,12 +101,15 @@ copy infected files to a designated quarantine directory.
 For more advanced scanning, file watchers provide real-time support, and CPU 
 limiters enable precise control over the CPU usage of the ClamAV daemon 
 (clamd).
- 
 
 
-**Clamd Admin**
 
-The *Clamd Admin* module offers functions to manage the clamd daemon, like:
+**ClamdPid**
+
+The *ClamdPid* class is an abstraction for a clamd daemon process represented 
+by a PID or a PID file.
+
+It offers function to control the clamd daemon:
   * get the PID of a running clamd daemon
   * load the PID from the clamd daemon's pid file
   * checking if the clamd daemon is running
