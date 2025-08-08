@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 
 ## [1.7.1] - 2025-08-xx
 
-- ...
+- Improved examples
 
 
 
