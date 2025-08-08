@@ -38,7 +38,7 @@ import com.github.jlangch.aviron.impl.util.StringUtils;
 /**
  * Abstraction for a clamd daemon represented by a PID.
  * 
- * <p>A clamd daemon PID can be specified as:
+ * <p>A clamd daemon can be specified in terms of its PID as:
  * <ul>
  *    <li>a static PID</li>
  *    <li>a PID file to retrieve the PID on demand from the file</li>
@@ -56,26 +56,59 @@ import com.github.jlangch.aviron.impl.util.StringUtils;
  */
 public class ClamdPid {
 
+    /**
+     * Create a clamd representation from a clamd PID.
+     * 
+     * @param pid a non blank PID
+     * 
+     * @see #ClamdPid(File)
+     * @see #ClamdPid(Supplier)
+     * @see #getPids()
+     */
     public ClamdPid(final String pid) {
-        this.pid = pid;
+        if (StringUtils.isBlank(pid)) {
+            throw new IllegalArgumentException("A pid must not be blank!");
+        }
+
+        this.pidStatic = pid;
         this.pidFile = null;
         this.pidSupplier = null;
     }
 
+    /**
+     * Create a clamd representation from a clamd PID file.
+     * 
+     * @param pidFile a mandatory PID file
+     * 
+     * @see #ClamdPid(String)
+     * @see #ClamdPid(Supplier)
+     * @see #getPids()
+     */
     public ClamdPid(final File pidFile) {
         if (pidFile == null) {
             throw new IllegalArgumentException("A pidFile must not be null!");
         }
-        this.pid = null;
+
+        this.pidStatic = null;
         this.pidFile = pidFile;
         this.pidSupplier = null;
     }
 
+    /**
+     * Create a clamd representation from a function that returns the clamd PID.
+     * 
+     * @param pidSupplier a mandatory PID supplier function
+     * 
+     * @see #ClamdPid(String)
+     * @see #ClamdPid(File)
+     * @see #getPids()
+     */
     public ClamdPid(final Supplier<String> pidSupplier) {
         if (pidSupplier == null) {
             throw new IllegalArgumentException("A pidSupplier must not be null!");
         }
-        this.pid = null;
+
+        this.pidStatic = null;
         this.pidFile = null;
         this.pidSupplier = pidSupplier;
     }
@@ -85,13 +118,15 @@ public class ClamdPid {
      * Returns the clamd daemon PID.
      * 
      * <p>Gets the PID through the supplied strategy and checks if a process
-     * with the obtained PID is running.
+     * with the obtained PID is running otherwise it returns <code>null</code>.
      * 
      * <p>
      * Note: This function is available for Linux and MacOS only!
      * 
      * @return the clamd daemon PID or <code>null</code> if the daemon is not 
      *         running
+     *         
+     * @see #getPids()
      */
     public String getPid() {
         Shell.validateLinuxOrMacOSX("ClamdPid::getPid");
@@ -274,7 +309,7 @@ public class ClamdPid {
 
     private String getRawPid() {
         if (pidFile != null) {
-           return loadPID(pidFile);
+           return loadFromPidFile(pidFile);
         }
         else if (pidSupplier != null) {
             try {
@@ -285,7 +320,7 @@ public class ClamdPid {
             }
         }
         else {
-            return pid;
+            return pidStatic;
         }
     }
 
@@ -293,14 +328,15 @@ public class ClamdPid {
         try {
             // best effort, do not check the exit code
             //
-            // note: if there are no cpulimit processes running on the {clamdPID} pid
-            //       pkill returns the exit code 1. we don't want to throw an exception
-            //       in this case
+            // note: if there are no cpulimit processes running on the {clamdPID}
+            //       pid pkill returns the exit code 1. we don't want to throw an
+            //       exception in this case
             Shell.execCmd("pkill", "-f", "cpulimit.*" + pid);
         }
         catch(IOException ex) {
             throw new AvironException(
-                    "Failed to deactivate CPU limit on the clamd process" + pid, 
+                    "Failed to deactivate CPU limit on the clamd process "
+                     + "with the PID " + pid, 
                     ex);
         }
     }
@@ -315,16 +351,14 @@ public class ClamdPid {
             }
             catch(IOException ex) {
                 throw new AvironException(
-                        "Failed to activate a CPU limit on the clamd process", ex);
+                        "Failed to activate a CPU limit of " + limit +"% "
+                         + "on the clamd process with the PID " + pid, 
+                        ex);
             }
         }
     }
-    
-    private String loadPID(final File pidFile) {
-        if (pidFile == null) {
-            throw new IllegalArgumentException("A pid file must not be null!");
-        }
 
+    private String loadFromPidFile(final File pidFile) {
         try {
             if (pidFile.isFile() && pidFile.canRead()) {
                 return Files
@@ -345,7 +379,7 @@ public class ClamdPid {
     }
 
 
-    private final String pid;
+    private final String pidStatic;
     private final File pidFile;
     private final Supplier<String> pidSupplier;
 }
