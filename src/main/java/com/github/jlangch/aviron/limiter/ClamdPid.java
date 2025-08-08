@@ -206,6 +206,22 @@ public class ClamdPid {
         }
     }
 
+    /**
+     * Returns the number of available processors or the number of hyperthreads 
+     * if the CPU supports hyperthreads.
+     * 
+     * <pre>
+     * Linux shell:    nproc --all
+     * MacOS shell:    sysctl -n hw.ncpu
+     * Java:           Runtime.getRuntime().availableProcessors()
+     * </pre>
+     * 
+     * @return the number of CPUs
+     */
+    public static int getNrOfCpus() {
+        return Runtime.getRuntime().availableProcessors();
+    }
+
 
     private String getRawPid() {
         if (pidFile != null) {
