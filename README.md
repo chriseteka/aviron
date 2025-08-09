@@ -261,7 +261,7 @@ public class ScanQuarantine {
 
         System.out.println("Reachable: " + client.isReachable());
 
-        // Scanning -----------------------------------------------------------
+        // -- Scanning ---------------------------------------------------------
 
         // scan single file
         System.out.println(client.scan(Paths.get(baseDir, "document.pdf")));
@@ -269,12 +269,7 @@ public class ScanQuarantine {
         // scan dir (recursive)
         System.out.println(client.scan(Paths.get(baseDir), true));
 
-        // scan streamed data
-        try (InputStream is = new FileInputStream(new File(baseDir, "document.pdf"))) {
-            System.out.println(client.scan(is));
-        }
-
-        // Quarantine Management ----------------------------------------------
+        // -- Quarantine Management --------------------------------------------
 
         // list quarantine files
         final List<QuarantineFile> files = client.listQuarantineFiles();
