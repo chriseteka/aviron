@@ -46,6 +46,7 @@ any CPU limiting features.
     * [Dynamic profile](#dynamic-profile)
 * [File Watcher](#file-watcher)
 * [Controlling the Clamd CPU usage](#controlling-the-clamd-cpu-usage)
+* [CPU Load Chart](#cpu-load-chart)
 * [Change Log](#change-log)
 * [Getting the latest release](#getting-the-latest-release)
 * [Contributing](#contributing)
@@ -910,9 +911,17 @@ Scanning dir: /var/../filestore/001
   :
 ```
 
-<img src="https://github.com/jlangch/aviron/blob/master/doc/images/systemCpuLoad.png" width="500">
 
-24h system load with CPU controlled ClamAV scanner running on a dual core CPU. The spikes are caused by the WebApp running on the same host.
+## CPU Load Chart
+
+24h system load chart with a CPU controlled ClamAV scanner running on a dual core CPU. 
+The clamd daemon is controlled by an Aviron client with a CPU profile scanning a 60GB 
+filestore continuously.
+
+There is a ~5% CPU base load from the Linux OS and the WebApp running on the same host. 
+The spikes are caused by the WebApp serving some heavy load requests.
+
+<img src="https://github.com/jlangch/aviron/blob/master/doc/images/systemCpuLoad.png" width="500">
 
 
 
