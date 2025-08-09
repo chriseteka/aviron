@@ -216,7 +216,7 @@ public class DemoFilestore implements Closeable {
             throw new RuntimeException(
                     "Failed to append to file store file "+ fsFile + "! It does not exist!");
         }
-     }
+    }
 
     public void deleteFilestoreFile(final String subDir, final String filename) {
         final String fsFile = new File(subDir).getName() + "/" + new File(filename).getName();
