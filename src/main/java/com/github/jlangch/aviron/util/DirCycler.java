@@ -90,73 +90,97 @@ public class DirCycler implements IDirCycler {
 
     @Override
     public File nextDir() {
-        if (subDirs.isEmpty()) {
-            refreshDirs();  // check if new filestore dirs arrived
-        }
-
-        if (subDirs.isEmpty()) {
-            return null;  // still empty
-        }
-
-        int dirIdx = lastDirIdx + 1;
-        if (dirIdx >= subDirs.size()) {
-            // we past the last directory -> refresh to reflect dir changes
-            refreshDirs();
-            if (subDirs.isEmpty()) {
-                return null;  // empty now
-            }
-            dirIdx = 0;
-        }
-
-        lastDirIdx = dirIdx;
-        final File next = subDirs.get(dirIdx);
-
-        if (stateFile != null) {
-            saveStateToFile(stateFile);
-        }
-
-        return next;
+    	synchronized (lock) {
+	        if (subDirs.isEmpty()) {
+	            refreshDirs();  // check if new filestore dirs arrived
+	        }
+	
+	        if (subDirs.isEmpty()) {
+	            return null;  // still empty
+	        }
+	
+	        int dirIdx = lastDirIdx + 1;
+	        if (dirIdx >= subDirs.size()) {
+	            // we past the last directory -> refresh to reflect dir changes
+	            refreshDirs();
+	            if (subDirs.isEmpty()) {
+	                return null;  // empty now
+	            }
+	            dirIdx = 0;
+	        }
+	
+	        lastDirIdx = dirIdx;
+	        final File next = subDirs.get(dirIdx);
+	
+	        if (stateFile != null) {
+	            saveStateToFile(stateFile);
+	        }
+	
+	        return next;
+    	}
+    }
+    
+    @Override
+    public File peekNextDir() {
+    	synchronized (lock) {
+	        if (subDirs.isEmpty()) {
+	            return null;  // still empty
+	        }
+	
+	        int dirIdx = lastDirIdx + 1;
+	        dirIdx = dirIdx >= subDirs.size() ? 0 : dirIdx;
+	
+	        return subDirs.get(dirIdx);
+    	}
     }
 
     @Override
     public void refresh() {
-        refreshDirs();
-
-        if (stateFile != null) {
-            saveStateToFile(stateFile);
-        }
+    	synchronized (lock) {
+	        refreshDirs();
+	
+	        if (stateFile != null) {
+	            saveStateToFile(stateFile);
+	        }
+    	}
     }
 
     @Override
     public String lastDirName() {
-        return lastDirIdx < 0 || lastDirIdx >= subDirs.size()-1
-                ? null
-                : subDirs.get(lastDirIdx).getName();
+    	synchronized (lock) {
+	        return lastDirIdx < 0 || lastDirIdx >= subDirs.size()-1
+	                ? null
+	                : subDirs.get(lastDirIdx).getName();
+    	}
     }
 
     @Override
     public LocalDateTime lastDirTimestamp() {
-        if (stateFile != null 
-            && Files.isReadable(stateFile.toPath())
-            && lastDirIdx >= 0
-        ) {
-            return Instant.ofEpochMilli(stateFile.lastModified())
-                          .atZone(ZoneId.systemDefault())
-                          .toLocalDateTime();
-        }
-        else {
-            return null;
-        }
+    	synchronized (lock) {
+	        if (stateFile != null 
+	            && Files.isReadable(stateFile.toPath())
+	            && lastDirIdx >= 0
+	        ) {
+	            return Instant.ofEpochMilli(stateFile.lastModified())
+	                          .atZone(ZoneId.systemDefault())
+	                          .toLocalDateTime();
+	        }
+	        else {
+	            return null;
+	        }
+    	}
     }
 
     @Override
     public void restoreLastDirName(final String name) {
-        refreshDirs();
-        lastDirIdx = getIndexOf(name);
-
-        if (stateFile != null) {
-            saveStateToFile(stateFile);
-        }
+    	synchronized (lock) {
+	        refreshDirs();
+	        lastDirIdx = getIndexOf(name);
+	
+	        if (stateFile != null) {
+	            saveStateToFile(stateFile);
+	        }
+    	}
     }
 
     @Override
@@ -164,23 +188,25 @@ public class DirCycler implements IDirCycler {
         if (file == null) {
             throw new IllegalArgumentException("The file must not be null!");
         }
- 
-        if (Files.isRegularFile(file.toPath())) {
-            try {
-                final String lastDir = new String(
-                                            Files.readAllBytes(file.toPath()),
-                                            Charset.forName("UTF-8"));
 
-                restoreLastDirName(lastDir);
-            }
-            catch(Exception ex) {
-                throw new AvironException(
-                        "Failed to load DirCycler state from file", ex);
-            }
-        }
-        else {
-            restoreLastDirName(null);
-        }
+    	synchronized (lock) {
+	        if (Files.isRegularFile(file.toPath())) {
+	            try {
+	                final String lastDir = new String(
+	                                            Files.readAllBytes(file.toPath()),
+	                                            Charset.forName("UTF-8"));
+	
+	                restoreLastDirName(lastDir);
+	            }
+	            catch(Exception ex) {
+	                throw new AvironException(
+	                        "Failed to load DirCycler state from file", ex);
+	            }
+	        }
+	        else {
+	            restoreLastDirName(null);
+	        }
+    	}
     }
 
     @Override
@@ -189,16 +215,18 @@ public class DirCycler implements IDirCycler {
             throw new IllegalArgumentException("The file must not be null!");
         }
 
-        final String lastDir = lastDirName();
-
-        try {
-            final String data = lastDir == null ? "" : lastDir;
-            Files.write(file.toPath(), data.getBytes(Charset.forName("UTF-8")));
-        }
-        catch(Exception ex) {
-            throw new AvironException(
-                    "Failed to save DirCycler state to file", ex);
-        }
+    	synchronized (lock) {
+	        final String lastDir = lastDirName();
+	
+	        try {
+	            final String data = lastDir == null ? "" : lastDir;
+	            Files.write(file.toPath(), data.getBytes(Charset.forName("UTF-8")));
+	        }
+	        catch(Exception ex) {
+	            throw new AvironException(
+	                    "Failed to save DirCycler state to file", ex);
+	        }
+    	}
     }
 
     @Override
@@ -228,8 +256,11 @@ public class DirCycler implements IDirCycler {
     }
 
 
+    private final Object lock = new Object();
+    
     private final File rootDir;
     private final File stateFile;
-    private int lastDirIdx = -1;
     private final List<File> subDirs = new ArrayList<>();
+
+    private int lastDirIdx = -1;
 }

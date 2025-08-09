@@ -59,7 +59,15 @@ public interface IDirCycler {
      * @return the next dir or <code>null</code> if the root dir does not have 
      *         any sub dirs
      */
-    File nextDir() ;
+    File nextDir();
+
+    /**
+     * Returns the next dir in the cycle without advancing the cycler
+     * 
+     * @return the next dir or <code>null</code> if the root dir does not have 
+     *         any sub dirs
+     */
+    File peekNextDir();
 
     /**
      * Refreshes the cycler. Rescans all sub dirs.
