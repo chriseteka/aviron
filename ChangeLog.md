@@ -16,8 +16,6 @@ All notable changes to this project will be documented in this file.
 - Improved examples
 - Breaking change: renamed `ClamdPid` to `Clamd`, making `Clamd` the sole abstraction 
   for a clamd daemon. Removed the `ClamdAdmin` class in favor of the `Clamd` class.
-  `Clamd` is now based on member functions that allow simpler integration compared
-  to its predecessor `ClamdAdmin`.
 
 
 

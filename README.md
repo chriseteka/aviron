@@ -37,36 +37,19 @@ any CPU limiting features.
 ## Table of Content
 
 * [Aviron Toolbox](#aviron-toolbox)
-
-
 * [Scan Examples](#scan-examples)
     * [Simple scanning](#simple-scanning)
     * [Scanning with quarantine support](#scanning-with-quarantine-support)
-
-
 * [Defining Clamd CPU profiles](#defining-clamd-cpu-profiles)
     * [Simple day profile](#simple-day-profile)
     * [Weekday/weekend profile](#weekday-weekend-profile)
     * [Dynamic profile](#dynamic-profile)
-
-
 * [File Watcher](#file-watcher)
-
-
 * [Controlling the Clamd CPU usage](#controlling-the-clamd-cpu-usage)
-
-
 * [Change Log](#change-log)
-
-
 * [Getting the latest release](#getting-the-latest-release)
-
-
 * [Contributing](#contributing)
-
-
 * [License](#license)
-
 
 
 
