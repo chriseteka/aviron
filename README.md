@@ -910,6 +910,10 @@ Scanning dir: /var/../filestore/001
   :
 ```
 
+<img src="https://github.com/jlangch/aviron/blob/master/doc/images/systemCpuLoad.png" width="400">
+
+24h system load with CPU controlled ClamAV scanner (the spikes are caused by the WebApp running on the same host) 
+
 
 
 ## Change Log
