@@ -729,26 +729,26 @@ In the examples package you find two variants:
 Our demo file store used for virus scanning looks like:
 
 ```
- * demo/
- *   |
- *   +-- filestore/
- *   |     |
- *   |     +-- 000
- *   |     |     \_ file1.doc
- *   |     |     \_ file2.doc
- *   |     |     :
- *   |     |     \_ fileN.doc
- *   |     +-- 001
- *   |     |     \_ file1.doc
- *   |     |     :
- *   |     |     \_ fileN.doc
- *   |     :
- *   |     +-- NNN
- *   |           \_ file1.doc
- *   |
- *   +-- quarantine/
- *         \_ eicar.txt
- *         \_ eicar.txt.virus
+  demo/
+    |
+    +-- filestore/
+    |     |
+    |     +-- 000
+    |     |     \_ file1.doc
+    |     |     \_ file2.doc
+    |     |     :
+    |     |     \_ fileN.doc
+    |     +-- 001
+    |     |     \_ file1.doc
+    |     |     :
+    |     |     \_ fileN.doc
+    |     :
+    |     +-- NNN
+    |           \_ file1.doc
+    |
+    +-- quarantine/
+          \_ eicar.txt
+          \_ eicar.txt.virus
 ```
 
 and the demo code:
