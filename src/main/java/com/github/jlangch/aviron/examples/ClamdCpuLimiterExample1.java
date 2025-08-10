@@ -1,7 +1,7 @@
-/*                 _                 
- *       /\       (_)            
- *      /  \__   ___ _ __ ___  _ __  
- *     / /\ \ \ / / | '__/ _ \| '_ \ 
+/*                 _
+ *       /\       (_)
+ *      /  \__   ___ _ __ ___  _ __
+ *     / /\ \ \ / / | '__/ _ \| '_ \
  *    / ____ \ V /| | | | (_) | | | |
  *   /_/    \_\_/ |_|_|  \___/|_| |_|
  *
@@ -46,26 +46,26 @@ import com.github.jlangch.aviron.util.IDirCycler;
 
 /**
  * Clamd CpuLimiter Example 1
- * 
- * 
+ *
+ *
  * The demo filestore layout:
- * 
+ *
  * <pre>
  * demo/
  *   |
  *   +-- filestore/
  *   |     |
- *   |     +-- 000
+ *   |     +-- 000/
  *   |     |     \_ file1.doc
  *   |     |     \_ file2.doc
  *   |     |     :
  *   |     |     \_ fileN.doc
- *   |     +-- 001
+ *   |     +-- 001/
  *   |     |     \_ file1.doc
  *   |     |     :
  *   |     |     \_ fileN.doc
  *   |     :
- *   |     +-- NNN
+ *   |     +-- NNN/
  *   |           \_ file1.doc
  *   |
  *   +-- quarantine/
@@ -116,28 +116,30 @@ public class ClamdCpuLimiterExample1 {
             final Clamd clamd = new Clamd(demoFS.getClamdPidFile());
 
             final ClamdCpuLimiter limiter = new ClamdCpuLimiter(
-                                                clamd, 
+                                                clamd,
                                                 new DynamicCpuLimit(everyday));
             limiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
             limiter.mocking(MOCKING); // turn mocking on/off
 
-            // create a IDirCycler to cycle sequentially through the demo file 
-            // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ... 
+            // create a IDirCycler to cycle sequentially through the demo file
+            // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ...
             final IDirCycler fsDirCycler = new DirCycler(demoFS.getFilestoreDir());
 
             printfln("Processing ...");
 
-            // scan the file store directories in an endless loop until we get 
+            // scan the file store directories in an endless loop until we get
             // killed or stopped
             while(!stop.get()) {
-                // explicitly update clamd CPU limit 
+                // explicitly update clamd CPU limit
                 limiter.activateClamdCpuLimit();
 
                 final int limit = limiter.getLastSeenLimit();
                 if (limit >= MIN_SCAN_LIMIT_PERCENT) {
                     // scan next file store directory
                     onScanDir(fsDirCycler.nextDir(), client, demoFS);
-                    if (MOCKING) Thread.sleep(10_000);
+                    if (MOCKING) {
+						Thread.sleep(10_000);
+					}
                 }
                 else {
                     // pause 30s due to temporarily suspended scanning (by CpuProfile)
@@ -151,8 +153,8 @@ public class ClamdCpuLimiterExample1 {
     }
 
     private void onScanDir(
-            final File dir, 
-            final Client client, 
+            final File dir,
+            final Client client,
             final DemoFilestore demoFS
     ) {
         printfln("Scanning dir: %s", dir.toPath());

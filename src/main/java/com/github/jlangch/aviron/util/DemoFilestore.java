@@ -1,7 +1,7 @@
-/*                 _                 
- *       /\       (_)            
- *      /  \__   ___ _ __ ___  _ __  
- *     / /\ \ \ / / | '__/ _ \| '_ \ 
+/*                 _
+ *       /\       (_)
+ *      /  \__   ___ _ __ ___  _ __
+ *     / /\ \ \ / / | '__/ _ \| '_ \
  *    / ____ \ V /| | | | (_) | | | |
  *   /_/    \_\_/ |_|_|  \___/|_| |_|
  *
@@ -37,37 +37,37 @@ import java.util.stream.Collectors;
 
 
 /**
- * 
+ *
  * The demo file store layout:
- * 
+ *
  * <pre>
  * demo/
  *   |
  *   +-- filestore/
  *   |     |
- *   |     +-- 000
+ *   |     +-- 000/
  *   |     |     \_ file1.doc
  *   |     |     \_ file2.doc
  *   |     |     :
  *   |     |     \_ fileN.doc
- *   |     +-- 001
+ *   |     +-- 001/
  *   |     |     \_ file1.doc
  *   |     |     :
  *   |     |     \_ fileN.doc
  *   |     :
- *   |     +-- NNN
+ *   |     +-- NNN/
  *   |           \_ file1.doc
  *   |
  *   +-- quarantine/
  *         \_ file1.doc
  *         \_ file1.doc.virus
  * </pre>
- * 
- * <p>The demo filestore is created on the temp directory and completely removed by 
+ *
+ * <p>The demo filestore is created on the temp directory and completely removed by
  * the close() method.
- * 
+ *
  * <p>Example:
- * 
+ *
  * <pre>
  * try (DemoFilestore fs = new DemoFilestore()) {
  *    final File rootDir = fs.getRootDir();
@@ -166,7 +166,7 @@ public class DemoFilestore implements Closeable {
     }
 
     public File createFilestoreFile(final String subDir, final String filename) {
-        return createFilestoreFile(subDir, filename, "TEST"); 
+        return createFilestoreFile(subDir, filename, "TEST");
      }
 
     public File createFilestoreFile(final String subDir, final String filename, final String data) {
@@ -235,10 +235,10 @@ public class DemoFilestore implements Closeable {
 
     /**
      * Create an eicar anti malware test file in file store's subdirectory.
-     * 
+     *
      * @param subDir a subdirectory to write the test file to.
      * @return the created file eicar file name
-     * 
+     *
      * @see <a href="https://www.eicar.org/download-anti-malware-testfile/">Eicar</a>
      */
     public File createEicarAntiMalwareTestFile(final String subDir) {
@@ -279,7 +279,7 @@ public class DemoFilestore implements Closeable {
                  .sorted(Comparator.reverseOrder())
                  .map(Path::toFile)
                  .forEach(File::delete);
-            
+
             quarantineDir.mkdir();
         }
         catch(IOException ex) {

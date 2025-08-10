@@ -1,7 +1,7 @@
-/*                 _                 
- *       /\       (_)            
- *      /  \__   ___ _ __ ___  _ __  
- *     / /\ \ \ / / | '__/ _ \| '_ \ 
+/*                 _
+ *       /\       (_)
+ *      /  \__   ___ _ __ ___  _ __
+ *     / /\ \ \ / / | '__/ _ \| '_ \
  *    / ____ \ V /| | | | (_) | | | |
  *   /_/    \_\_/ |_|_|  \___/|_| |_|
  *
@@ -22,8 +22,8 @@
  */
 package com.github.jlangch.aviron.examples;
 
-import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.first;
+import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 import static com.github.jlangch.aviron.util.Util.printfln;
 
 import java.io.File;
@@ -48,26 +48,26 @@ import com.github.jlangch.aviron.util.IDirCycler;
 
 /**
  * Clamd CpuLimiter Example 2
- * 
- * 
+ *
+ *
  * The demo filestore layout:
- * 
+ *
  * <pre>
  * demo/
  *   |
  *   +-- filestore/
  *   |     |
- *   |     +-- 000
+ *   |     +-- 000/
  *   |     |     \_ file1.doc
  *   |     |     \_ file2.doc
  *   |     |     :
  *   |     |     \_ fileN.doc
- *   |     +-- 001
+ *   |     +-- 001/
  *   |     |     \_ file1.doc
  *   |     |     :
  *   |     |     \_ fileN.doc
  *   |     :
- *   |     +-- NNN
+ *   |     +-- NNN/
  *   |           \_ file1.doc
  *   |
  *   +-- quarantine/
@@ -121,27 +121,29 @@ public class ClamdCpuLimiterExample2 {
             limiter.setClamdCpuLimitChangeListener(this::onCpuLimitChangeEvent);
             limiter.mocking(MOCKING); // turn mocking on/off
 
-            // create a IDirCycler to cycle sequentially through the demo file 
-            // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ... 
+            // create a IDirCycler to cycle sequentially through the demo file
+            // store directories:  "000" ⇨ "001" ⇨ ... ⇨ "NNN" ⇨ "000" ⇨ ...
             final IDirCycler fsDirCycler = new DirCycler(demoFS.getFilestoreDir());
 
             // inital CPU limit after startup
             limiter.activateClamdCpuLimit();
 
             try (ScheduledClamdCpuLimiter ses = new ScheduledClamdCpuLimiter(
-                                                        limiter, 
+                                                        limiter,
                                                         0, 5, TimeUnit.MINUTES)) {
                 ses.start();
 
                 printfln("Processing ...");
 
-                // scan the file store directories in an endless loop until we get 
+                // scan the file store directories in an endless loop until we get
                 // killed or stopped
                 while(!stop.get()) {
                     if (limiter.getLastSeenLimit() >= MIN_SCAN_LIMIT_PERCENT) {
                         // scan next file store directory
                         onScanDir(fsDirCycler.nextDir(), client, demoFS);
-                        if (MOCKING) Thread.sleep(10_000);
+                        if (MOCKING) {
+							Thread.sleep(10_000);
+						}
                     }
                     else {
                         // pause 30s due to temporarily suspended scanning (by CpuProfile)
@@ -156,8 +158,8 @@ public class ClamdCpuLimiterExample2 {
     }
 
     private void onScanDir(
-            final File dir, 
-            final Client client, 
+            final File dir,
+            final Client client,
             final DemoFilestore demoFS
     ) {
         printfln("Scanning dir: %s", dir.toPath());

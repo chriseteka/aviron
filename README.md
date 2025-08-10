@@ -734,17 +734,17 @@ Our demo file store used for virus scanning looks like:
     |
     +-- filestore/
     |     |
-    |     +-- 000
+    |     +-- 000/
     |     |     \_ file1.doc
     |     |     \_ file2.doc
     |     |     :
     |     |     \_ fileN.doc
-    |     +-- 001
+    |     +-- 001/
     |     |     \_ file1.doc
     |     |     :
     |     |     \_ fileN.doc
     |     :
-    |     +-- NNN
+    |     +-- NNN/
     |           \_ file1.doc
     |
     +-- quarantine/
