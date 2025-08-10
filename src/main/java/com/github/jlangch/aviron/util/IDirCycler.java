@@ -54,6 +54,27 @@ public interface IDirCycler {
     File rootDir();
 
     /**
+     * @return <code>true</code> if number of sub dirs is zero else <code>false</code>
+     */
+    boolean isEmpty();
+    
+    /**
+     * @return the number of sub dirs
+     */
+    int size();
+
+    /**
+     * @return <code>true</code> if current sub dir is the first one else <code>false</code>
+     */
+    boolean isFirst();
+
+    /**
+     * @return <code>true</code> if current sub dir is the last one (before starting over 
+     *          again with the first one) else <code>false</code>
+     */
+    boolean isLast();
+    
+    /**
      * Returns the next dir in the cycle
      * 
      * @return the next dir or <code>null</code> if the root dir does not have 

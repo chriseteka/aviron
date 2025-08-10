@@ -87,6 +87,26 @@ public class DirCycler implements IDirCycler {
     public File rootDir() {
         return rootDir;
     }
+    
+    @Override
+    public boolean isEmpty() {
+    	return subDirs.isEmpty();
+    }
+    
+    @Override
+    public int size() {
+    	return subDirs.size();
+    }
+
+    @Override
+    public boolean isFirst() {
+    	return lastDirIdx == 0;
+    }
+
+    @Override
+    public boolean isLast() {
+    	return !subDirs.isEmpty() && lastDirIdx == subDirs.size()-1;
+    }
 
     @Override
     public File nextDir() {

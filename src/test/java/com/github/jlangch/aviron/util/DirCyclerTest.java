@@ -23,8 +23,10 @@
 package com.github.jlangch.aviron.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +36,41 @@ import org.junit.jupiter.api.Test;
 
 
 public class DirCyclerTest {
+
+
+    @Test 
+    void testEmpty() throws IOException {
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            final IDirCycler cycler = demoFS.getFilestoreDirCycler();
+
+            assertTrue(cycler.isEmpty());
+            
+            demoFS.createFilestoreSubDir("000");
+            cycler.refresh();
+
+            assertFalse(cycler.isEmpty());            
+        }
+    }
+
+    @Test 
+    void testSize() throws IOException {
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            final IDirCycler cycler = demoFS.getFilestoreDirCycler();
+
+            assertEquals(0, cycler.size());
+            
+            demoFS.createFilestoreSubDir("000");
+            cycler.refresh();
+
+            assertEquals(1, cycler.size());
+            
+            demoFS.createFilestoreSubDir("001");
+            demoFS.createFilestoreSubDir("002");
+            cycler.refresh();
+
+            assertEquals(3, cycler.size());
+        }
+    }
 
     @Test 
     void testNextDirEmpty() throws IOException {
@@ -103,6 +140,65 @@ public class DirCyclerTest {
             assertEquals("001", cycler.nextDir().getName());
             assertEquals("002", cycler.nextDir().getName());
         }
+    }
+
+    @Test 
+    void testFirst() throws IOException {
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            demoFS.createFilestoreSubDir("000");
+            demoFS.createFilestoreSubDir("001");
+            demoFS.createFilestoreSubDir("002");
+
+            final IDirCycler cycler = demoFS.getFilestoreDirCycler();
+
+            assertFalse(cycler.isFirst());
+            
+            cycler.nextDir();  // "000"
+            assertTrue(cycler.isFirst());
+            
+            cycler.nextDir();  // "001"
+            assertFalse(cycler.isFirst());
+            
+            cycler.nextDir();  // "002"
+            assertFalse(cycler.isFirst());
+            
+            cycler.nextDir();  // "000"
+            assertTrue(cycler.isFirst());
+            
+            cycler.nextDir();  // "001"
+            assertFalse(cycler.isFirst());
+         }
+    }
+
+    @Test 
+    void testLast() throws IOException {
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            demoFS.createFilestoreSubDir("000");
+            demoFS.createFilestoreSubDir("001");
+            demoFS.createFilestoreSubDir("002");
+
+            final IDirCycler cycler = demoFS.getFilestoreDirCycler();
+
+            assertFalse(cycler.isLast());
+            
+            cycler.nextDir();  // "000"
+            assertFalse(cycler.isLast());
+            
+            cycler.nextDir();  // "001"
+            assertFalse(cycler.isLast());
+            
+            cycler.nextDir();  // "002"
+            assertTrue(cycler.isLast());
+            
+            cycler.nextDir();  // "000"
+            assertFalse(cycler.isLast());
+            
+            cycler.nextDir();  // "001"
+            assertFalse(cycler.isLast());
+            
+            cycler.nextDir();  // "002"
+            assertTrue(cycler.isLast());
+         }
     }
 
     @Test 
