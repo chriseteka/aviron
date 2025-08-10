@@ -100,9 +100,7 @@ public class FilestoreDirProcessor extends Service {
     }
 
     private void fireEvent(final FilestoreScanEvent event) {
-        if (scanListener != null) {
-            safeRun(() -> scanListener.accept(event));
-        }
+        safeRun(() -> scanListener.accept(event));
     }
 
     private void safeRun(final Runnable r) {

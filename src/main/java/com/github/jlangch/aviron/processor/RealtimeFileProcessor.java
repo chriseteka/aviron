@@ -198,9 +198,7 @@ public class RealtimeFileProcessor extends Service {
     }
 
     private void fireEvent(final RealtimeScanEvent event) {
-        if (scanListener != null) {
-            safeRun(() -> scanListener.accept(event));
-        }
+        safeRun(() -> scanListener.accept(event));
     }
 
     private void safeRun(final Runnable r) {
