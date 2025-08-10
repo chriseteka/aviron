@@ -48,7 +48,7 @@ import com.github.jlangch.aviron.limiter.ClamdCpuLimiter;
 import com.github.jlangch.aviron.limiter.CpuProfile;
 import com.github.jlangch.aviron.limiter.DynamicCpuLimit;
 import com.github.jlangch.aviron.limiter.ScheduledClamdCpuLimiter;
-import com.github.jlangch.aviron.realtime.RealtimeFileProcessor;
+import com.github.jlangch.aviron.processor.RealtimeFileProcessor;
 import com.github.jlangch.aviron.util.DemoFilestore;
 import com.github.jlangch.aviron.util.OS;
 

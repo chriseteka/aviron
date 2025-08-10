@@ -38,7 +38,7 @@ import com.github.jlangch.aviron.ex.FileWatcherException;
 import com.github.jlangch.aviron.filewatcher.FileWatcher_FsWatch;
 import com.github.jlangch.aviron.filewatcher.FileWatcher_JavaWatchService;
 import com.github.jlangch.aviron.filewatcher.IFileWatcher;
-import com.github.jlangch.aviron.realtime.RealtimeFileProcessor;
+import com.github.jlangch.aviron.processor.RealtimeFileProcessor;
 import com.github.jlangch.aviron.util.DemoFilestore;
 import com.github.jlangch.aviron.util.IDirCycler;
 import com.github.jlangch.aviron.util.OS;
