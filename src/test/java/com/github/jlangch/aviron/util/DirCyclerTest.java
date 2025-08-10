@@ -37,7 +37,6 @@ import org.junit.jupiter.api.Test;
 
 public class DirCyclerTest {
 
-
     @Test 
     void testEmpty() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
@@ -48,7 +47,7 @@ public class DirCyclerTest {
             demoFS.createFilestoreSubDir("000");
             cycler.refresh();
 
-            assertFalse(cycler.isEmpty());            
+            assertFalse(cycler.isEmpty());
         }
     }
 
