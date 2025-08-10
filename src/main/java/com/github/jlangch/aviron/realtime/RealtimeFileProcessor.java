@@ -1,7 +1,7 @@
-/*                 _                 
- *       /\       (_)            
- *      /  \__   ___ _ __ ___  _ __  
- *     / /\ \ \ / / | '__/ _ \| '_ \ 
+/*                 _
+ *       /\       (_)
+ *      /  \__   ___ _ __ ___  _ __
+ *     / /\ \ \ / / | '__/ _ \| '_ \
  *    / ____ \ V /| | | | (_) | | | |
  *   /_/    \_\_/ |_|_|  \___/|_| |_|
  *
@@ -40,38 +40,38 @@ import com.github.jlangch.aviron.util.service.ServiceStatus;
 
 /**
  * Realtime file processor
- * 
- * <p>The RealtimeFileProcessor orchestrates the FileWatcher and the 
+ *
+ * <p>The RealtimeFileProcessor orchestrates the FileWatcher and the
  * FileWatcherQueue to deliver file scan events to an AV client. It applies
  * some optimization to file watching events on deleted files. It helps
- * keep the scan pipeline safe and sound even if the pipeline is overrun by 
+ * keep the scan pipeline safe and sound even if the pipeline is overrun by
  * file watching events.
- * 
+ *
  * <pre>
- * 
+ *
  * +------------+   +--------------------------------+   +-----------+   +-------+
  * | Filesystem | ⇨ | ⇘  Realtime File Processor   ⇗ | ⇨ | AV Client | ⇨ | Clamd |
  * +------------+   |  ⇓                          ⇑  |   +-----------+   +-------+
- *                  | +-------------+             ⇑  |                            
- *                  | | FileWatcher | ⇨ |  Queue   | |                            
- *                  | +-------------+   +----------+ |                            
- *                  +--------------------------------+                            
- * 
+ *                  | +-------------+             ⇑  |
+ *                  | | FileWatcher | ⇨ |  Queue   | |
+ *                  | +-------------+   +----------+ |
+ *                  +--------------------------------+
+ *
  * </pre>
  *
- * <p>The FileWatcherQueue is buffering file watching events. It asynchronously 
- * decouples the event producing FileWatcher from the event consuming AV scanner 
+ * <p>The FileWatcherQueue is buffering file watching events. It asynchronously
+ * decouples the event producing FileWatcher from the event consuming AV scanner
  * client.
- * 
+ *
  * <p>The FileWatcherQueue never blocks and never grows beyond limits to protect
  * the system! Therefore the queue is non blocking and has a fix capacity. As a
- * consequence it must discard old events if overrun. 
+ * consequence it must discard old events if overrun.
  *
  * <p>The AV Client might not keep up scanning files with the event producing
  * files system. The FileWatcherQueue prevents such a situation.
- * 
- * <p>File watchers (like the Java WatchService or the 'fswatch' tool) have the 
- * same behavior. If they get overrun with file change events they discard events 
+ *
+ * <p>File watchers (like the Java WatchService or the 'fswatch' tool) have the
+ * same behavior. If they get overrun with file change events they discard events
  * and signal it by sending an 'OVERFLOW' event to their clients.
  */
 
@@ -84,7 +84,10 @@ public class RealtimeFileProcessor extends Service {
            final Consumer<FileWatchErrorEvent> errorListener
     ) {
         if (watcher == null) {
-            throw new IllegalArgumentException("A 'fileWatcher' must not be null!");
+            throw new IllegalArgumentException("A 'watcher' must not be null!");
+        }
+        if (scanListener == null) {
+            throw new IllegalArgumentException("A 'scanListener' must not be null!");
         }
 
         this.watcher = watcher;
@@ -97,10 +100,12 @@ public class RealtimeFileProcessor extends Service {
     }
 
 
+    @Override
     protected String name() {
-        return "RealtimeScanner";
+        return this.getClass().getSimpleName();
     }
 
+    @Override
     protected void onStart() {
         // create a file watcher queue to decouple this scanner from
         // the file watcher
@@ -120,6 +125,7 @@ public class RealtimeFileProcessor extends Service {
         startServiceThread(createWorker());
     }
 
+    @Override
     protected void onClose() throws IOException{
         // stop realtime scanner
         if (watcher.getStatus() == ServiceStatus.RUNNING) {
@@ -130,7 +136,7 @@ public class RealtimeFileProcessor extends Service {
     private Runnable createWorker() {
         return () -> {
             final FileWatcherQueue queue = fileWatcherQueue.get();
-            
+
             enteredRunningState();
 
             while (isInRunningState()) {
@@ -145,7 +151,7 @@ public class RealtimeFileProcessor extends Service {
                     if (queue.isEmpty()) {
                         // idle sleep
                         if (sleepTimeSecondsOnIdle == 0 && isInRunningState()) {
-                            sleep(100);    
+                            sleep(100);
                         }
                         else {
                             for(int ii=0; ii<sleepTimeSecondsOnIdle && isInRunningState(); ii++) {
