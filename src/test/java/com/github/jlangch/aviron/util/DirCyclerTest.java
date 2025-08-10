@@ -1,7 +1,7 @@
-/*                 _                 
- *       /\       (_)            
- *      /  \__   ___ _ __ ___  _ __  
- *     / /\ \ \ / / | '__/ _ \| '_ \ 
+/*                 _
+ *       /\       (_)
+ *      /  \__   ___ _ __ ___  _ __
+ *     / /\ \ \ / / | '__/ _ \| '_ \
  *    / ____ \ V /| | | | (_) | | | |
  *   /_/    \_\_/ |_|_|  \___/|_| |_|
  *
@@ -37,13 +37,13 @@ import org.junit.jupiter.api.Test;
 
 public class DirCyclerTest {
 
-    @Test 
+    @Test
     void testEmpty() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             final IDirCycler cycler = demoFS.getFilestoreDirCycler();
 
             assertTrue(cycler.isEmpty());
-            
+
             demoFS.createFilestoreSubDir("000");
             cycler.refresh();
 
@@ -51,18 +51,18 @@ public class DirCyclerTest {
         }
     }
 
-    @Test 
+    @Test
     void testSize() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             final IDirCycler cycler = demoFS.getFilestoreDirCycler();
 
             assertEquals(0, cycler.size());
-            
+
             demoFS.createFilestoreSubDir("000");
             cycler.refresh();
 
             assertEquals(1, cycler.size());
-            
+
             demoFS.createFilestoreSubDir("001");
             demoFS.createFilestoreSubDir("002");
             cycler.refresh();
@@ -71,7 +71,7 @@ public class DirCyclerTest {
         }
     }
 
-    @Test 
+    @Test
     void testNextDirEmpty() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             final IDirCycler cycler = demoFS.getFilestoreDirCycler();
@@ -80,7 +80,7 @@ public class DirCyclerTest {
         }
     }
 
-    @Test 
+    @Test
     void testNextDirOne() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             final IDirCycler cycler = demoFS.getFilestoreDirCycler();
@@ -93,7 +93,7 @@ public class DirCyclerTest {
         }
     }
 
-    @Test 
+    @Test
     void testNextDirMany() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             final IDirCycler cycler = demoFS.getFilestoreDirCycler();
@@ -105,18 +105,18 @@ public class DirCyclerTest {
             assertEquals("000", cycler.nextDir().getName());
             assertEquals("001", cycler.nextDir().getName());
             assertEquals("002", cycler.nextDir().getName());
-            
+
             assertEquals("000", cycler.nextDir().getName());
             assertEquals("001", cycler.nextDir().getName());
             assertEquals("002", cycler.nextDir().getName());
-            
+
             assertEquals("000", cycler.nextDir().getName());
             assertEquals("001", cycler.nextDir().getName());
             assertEquals("002", cycler.nextDir().getName());
         }
     }
 
-    @Test 
+    @Test
     void testNextDirGrowing() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             final IDirCycler cycler = demoFS.getFilestoreDirCycler();
@@ -134,14 +134,14 @@ public class DirCyclerTest {
             assertEquals("000", cycler.nextDir().getName());
             assertEquals("001", cycler.nextDir().getName());
             assertEquals("002", cycler.nextDir().getName());
-            
+
             assertEquals("000", cycler.nextDir().getName());
             assertEquals("001", cycler.nextDir().getName());
             assertEquals("002", cycler.nextDir().getName());
         }
     }
 
-    @Test 
+    @Test
     void testFirst() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.createFilestoreSubDir("000");
@@ -151,25 +151,25 @@ public class DirCyclerTest {
             final IDirCycler cycler = demoFS.getFilestoreDirCycler();
 
             assertFalse(cycler.isFirst());
-            
+
             cycler.nextDir();  // "000"
             assertTrue(cycler.isFirst());
-            
+
             cycler.nextDir();  // "001"
             assertFalse(cycler.isFirst());
-            
+
             cycler.nextDir();  // "002"
             assertFalse(cycler.isFirst());
-            
+
             cycler.nextDir();  // "000"
             assertTrue(cycler.isFirst());
-            
+
             cycler.nextDir();  // "001"
             assertFalse(cycler.isFirst());
          }
     }
 
-    @Test 
+    @Test
     void testLast() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             demoFS.createFilestoreSubDir("000");
@@ -179,28 +179,28 @@ public class DirCyclerTest {
             final IDirCycler cycler = demoFS.getFilestoreDirCycler();
 
             assertFalse(cycler.isLast());
-            
+
             cycler.nextDir();  // "000"
             assertFalse(cycler.isLast());
-            
+
             cycler.nextDir();  // "001"
             assertFalse(cycler.isLast());
-            
+
             cycler.nextDir();  // "002"
             assertTrue(cycler.isLast());
-            
+
             cycler.nextDir();  // "000"
             assertFalse(cycler.isLast());
-            
+
             cycler.nextDir();  // "001"
             assertFalse(cycler.isLast());
-            
+
             cycler.nextDir();  // "002"
             assertTrue(cycler.isLast());
          }
     }
 
-    @Test 
+    @Test
     void testDirs() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             final IDirCycler cycler = demoFS.getFilestoreDirCycler();
@@ -221,7 +221,7 @@ public class DirCyclerTest {
     }
 
 
-    @Test 
+    @Test
     void testLastDirTimestamp() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             final File cyclerStateFile = new File(demoFS.getRootDir(), "cycler.state");
@@ -245,7 +245,7 @@ public class DirCyclerTest {
         }
     }
 
-    @Test 
+    @Test
     void testSaveAnRestoreLastDir() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             final IDirCycler cycler = demoFS.getFilestoreDirCycler();
@@ -275,7 +275,7 @@ public class DirCyclerTest {
         }
     }
 
-    @Test 
+    @Test
     void testLoadAndRestoreState() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             final File cyclerStateFile = new File(demoFS.getRootDir(), "cycler.state");
@@ -293,7 +293,7 @@ public class DirCyclerTest {
             cycler.refresh();
             cycler.loadStateFromFile(cyclerStateFile);
             assertNull(cycler.lastDirName());
-            
+
             demoFS.createFilestoreSubDir("000");
             demoFS.createFilestoreSubDir("001");
             demoFS.createFilestoreSubDir("002");
@@ -321,7 +321,7 @@ public class DirCyclerTest {
         }
     }
 
-    @Test 
+    @Test
     void testAutoStoreState() throws IOException {
         try(DemoFilestore demoFS = new DemoFilestore()) {
             final File cyclerStateFile = new File(demoFS.getRootDir(), "cycler.state");

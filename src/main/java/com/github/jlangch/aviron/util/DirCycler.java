@@ -1,7 +1,7 @@
-/*                 _                 
- *       /\       (_)            
- *      /  \__   ___ _ __ ___  _ __  
- *     / /\ \ \ / / | '__/ _ \| '_ \ 
+/*                 _
+ *       /\       (_)
+ *      /  \__   ___ _ __ ___  _ __
+ *     / /\ \ \ / / | '__/ _ \| '_ \
  *    / ____ \ V /| | | | (_) | | | |
  *   /_/    \_\_/ |_|_|  \___/|_| |_|
  *
@@ -44,7 +44,7 @@ public class DirCycler implements IDirCycler {
 
     /**
      * Create a DirCycler on a directory.
-     * 
+     *
      * @param rootDir the mandatory root directory
      */
     public DirCycler(final File rootDir) {
@@ -52,15 +52,15 @@ public class DirCycler implements IDirCycler {
     }
 
     /**
-     * Create a DirCycler on a directory with an optional state file. 
-     * 
-     * <p>If the state file is given (it must not necessarily exist at 
-     * construction time) the cycler saves its state automatically to this 
-     * file. 
-     * 
+     * Create a DirCycler on a directory with an optional state file.
+     *
+     * <p>If the state file is given (it must not necessarily exist at
+     * construction time) the cycler saves its state automatically to this
+     * file.
+     *
      * <p>If the state file exists at construction time the cycler loads
      * the state from the file and proceeds where it has left off.
-     * 
+     *
      * @param rootDir  the mandatory root directory
      * @param stateFile an optional state file
      */
@@ -87,120 +87,120 @@ public class DirCycler implements IDirCycler {
     public File rootDir() {
         return rootDir;
     }
-    
+
     @Override
     public boolean isEmpty() {
-    	return subDirs.isEmpty();
+        return subDirs.isEmpty();
     }
-    
+
     @Override
     public int size() {
-    	return subDirs.size();
+        return subDirs.size();
     }
 
     @Override
     public boolean isFirst() {
-    	return lastDirIdx == 0;
+        return lastDirIdx == 0;
     }
 
     @Override
     public boolean isLast() {
-    	return !subDirs.isEmpty() && lastDirIdx == subDirs.size()-1;
+        return !subDirs.isEmpty() && lastDirIdx == subDirs.size()-1;
     }
 
     @Override
     public File nextDir() {
-    	synchronized (lock) {
-	        if (subDirs.isEmpty()) {
-	            refreshDirs();  // check if new filestore dirs arrived
-	        }
-	
-	        if (subDirs.isEmpty()) {
-	            return null;  // still empty
-	        }
-	
-	        int dirIdx = lastDirIdx + 1;
-	        if (dirIdx >= subDirs.size()) {
-	            // we past the last directory -> refresh to reflect dir changes
-	            refreshDirs();
-	            if (subDirs.isEmpty()) {
-	                return null;  // empty now
-	            }
-	            dirIdx = 0;
-	        }
-	
-	        lastDirIdx = dirIdx;
-	        final File next = subDirs.get(dirIdx);
-	
-	        if (stateFile != null) {
-	            saveStateToFile(stateFile);
-	        }
-	
-	        return next;
-    	}
+        synchronized (lock) {
+            if (subDirs.isEmpty()) {
+                refreshDirs();  // check if new filestore dirs arrived
+            }
+
+            if (subDirs.isEmpty()) {
+                return null;  // still empty
+            }
+
+            int dirIdx = lastDirIdx + 1;
+            if (dirIdx >= subDirs.size()) {
+                // we past the last directory -> refresh to reflect dir changes
+                refreshDirs();
+                if (subDirs.isEmpty()) {
+                    return null;  // empty now
+                }
+                dirIdx = 0;
+            }
+
+            lastDirIdx = dirIdx;
+            final File next = subDirs.get(dirIdx);
+
+            if (stateFile != null) {
+                saveStateToFile(stateFile);
+            }
+
+            return next;
+        }
     }
-    
+
     @Override
     public File peekNextDir() {
-    	synchronized (lock) {
-	        if (subDirs.isEmpty()) {
-	            return null;  // still empty
-	        }
-	
-	        int dirIdx = lastDirIdx + 1;
-	        dirIdx = dirIdx >= subDirs.size() ? 0 : dirIdx;
-	
-	        return subDirs.get(dirIdx);
-    	}
+        synchronized (lock) {
+            if (subDirs.isEmpty()) {
+                return null;  // still empty
+            }
+
+            int dirIdx = lastDirIdx + 1;
+            dirIdx = dirIdx >= subDirs.size() ? 0 : dirIdx;
+
+            return subDirs.get(dirIdx);
+        }
     }
 
     @Override
     public void refresh() {
-    	synchronized (lock) {
-	        refreshDirs();
-	
-	        if (stateFile != null) {
-	            saveStateToFile(stateFile);
-	        }
-    	}
+        synchronized (lock) {
+            refreshDirs();
+
+            if (stateFile != null) {
+                saveStateToFile(stateFile);
+            }
+        }
     }
 
     @Override
     public String lastDirName() {
-    	synchronized (lock) {
-	        return lastDirIdx < 0 || lastDirIdx >= subDirs.size()-1
-	                ? null
-	                : subDirs.get(lastDirIdx).getName();
-    	}
+        synchronized (lock) {
+            return lastDirIdx < 0 || lastDirIdx >= subDirs.size()-1
+                    ? null
+                    : subDirs.get(lastDirIdx).getName();
+        }
     }
 
     @Override
     public LocalDateTime lastDirTimestamp() {
-    	synchronized (lock) {
-	        if (stateFile != null 
-	            && Files.isReadable(stateFile.toPath())
-	            && lastDirIdx >= 0
-	        ) {
-	            return Instant.ofEpochMilli(stateFile.lastModified())
-	                          .atZone(ZoneId.systemDefault())
-	                          .toLocalDateTime();
-	        }
-	        else {
-	            return null;
-	        }
-    	}
+        synchronized (lock) {
+            if (stateFile != null
+                && Files.isReadable(stateFile.toPath())
+                && lastDirIdx >= 0
+            ) {
+                return Instant.ofEpochMilli(stateFile.lastModified())
+                              .atZone(ZoneId.systemDefault())
+                              .toLocalDateTime();
+            }
+            else {
+                return null;
+            }
+        }
     }
 
     @Override
     public void restoreLastDirName(final String name) {
-    	synchronized (lock) {
-	        refreshDirs();
-	        lastDirIdx = getIndexOf(name);
-	
-	        if (stateFile != null) {
-	            saveStateToFile(stateFile);
-	        }
-    	}
+        synchronized (lock) {
+            refreshDirs();
+            lastDirIdx = getIndexOf(name);
+
+            if (stateFile != null) {
+                saveStateToFile(stateFile);
+            }
+        }
     }
 
     @Override
@@ -209,24 +209,24 @@ public class DirCycler implements IDirCycler {
             throw new IllegalArgumentException("The file must not be null!");
         }
 
-    	synchronized (lock) {
-	        if (Files.isRegularFile(file.toPath())) {
-	            try {
-	                final String lastDir = new String(
-	                                            Files.readAllBytes(file.toPath()),
-	                                            Charset.forName("UTF-8"));
-	
-	                restoreLastDirName(lastDir);
-	            }
-	            catch(Exception ex) {
-	                throw new AvironException(
-	                        "Failed to load DirCycler state from file", ex);
-	            }
-	        }
-	        else {
-	            restoreLastDirName(null);
-	        }
-    	}
+        synchronized (lock) {
+            if (Files.isRegularFile(file.toPath())) {
+                try {
+                    final String lastDir = new String(
+                                                Files.readAllBytes(file.toPath()),
+                                                Charset.forName("UTF-8"));
+
+                    restoreLastDirName(lastDir);
+                }
+                catch(Exception ex) {
+                    throw new AvironException(
+                            "Failed to load DirCycler state from file", ex);
+                }
+            }
+            else {
+                restoreLastDirName(null);
+            }
+        }
     }
 
     @Override
@@ -235,18 +235,18 @@ public class DirCycler implements IDirCycler {
             throw new IllegalArgumentException("The file must not be null!");
         }
 
-    	synchronized (lock) {
-	        final String lastDir = lastDirName();
-	
-	        try {
-	            final String data = lastDir == null ? "" : lastDir;
-	            Files.write(file.toPath(), data.getBytes(Charset.forName("UTF-8")));
-	        }
-	        catch(Exception ex) {
-	            throw new AvironException(
-	                    "Failed to save DirCycler state to file", ex);
-	        }
-    	}
+        synchronized (lock) {
+            final String lastDir = lastDirName();
+
+            try {
+                final String data = lastDir == null ? "" : lastDir;
+                Files.write(file.toPath(), data.getBytes(Charset.forName("UTF-8")));
+            }
+            catch(Exception ex) {
+                throw new AvironException(
+                        "Failed to save DirCycler state to file", ex);
+            }
+        }
     }
 
     @Override
@@ -277,7 +277,7 @@ public class DirCycler implements IDirCycler {
 
 
     private final Object lock = new Object();
-    
+
     private final File rootDir;
     private final File stateFile;
     private final List<File> subDirs = new ArrayList<>();
