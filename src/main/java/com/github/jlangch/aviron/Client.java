@@ -1,7 +1,7 @@
-/*                 _                 
- *       /\       (_)            
- *      /  \__   ___ _ __ ___  _ __  
- *     / /\ \ \ / / | '__/ _ \| '_ \ 
+/*                 _
+ *       /\       (_)
+ *      /  \__   ___ _ __ ___  _ __
+ *     / /\ \ \ / / | '__/ _ \| '_ \
  *    / ____ \ V /| | | | (_) | | | |
  *   /_/    \_\_/ |_|_|  \___/|_| |_|
  *
@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -64,13 +65,13 @@ import com.github.jlangch.aviron.impl.util.Lazy;
 
 
 /**
- * The ClamAV client provides access to the ClamAV daemon (clamd) functions 
- * like file scanning, updating the daemon's ClamAV virus databases, or getting 
+ * The ClamAV client provides access to the ClamAV daemon (clamd) functions
+ * like file scanning, updating the daemon's ClamAV virus databases, or getting
  * the scanning stats.
- * 
+ *
  * <p>The ClamAV client communicates through a <i>Socket</i> with the
  * <i>clamd</i> daemon.
- * 
+ *
  * <pre>
  * Client client = Client.builder()
  *                       .serverHostname("localhost")
@@ -78,7 +79,7 @@ import com.github.jlangch.aviron.impl.util.Lazy;
  *                       .build();
  *
  * System.out.println(client.version());
- * 
+ *
  * client.reloadVirusDatabases();
  *
  * ScanResult result = client.scan(Path.get("/data/summary.docx"));
@@ -86,17 +87,17 @@ import com.github.jlangch.aviron.impl.util.Lazy;
  *    System.out.println(result.getVirusFound());
  * }
  * </pre>
- * 
+ *
  * For testing purposes start clamd in the foreground:
  * <pre>
  * // foreground
  * clamd --foreground
  * clamd --log=/tmp/clamd.log --pid=/tmp/clamd.pid --foreground
- * 
+ *
  * // background
  * clamd --log=/tmp/clamd.log --pid=/tmp/clamd.pid
  * </pre>
- * 
+ *
  * @see <a href="https://docs.clamav.net/manual/Usage.html">ClamAV Manual</a>
  * @see <a href="https://linux.die.net/man/8/clamd">Clamd Man Pages</a>
  * @see <a href="https://www.liquidweb.com/blog/install-clamav/">Install ClamAV</a>
@@ -143,19 +144,19 @@ public class Client {
                             builder.serverFileSeparator,
                             builder.connectionTimeoutMillis,
                             builder.readTimeoutMillis);
-        
+
         this.quarantine = new Quarantine(
                                 builder.quarantineFileAction,
                                 builder.quarantineDir,
                                 builder.quarantineEventListener);
-        
+
         this.mocking = builder.mocking;
     }
 
 
     /**
      * Return a client builder
-     * 
+     *
      * @return a builder
      */
     public static Builder builder() {
@@ -165,8 +166,8 @@ public class Client {
 
     /**
      * Sends a "PING" command to the ClamAV server.
-     * 
-     * @return <code>true</code> if the server answers with a "PONG" else 
+     *
+     * @return <code>true</code> if the server answers with a "PONG" else
      *         <code>false</code>.
      */
     public boolean ping() {
@@ -177,7 +178,7 @@ public class Client {
 
     /**
      * Return the ClamAV version
-     * 
+     *
      * @return the ClamAV version
      */
     public String clamAvVersion() {
@@ -187,7 +188,7 @@ public class Client {
     }
 
     /**
-     * Returns the statistics about the scan queue, contents of scan queue, and 
+     * Returns the statistics about the scan queue, contents of scan queue, and
      * memory usage.
      *
      * @return the formatted scanning statistics
@@ -199,7 +200,7 @@ public class Client {
     }
 
     /**
-     * Reload the virus databases. 
+     * Reload the virus databases.
      */
     public void reloadVirusDatabases() {
         if (!mocking) {
@@ -219,11 +220,11 @@ public class Client {
     /**
      * Scans a file's data passed in the stream. Uses the default chunk size of
      * 2048 bytes.
-     * 
+     *
      * <p>Note 1: The input stream must be closed by the caller!
-     * 
+     *
      * <p>Note 2: There is no quarantine action for streamed data
-     * 
+     *
      * @param inputStream the file data to scan
      * @return the scan result
      */
@@ -240,13 +241,13 @@ public class Client {
 
     /**
      * Scans a file's data passed in the stream.
-     * 
+     *
      * <p>Note 1: The input stream must be closed by the caller!
-     * 
+     *
      * <p>Note 2: There is no quarantine action for streamed data
-     * 
+     *
      * @param inputStream the file data to scan
-     * @param chunkSize the chunk size to use when reading data chunks from 
+     * @param chunkSize the chunk size to use when reading data chunks from
      *                  the stream
      * @return the scan result
      */
@@ -265,9 +266,9 @@ public class Client {
     }
 
     /**
-     * Scans a single file or directory (recursively). Stops after the first file 
+     * Scans a single file or directory (recursively). Stops after the first file
      * with a virus.
-     * 
+     *
      * @param path  a file or directory
      * @return the scan result
      */
@@ -288,10 +289,10 @@ public class Client {
 
     /**
      * Scans a single file or directory (recursively).
-     * 
+     *
      * @param path  a file or directory
-     * @param continueScan  if <code>true</code> continues scanning upon detecting 
-     *                      a virus in a file else stops after the first file with 
+     * @param continueScan  if <code>true</code> continues scanning upon detecting
+     *                      a virus in a file else stops after the first file with
      *                      a virus.
      * @return the scan result
      */
@@ -305,7 +306,7 @@ public class Client {
         }
         else {
             final String serverPath = server.toServerPath(path);
-            final ScanResult result = continueScan 
+            final ScanResult result = continueScan
                                         ? sendCommand(new ContScan(serverPath))
                                         : sendCommand(new Scan(serverPath));
             quarantine.handleQuarantineActions(result);
@@ -315,7 +316,7 @@ public class Client {
 
     /**
      * Scans a single file or directory (recursively) using multiple threads.
-     * 
+     *
      * @param path  a file or directory
      * @return the scan result
      */
@@ -337,7 +338,7 @@ public class Client {
     /**
      * Tests if the ClamAV server is reachable. Uses the default timeout
      * of 3'000ms.
-     * 
+     *
      * @return <code>true</code> if the server is reachable else <code>false</code>.
      */
     public boolean isReachable() {
@@ -348,7 +349,7 @@ public class Client {
 
     /**
      * Tests if the ClamAV server is reachable.
-     * 
+     *
      * @param timeoutMillis  the timeout in milliseconds
      * @return <code>true</code> if the server is reachable else <code>false</code>.
      */
@@ -361,9 +362,9 @@ public class Client {
     /**
      * Returns the raw command string and the server's result for
      * the last command sent to the ClamAV server.
-     * 
+     *
      * This function is provided for debugging
-     * 
+     *
      * @return the details on the last command run
      */
     public CommandRunDetails lastCommandRunDetails() {
@@ -374,7 +375,7 @@ public class Client {
 
     /**
      * Checks whether the quarantine is active
-     * 
+     *
      * @return <code>true</code> if quarantine is active else <code>false</code>
      */
     public boolean isQuarantineActive() {
@@ -383,20 +384,20 @@ public class Client {
 
     /**
      * Returns a list of the quarantine files.
-     * 
+     *
      * @return a list of the quarantined files
      */
     public List<QuarantineFile> listQuarantineFiles() {
-        return quarantine.isActive() 
+        return quarantine.isActive()
                 ? quarantine.listQuarantineFiles()
                 : new ArrayList<>();
     }
 
     /**
      * Removes a quarantine file.
-     * 
+     *
      * <p>Silently ignores the request if the quarantine file does not exist.
-     * 
+     *
      * @param file  the quarantine file to remove
      */
     public void removeQuarantineFile(final QuarantineFile file) {
@@ -404,24 +405,24 @@ public class Client {
             throw new IllegalArgumentException("A 'file' must not be null!");
         }
 
-        quarantine.removeQuarantineFile(file); 
+        quarantine.removeQuarantineFile(file);
     }
 
     /**
      * Removes all quarantine file.s
      */
     public void removeAllQuarantineFiles() {
-        quarantine.removeAllQuarantineFiles(); 
+        quarantine.removeAllQuarantineFiles();
     }
 
     /**
      * Print the quarantine file info in human readable form to a <code>PrintStream</code>
-     * 
+     *
      * @param stream  the print stream. If <code>null</code> prints to stdout.
      */
     public void printQuarantineInfo(final PrintStream stream) {
         final PrintStream ps = stream == null ? System.out : stream;
-        
+
         quarantine.listQuarantineFiles().forEach(f -> {
             ps.println(f.getQuarantineFileName());
             ps.println("    " + f.getInfectedFile());
@@ -434,7 +435,7 @@ public class Client {
 
     /**
      * Print the client configuration in human readable form to a <code>PrintStream</code>
-     * 
+     *
      * @param stream  the print stream. If <code>null</code> prints to stdout.
      */
     public void printConfig(final PrintStream stream) {
@@ -443,8 +444,53 @@ public class Client {
     }
 
     /**
+     * Wait for Clamd to get operational.
+     *
+     * <p>Clamd has pretty long startup time due the the expensive loading
+     * of the virus database.
+     *
+     * @param maxWaitTime the max wait time
+     * @param unit the max wait time unit
+     * @return <code>true</code> if clamd is operational or <code>false</code> if
+     *         clamd did not get operational within the given time frame.
+     */
+    public boolean waitForOperationalClamd(
+    		final long maxWaitTime,
+    		final TimeUnit unit
+    ) {
+        if (maxWaitTime < 0) {
+            throw new IllegalArgumentException("A 'maxWaitTime' must not be negative!");
+        }
+        if (unit == null) {
+            throw new IllegalArgumentException("A 'unit' must not be null!");
+        }
+
+        final long maxTime = System.currentTimeMillis() + unit.toMillis(maxWaitTime);
+
+    	while (System.currentTimeMillis() < maxTime) {
+    		try {
+    			if (isReachable(1_000)) {
+    				if (ping()) {
+    					return true;  // clamd is operational
+    				}
+    			}
+    		}
+    		catch(Exception ex) {
+        		try {
+        			Thread.sleep(1_000);
+        		}
+        		catch(InterruptedException e) {
+        			return false;
+        		}
+    		}
+    	}
+
+    	return false;
+    }
+
+    /**
      * Returns the version of this Aviron library
-     * 
+     *
      * @return the version
      */
     public String version() {
@@ -509,7 +555,7 @@ public class Client {
 
     public ScanResult mockScan(final Path path, final boolean continueScan) {
         sleep(80);  // sleep 80ms to simulate a clamd scan
-        
+
         if (Files.isRegularFile(path) && isEicarTestFile(path)) {
             final Map<String, List<String>> viruses = new HashMap<>();
             viruses.put(path.toFile().getPath(), CollectionUtils.toList("EICAR-AV-Test"));
@@ -527,8 +573,8 @@ public class Client {
                 return ScanResult.ok();
             }
             else {
-                final List<Path> items = continueScan 
-                                            ? infected 
+                final List<Path> items = continueScan
+                                            ? infected
                                             : infected.subList(0, 1);
 
                 final ScanResult result = ScanResult.virusFound(
@@ -551,12 +597,12 @@ public class Client {
             while ((is.read(buf))!=-1) { }
         }
         catch(Exception ex) { };
-        
+
         sleep(80);  // sleep 80ms to simulate a clamd scan
-        
+
         return ScanResult.ok();
     }
-    
+
     private boolean isEicarTestFile(final Path path) {
         return Files.isRegularFile(path)
                 && path.toFile().getName().toLowerCase().contains("eicar");
@@ -588,7 +634,7 @@ public class Client {
 
         /**
          *  The ClamAV server hostname. Defaults to <code>localhost</code>
-         *  
+         *
          * @param hostname server hostname
          * @return this builder
          */
@@ -597,9 +643,9 @@ public class Client {
             return this;
         }
 
-        /** 
-         * The ClamAV server port. Defaults to <code>3310</code> 
-         *  
+        /**
+         * The ClamAV server port. Defaults to <code>3310</code>
+         *
          * @param port server port
          * @return this builder
          */
@@ -608,9 +654,9 @@ public class Client {
             return this;
         }
 
-        /** 
-         * The ClamAV server file separator. Defaults to <code>FileSeparator.JVM_PLATFORM</code> 
-         *  
+        /**
+         * The ClamAV server file separator. Defaults to <code>FileSeparator.JVM_PLATFORM</code>
+         *
          * @param separator server file separator
          * @return this builder
          */
@@ -619,9 +665,9 @@ public class Client {
             return this;
         }
 
-        /** 
-         * The connection timeout, 0 means indefinite. Defaults to <code>3'000ms</code> 
-         *  
+        /**
+         * The connection timeout, 0 means indefinite. Defaults to <code>3'000ms</code>
+         *
          * @param timeoutMillis connection timeout in millis
          * @return this builder
          */
@@ -630,9 +676,9 @@ public class Client {
             return this;
         }
 
-        /** 
-         * The read timeout, 0 means indefinite. Defaults to <code>20'000ms</code> 
-         *  
+        /**
+         * The read timeout, 0 means indefinite. Defaults to <code>20'000ms</code>
+         *
          * @param timeoutMillis read timeout in millis
          * @return this builder
          */
@@ -641,10 +687,10 @@ public class Client {
             return this;
         }
 
-        /** 
-         * A quarantine file action for infected files. Defaults to 
-         * <code>QuarantineFileAction.NONE</code> 
-         *  
+        /**
+         * A quarantine file action for infected files. Defaults to
+         * <code>QuarantineFileAction.NONE</code>
+         *
          * @param action a quarantine file action
          * @return this builder
          */
@@ -653,11 +699,11 @@ public class Client {
             return this;
         }
 
-        /** 
-         * A quarantine directory where the infected files are move/copied to 
-         * depending on the configured quarantine file action. Defaults to 
+        /**
+         * A quarantine directory where the infected files are move/copied to
+         * depending on the configured quarantine file action. Defaults to
          * <code>null</code>.
-         *  
+         *
          * @param quarantineDir a quarantine directory
          * @return this builder
          */
@@ -666,11 +712,11 @@ public class Client {
             return this;
         }
 
-        /** 
-         * A quarantine directory where the infected files are move/copied to 
-         * depending on the configured quarantine file action. Defaults to 
+        /**
+         * A quarantine directory where the infected files are move/copied to
+         * depending on the configured quarantine file action. Defaults to
          * <code>null</code>.
-         *  
+         *
          * @param quarantineDir a quarantine directory
          * @return this builder
          */
@@ -679,7 +725,7 @@ public class Client {
             return this;
         }
 
-        /** 
+        /**
          * A quarantine event listener, that receives all quarantine file action
          * events. Defaults to <code>null</code>.
          *
@@ -691,14 +737,14 @@ public class Client {
             return this;
         }
 
-        /** 
-         * If set to <code>true</code> enables the mock mode. 
-         * 
+        /**
+         * If set to <code>true</code> enables the mock mode.
+         *
          * <p>In mocking mode the client will not physically communicate with
          * the clamd daemon.
          *
          * @param mocking enable/disable mocking. Defaults to <code>false</code>.
-         * 
+         *
          * @return this builder
          */
         public Builder mocking(final boolean mocking) {

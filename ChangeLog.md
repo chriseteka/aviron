@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 - Added method `IDirCycler::lastDirTimestamp` and `IDirCycler::peekNextDir`
 - Enhanced `DirCycler` to be thread safe 
+- Added method `Client::waitForOperationalClamd`
 
 
 
