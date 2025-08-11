@@ -459,7 +459,7 @@ public class Client {
      *
      * @param maxWaitTime the max wait time
      * @param unit the max wait time unit
-     * @param listener an optional event listener
+     * @param listener an optional status/progress event listener
      * @return <code>true</code> if clamd is operational or <code>false</code> if
      *         clamd did not get operational within the given time frame.
      */
