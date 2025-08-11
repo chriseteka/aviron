@@ -454,8 +454,8 @@ public class Client {
      * <p>Checks first if the clamd daemon process is running followed by ping
      * command to verify that clamd is operational and ready to accept commands.
      *
-     * <p>Clamd has pretty long startup time due the the expensive loading
-     * of the virus database.
+     * <p>Clamd has pretty long startup time due the the time expensive virus
+     * database loading.
      *
      * @param maxWaitTime the max wait time
      * @param unit the max wait time unit
