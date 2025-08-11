@@ -493,7 +493,7 @@ public class Client {
                     return true;  // clamd is operational
                 }
                 else {
-                       fireEvent(new ClamdAwaitingEvent(Reachable), listener);
+                    fireEvent(new ClamdAwaitingEvent(Reachable), listener);
                 }
             }
             else {
@@ -501,8 +501,8 @@ public class Client {
             }
 
             if (System.currentTimeMillis() > (maxTime - sleepTime)) {
-				break;
-			}
+                break;
+            }
 
             try {
                 Thread.sleep(sleepTime);
