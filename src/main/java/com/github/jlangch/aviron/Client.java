@@ -479,13 +479,11 @@ public class Client {
 
         final Supplier<Boolean> reachable = () -> {
             try { return isReachable(1_000); }
-            catch(Exception ex) { return false; }
-        };
+            catch(Exception ex) { return false; } };
 
         final Supplier<Boolean> operational = () -> {
             try { return ping(); }
-            catch(Exception ex) { return false; }
-        };
+            catch(Exception ex) { return false; } };
 
         while (System.currentTimeMillis() < maxTime) {
             if (reachable.get()) {
