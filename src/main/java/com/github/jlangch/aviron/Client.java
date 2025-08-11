@@ -476,6 +476,7 @@ public class Client {
         }
 
         final long maxTime = System.currentTimeMillis() + unit.toMillis(maxWaitTime);
+        final long sleepTime = 3_000;
 
         final Supplier<Boolean> reachable = () -> {
             try { return isReachable(1_000); }
@@ -485,7 +486,7 @@ public class Client {
             try { return ping(); }
             catch(Exception ex) { return false; } };
 
-        do {
+        while(true) {
             if (reachable.get()) {
                 if (operational.get()) {
                     fireEvent(new ClamdAwaitingEvent(Operational), listener);
@@ -499,15 +500,17 @@ public class Client {
                 fireEvent(new ClamdAwaitingEvent(NotReachable), listener);
             }
 
+            if (System.currentTimeMillis() > (maxTime - sleepTime)) {
+				break;
+			}
+
             try {
-                Thread.sleep(3_000);
+                Thread.sleep(sleepTime);
             }
             catch(InterruptedException e) {
                 return false;
             }
         }
-        while (System.currentTimeMillis() < maxTime);
-
 
         return false;
     }
