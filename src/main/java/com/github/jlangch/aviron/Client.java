@@ -455,8 +455,8 @@ public class Client {
      *         clamd did not get operational within the given time frame.
      */
     public boolean waitForOperationalClamd(
-    		final long maxWaitTime,
-    		final TimeUnit unit
+            final long maxWaitTime,
+            final TimeUnit unit
     ) {
         if (maxWaitTime < 0) {
             throw new IllegalArgumentException("A 'maxWaitTime' must not be negative!");
@@ -467,25 +467,25 @@ public class Client {
 
         final long maxTime = System.currentTimeMillis() + unit.toMillis(maxWaitTime);
 
-    	while (System.currentTimeMillis() < maxTime) {
-    		try {
-    			if (isReachable(1_000)) {
-    				if (ping()) {
-    					return true;  // clamd is operational
-    				}
-    			}
-    		}
-    		catch(Exception ex) {
-        		try {
-        			Thread.sleep(1_000);
-        		}
-        		catch(InterruptedException e) {
-        			return false;
-        		}
-    		}
-    	}
+        while (System.currentTimeMillis() < maxTime) {
+            try {
+                if (isReachable(1_000)) {
+                    if (ping()) {
+                        return true;  // clamd is operational
+                    }
+                }
+            }
+            catch(Exception ex) {
+                try {
+                    Thread.sleep(1_000);
+                }
+                catch(InterruptedException e) {
+                    return false;
+                }
+            }
+        }
 
-    	return false;
+        return false;
     }
 
     /**
