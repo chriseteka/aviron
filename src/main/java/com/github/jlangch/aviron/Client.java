@@ -22,6 +22,9 @@
  */
 package com.github.jlangch.aviron;
 
+import static com.github.jlangch.aviron.events.ClamdAwaitingEvent.Status.NotReachable;
+import static com.github.jlangch.aviron.events.ClamdAwaitingEvent.Status.Operational;
+import static com.github.jlangch.aviron.events.ClamdAwaitingEvent.Status.Reachable;
 import static com.github.jlangch.aviron.impl.util.CollectionUtils.toList;
 import static com.github.jlangch.aviron.util.Util.sleep;
 
@@ -37,11 +40,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.github.jlangch.aviron.dto.CommandRunDetails;
 import com.github.jlangch.aviron.dto.QuarantineFile;
 import com.github.jlangch.aviron.dto.ScanResult;
+import com.github.jlangch.aviron.events.ClamdAwaitingEvent;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.ex.AvironException;
@@ -446,17 +451,22 @@ public class Client {
     /**
      * Wait for Clamd to get operational.
      *
+     * <p>Checks first if the clamd daemon process is running followed by ping
+     * command to verify that clamd is operational and ready to accept commands.
+     *
      * <p>Clamd has pretty long startup time due the the expensive loading
      * of the virus database.
      *
      * @param maxWaitTime the max wait time
      * @param unit the max wait time unit
+     * @param listener an optional event listener
      * @return <code>true</code> if clamd is operational or <code>false</code> if
      *         clamd did not get operational within the given time frame.
      */
     public boolean waitForOperationalClamd(
             final long maxWaitTime,
-            final TimeUnit unit
+            final TimeUnit unit,
+            final Consumer<ClamdAwaitingEvent> listener
     ) {
         if (maxWaitTime < 0) {
             throw new IllegalArgumentException("A 'maxWaitTime' must not be negative!");
@@ -467,21 +477,35 @@ public class Client {
 
         final long maxTime = System.currentTimeMillis() + unit.toMillis(maxWaitTime);
 
+        final Supplier<Boolean> reachable = () -> {
+            try { return isReachable(1_000); }
+            catch(Exception ex) { return false; }
+        };
+
+        final Supplier<Boolean> operational = () -> {
+            try { return ping(); }
+            catch(Exception ex) { return false; }
+        };
+
         while (System.currentTimeMillis() < maxTime) {
-            try {
-                if (isReachable(1_000)) {
-                    if (ping()) {
-                        return true;  // clamd is operational
-                    }
+            if (reachable.get()) {
+                if (operational.get()) {
+                    fireEvent(new ClamdAwaitingEvent(Operational), listener);
+                    return true;  // clamd is operational
+                }
+                else {
+                       fireEvent(new ClamdAwaitingEvent(Reachable), listener);
                 }
             }
-            catch(Exception ex) {
-                try {
-                    Thread.sleep(1_000);
-                }
-                catch(InterruptedException e) {
-                    return false;
-                }
+            else {
+                fireEvent(new ClamdAwaitingEvent(NotReachable), listener);
+            }
+
+            try {
+                Thread.sleep(3_000);
+            }
+            catch(InterruptedException e) {
+                return false;
             }
         }
 
@@ -541,19 +565,7 @@ public class Client {
      }
 
 
-    private String formatConfig(final File f) {
-        return f != null ? f.getPath() : "-";
-    }
-
-    private String formatConfig(final boolean b) {
-        return b ? "supplied" : "-";
-    }
-
-    private List<String> loadAvailableCommands() {
-        return new VersionCommands().send(server);
-    }
-
-    public ScanResult mockScan(final Path path, final boolean continueScan) {
+    private ScanResult mockScan(final Path path, final boolean continueScan) {
         sleep(80);  // sleep 80ms to simulate a clamd scan
 
         if (Files.isRegularFile(path) && isEicarTestFile(path)) {
@@ -591,6 +603,18 @@ public class Client {
         }
     }
 
+    private String formatConfig(final File f) {
+        return f != null ? f.getPath() : "-";
+    }
+
+    private String formatConfig(final boolean b) {
+        return b ? "supplied" : "-";
+    }
+
+    private List<String> loadAvailableCommands() {
+        return new VersionCommands().send(server);
+    }
+
     private ScanResult discard(final InputStream is) {
         try {
             byte[] buf=new byte[4096];
@@ -623,6 +647,18 @@ public class Client {
             throw new AvironException(
                     String.format("Failed to send command: %s", command.getCommandString()),
                     ex);
+        }
+    }
+
+    private void fireEvent(
+            final ClamdAwaitingEvent event,
+            final Consumer<ClamdAwaitingEvent> listener
+    ) {
+        if (listener != null) {
+            try {
+                listener.accept(event);
+            }
+            catch(Exception e) { }
         }
     }
 

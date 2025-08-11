@@ -25,21 +25,13 @@ package com.github.jlangch.aviron.events;
 
 public class ClamdAwaitingEvent implements Event {
 
-    public ClamdAwaitingEvent(
-            final Status status,
-            final String message
-    ) {
+    public ClamdAwaitingEvent(final Status status) {
         this.status = status;
-        this.message = message;
     }
 
 
     public Status getStatus() {
         return status;
-    }
-
-    public String getMessage() {
-        return message;
     }
 
     @Override
@@ -54,5 +46,4 @@ public class ClamdAwaitingEvent implements Event {
 
 
     private final Status status;
-    private final String message;
 }
