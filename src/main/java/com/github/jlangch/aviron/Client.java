@@ -485,7 +485,7 @@ public class Client {
             try { return ping(); }
             catch(Exception ex) { return false; } };
 
-        while (System.currentTimeMillis() < maxTime) {
+        do {
             if (reachable.get()) {
                 if (operational.get()) {
                     fireEvent(new ClamdAwaitingEvent(Operational), listener);
@@ -506,6 +506,8 @@ public class Client {
                 return false;
             }
         }
+        while (System.currentTimeMillis() < maxTime);
+
 
         return false;
     }
