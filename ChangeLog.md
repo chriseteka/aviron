@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 
 
 
+## [1.9.1] - 2025-08-xx
+
+- ...
+
+
+
 ## [1.9.0] - 2025-08-12
 
 - Added method `IDirCycler::lastDirTimestamp` and `IDirCycler::peekNextDir`
