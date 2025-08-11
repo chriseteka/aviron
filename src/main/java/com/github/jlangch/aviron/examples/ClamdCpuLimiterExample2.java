@@ -37,6 +37,7 @@ import com.github.jlangch.aviron.dto.ScanResult;
 import com.github.jlangch.aviron.events.ClamdCpuLimitChangeEvent;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
+import com.github.jlangch.aviron.ex.AvironException;
 import com.github.jlangch.aviron.limiter.ClamdCpuLimiter;
 import com.github.jlangch.aviron.limiter.CpuProfile;
 import com.github.jlangch.aviron.limiter.DynamicCpuLimit;
@@ -104,6 +105,11 @@ public class ClamdCpuLimiterExample2 {
                                             .quarantineEventListener(this::onQuarantineEvent)
                                             .build();
 
+            // ensure that clamd is running and ready to process commands
+            if (!client.waitForOperationalClamd(1, TimeUnit.MINUTES)) {
+                throw new AvironException("Clamd is not ready!");
+            }
+
             // Use the same day profile for Mon - Sun
             final CpuProfile everyday = CpuProfile.of(
                                             "weekday",
@@ -142,8 +148,8 @@ public class ClamdCpuLimiterExample2 {
                         // scan next file store directory
                         onScanDir(fsDirCycler.nextDir(), client, demoFS);
                         if (MOCKING) {
-							Thread.sleep(10_000);
-						}
+                            Thread.sleep(10_000);
+                        }
                     }
                     else {
                         // pause 30s due to temporarily suspended scanning (by CpuProfile)

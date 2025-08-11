@@ -459,6 +459,27 @@ public class Client {
      *
      * @param maxWaitTime the max wait time
      * @param unit the max wait time unit
+     * @return <code>true</code> if clamd is operational or <code>false</code> if
+     *         clamd did not get operational within the given time frame.
+     */
+    public boolean waitForOperationalClamd(
+            final long maxWaitTime,
+            final TimeUnit unit
+    ) {
+        return waitForOperationalClamd(maxWaitTime, unit, null);
+    }
+
+    /**
+     * Wait for Clamd to get operational.
+     *
+     * <p>Checks first if the clamd daemon process is running followed by ping
+     * command to verify that clamd is operational and ready to accept commands.
+     *
+     * <p>Clamd has pretty long startup time due the the time expensive virus
+     * database loading.
+     *
+     * @param maxWaitTime the max wait time
+     * @param unit the max wait time unit
      * @param listener an optional status/progress event listener
      * @return <code>true</code> if clamd is operational or <code>false</code> if
      *         clamd did not get operational within the given time frame.

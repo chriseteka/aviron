@@ -1,7 +1,7 @@
-/*                 _                 
- *       /\       (_)            
- *      /  \__   ___ _ __ ___  _ __  
- *     / /\ \ \ / / | '__/ _ \| '_ \ 
+/*                 _
+ *       /\       (_)
+ *      /  \__   ___ _ __ ___  _ __
+ *     / /\ \ \ / / | '__/ _ \| '_ \
  *    / ____ \ V /| | | | (_) | | | |
  *   /_/    \_\_/ |_|_|  \___/|_| |_|
  *
@@ -40,6 +40,7 @@ import com.github.jlangch.aviron.events.FileWatchErrorEvent;
 import com.github.jlangch.aviron.events.QuarantineEvent;
 import com.github.jlangch.aviron.events.QuarantineFileAction;
 import com.github.jlangch.aviron.events.RealtimeScanEvent;
+import com.github.jlangch.aviron.ex.AvironException;
 import com.github.jlangch.aviron.ex.FileWatcherException;
 import com.github.jlangch.aviron.filewatcher.FileWatcher_FsWatch;
 import com.github.jlangch.aviron.filewatcher.FileWatcher_JavaWatchService;
@@ -79,6 +80,11 @@ public class RealtimeScannerExample {
                                  .quarantineEventListener(this::onQuarantineEvent)
                                  .build());
 
+            // ensure that clamd is running and ready to process commands
+            if (!client.get().waitForOperationalClamd(1, TimeUnit.MINUTES)) {
+                throw new AvironException("Clamd is not ready!");
+            }
+
             // Use the same day profile for Mon - Sun
             final CpuProfile everyday = CpuProfile.of(
                                             "weekday",
@@ -103,7 +109,7 @@ public class RealtimeScannerExample {
             final int sleepTimeSecondsOnIdle = 5;
 
             try (ScheduledClamdCpuLimiter ses = new ScheduledClamdCpuLimiter(
-                                                        limiter, 
+                                                        limiter,
                                                         0, 5, TimeUnit.MINUTES)) {
                 ses.start();
 
@@ -142,7 +148,7 @@ public class RealtimeScannerExample {
 
 
     private IFileWatcher createPlatformFileWatcher(
-            final Path mainDir, 
+            final Path mainDir,
             final boolean registerAllSubDirs
     ) {
         if (OS.isLinux()) {
@@ -183,7 +189,7 @@ public class RealtimeScannerExample {
     private void onErrorEvent(final FileWatchErrorEvent event) {
         printfln("File Watch error: %s %s", event.getPath(), event.getException().getMessage());
     }
-    
+
     private void printVirusInfo(final ScanResult result) {
         if (result.hasVirus()) {
             result.getVirusFound().forEach(
