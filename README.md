@@ -778,6 +778,12 @@ public class ClamdCpuLimiterExample1 {
                                             .quarantineEventListener(this::onQuarantineEvent)
                                             .build();
 
+
+            // ensure that clamd is running and ready to process commands
+            if (!client.waitForOperationalClamd(1, TimeUnit.MINUTES)) {
+                throw new AvironException("Clamd is not ready!");
+            }
+
             // Use the same day profile for Mon - Sun
             final CpuProfile everyday = CpuProfile.of(
                                             "weekday",
