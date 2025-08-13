@@ -1,7 +1,7 @@
-/*                 _                 
- *       /\       (_)            
- *      /  \__   ___ _ __ ___  _ __  
- *     / /\ \ \ / / | '__/ _ \| '_ \ 
+/*                 _
+ *       /\       (_)
+ *      /  \__   ___ _ __ ___  _ __
+ *     / /\ \ \ / / | '__/ _ \| '_ \
  *    / ____ \ V /| | | | (_) | | | |
  *   /_/    \_\_/ |_|_|  \___/|_| |_|
  *
@@ -28,64 +28,64 @@ import java.util.List;
 
 
 /**
- * Cycles through all the subdirectories of a directory. If the last 
+ * Cycles through all the subdirectories of a directory. If the last
  * subdirectory is reached it starts over with the first subdirectory.
- * 
+ *
  * <p>The dir cycler helps breaking down large file store scans into smaller
- * chunks. 
- * 
- * <p>Recursively scanning a large file store in a single run can cause the 
- * clamd daemon to take many hours to return results, delaying the quarantine 
+ * chunks.
+ *
+ * <p>Recursively scanning a large file store in a single run can cause the
+ * clamd daemon to take many hours to return results, delaying the quarantine
  * of infected files.
- * 
- * <p>For faster and more responsive scanning, large file stores should be 
- * divided into smaller chunks. In most cases, file stores are already 
- * segmented into subdirectories to prevent exceeding filesystem limits on 
- * the number of files per directory. These subdirectories are ideal for 
+ *
+ * <p>For faster and more responsive scanning, large file stores should be
+ * divided into smaller chunks. In most cases, file stores are already
+ * segmented into subdirectories to prevent exceeding filesystem limits on
+ * the number of files per directory. These subdirectories are ideal for
  * defining scan chunks.
  */
 public interface IDirCycler {
 
     /**
      * Returns the root dir
-     * 
+     *
      * @return the cycler's root dir
      */
     File rootDir();
 
     /**
-     * @return <code>true</code> if number of sub dirs is zero else <code>false</code>
+     * @return <code>true</code> if the number of sub dirs is zero else <code>false</code>
      */
     boolean isEmpty();
-    
+
     /**
      * @return the number of sub dirs
      */
     int size();
 
     /**
-     * @return <code>true</code> if current sub dir is the first one else <code>false</code>
+     * @return <code>true</code> if the current sub dir is the first one else <code>false</code>
      */
     boolean isFirst();
 
     /**
-     * @return <code>true</code> if current sub dir is the last one (before starting over 
+     * @return <code>true</code> if the current sub dir is the last one (before starting over
      *          again with the first one) else <code>false</code>
      */
     boolean isLast();
-    
+
     /**
      * Returns the next dir in the cycle
-     * 
-     * @return the next dir or <code>null</code> if the root dir does not have 
+     *
+     * @return the next dir or <code>null</code> if the root dir does not have
      *         any sub dirs
      */
     File nextDir();
 
     /**
      * Returns the next dir in the cycle without advancing the cycler
-     * 
-     * @return the next dir or <code>null</code> if the root dir does not have 
+     *
+     * @return the next dir or <code>null</code> if the root dir does not have
      *         any sub dirs
      */
     File peekNextDir();
@@ -97,45 +97,45 @@ public interface IDirCycler {
 
     /**
      * Returns the last sub dir name in the cycle.
-     * 
-     * @return the last sub dir or <code>null</code> if there was not yet a 
+     *
+     * @return the last sub dir or <code>null</code> if there was not yet a
      *         call to next()
      */
     String lastDirName();
 
     /**
      * Returns the timestamp the last sub dir was run.
-     * 
+     *
      * @return a timestamp or <code>null</code> if not available;
      */
     LocalDateTime lastDirTimestamp();
 
     /**
      * Returns a list of the managed subdirs
-     * 
+     *
      * @return a list of the managed subdirs
      */
     public List<File> dirs();
 
     /**
      * Restores the cycler's last processed sub dir with the passed dir
-     * 
+     *
      * @param dirName A sub dir name (may be <code>null</code>)
      */
     void restoreLastDirName(String dirName);
 
     /**
      * Loads cycler's state from a file. The file may be empty or not existing.
-     * 
+     *
      * @param file a file
      */
     void loadStateFromFile(File file);
 
     /**
      * Saves the cycler's state to a file.
-     * 
+     *
      * @param file a file
      */
     void saveStateToFile(File file);
-    
+
 }
