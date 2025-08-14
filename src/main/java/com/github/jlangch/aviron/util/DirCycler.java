@@ -129,6 +129,16 @@ public class DirCycler implements IDirCycler {
                 dirIdx = 0;
             }
 
+            // update the statistics
+            statistics.incrementCycles();
+            if (dirIdx == 0) {
+                final long now = System.currentTimeMillis();
+                if (lastDirIdx > 0 && roundtripStartTime > 0) {
+                    statistics.addRoundtripTime(now - roundtripStartTime);
+                }
+                roundtripStartTime = now;
+            }
+
             lastDirIdx = dirIdx;
             final File next = subDirs.get(dirIdx);
 
@@ -226,6 +236,8 @@ public class DirCycler implements IDirCycler {
             else {
                 restoreLastDirName(null);
             }
+
+            roundtripStartTime = 0;
         }
     }
 
@@ -257,11 +269,22 @@ public class DirCycler implements IDirCycler {
                      .collect(Collectors.toList());
     }
 
+    @Override
+    public DirCyclerStatistics getStatistics() {
+        synchronized (lock) {
+            return new DirCyclerStatistics(
+                        statistics.getCycles(),
+                        statistics.getLastRoundtripTimes());
+        }
+    }
+
 
     private void refreshDirs() {
         subDirs.clear();
         subDirs.addAll(dirs());
-        lastDirIdx = -1;
+        if (lastDirIdx >= 0 && lastDirIdx >= subDirs.size()) {
+        	lastDirIdx = -1;
+        }
     }
 
     private int getIndexOf(final String name) {
@@ -276,6 +299,8 @@ public class DirCycler implements IDirCycler {
     }
 
 
+
+
     private final Object lock = new Object();
 
     private final File rootDir;
@@ -283,4 +308,6 @@ public class DirCycler implements IDirCycler {
     private final List<File> subDirs = new ArrayList<>();
 
     private int lastDirIdx = -1;
+    private long roundtripStartTime = 0;
+    private DirCyclerStatistics statistics = new DirCyclerStatistics();
 }

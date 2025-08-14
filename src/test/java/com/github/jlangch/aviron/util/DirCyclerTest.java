@@ -263,7 +263,7 @@ public class DirCyclerTest {
             assertEquals("001", last);
 
             cycler.refresh();
-            assertNull(cycler.lastDirName());
+            assertEquals("001", cycler.lastDirName());
 
             // restore
             cycler.restoreLastDirName(last);
@@ -310,7 +310,7 @@ public class DirCyclerTest {
             assertEquals("001", cycler.lastDirName());
 
             cycler.refresh();
-            assertNull(cycler.lastDirName());
+            assertEquals("001", cycler.lastDirName());
 
             // restore
             cycler.restoreLastDirName("002");
@@ -346,11 +346,11 @@ public class DirCyclerTest {
             assertEquals("001", cycler.lastDirName());
 
             cycler.refresh();
-            assertNull(cycler.lastDirName());
+            assertEquals("001", cycler.lastDirName());
 
             cycler.refresh();
             cycler = new DirCycler(demoFS.getFilestoreDir(), cyclerStateFile);
-            assertNull(cycler.lastDirName());
+            assertEquals("001", cycler.lastDirName());
 
             // restore
             cycler.restoreLastDirName("002");
@@ -358,6 +358,29 @@ public class DirCyclerTest {
 
             assertEquals("003", cycler.nextDir().getName());
             assertEquals("000", cycler.nextDir().getName());
+        }
+    }
+
+    @Test
+    void testStatistics() throws Exception {
+        try(DemoFilestore demoFS = new DemoFilestore()) {
+            demoFS.createFilestoreSubDir("000");
+            demoFS.createFilestoreSubDir("001");
+            demoFS.createFilestoreSubDir("002");
+            demoFS.createFilestoreSubDir("003");
+
+            final IDirCycler cycler = demoFS.getFilestoreDirCycler();
+
+            cycler.nextDir();  // "000"
+            cycler.nextDir();  // "001"
+            cycler.nextDir();  // "002"
+            cycler.nextDir();  // "003"
+            cycler.nextDir();  // "000"
+
+            final DirCyclerStatistics stats = cycler.getStatistics();
+
+            assertEquals(5, stats.getCycles());
+            assertEquals(1, stats.getLastRoundtripTimes().size());
         }
     }
 

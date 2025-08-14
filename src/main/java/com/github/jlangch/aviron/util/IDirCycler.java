@@ -138,4 +138,11 @@ public interface IDirCycler {
      */
     void saveStateToFile(File file);
 
+    /**
+     * Returns the statistics
+     *
+     * @return the statistics
+     */
+    DirCyclerStatistics getStatistics();
+
 }
