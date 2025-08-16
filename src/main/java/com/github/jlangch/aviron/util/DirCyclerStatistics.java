@@ -53,12 +53,21 @@ public class DirCyclerStatistics {
         return lastRoundtripTimes;
     }
 
+    /**
+     * @return a the last round trip (full cycle) time in milliseconds.
+     */
+    public Long getLastRoundtripTime() {
+        return lastRoundtripTimes.isEmpty()
+                ? null
+                : lastRoundtripTimes.get(lastRoundtripTimes.size()-1);
+    }
+
     public void incrementCycles() {
         cycles++;
     }
 
-    public void addRoundtripTime(final long seconds) {
-        lastRoundtripTimes.add(seconds);
+    public void addRoundtripTime(final long milliseconds) {
+        lastRoundtripTimes.add(milliseconds);
         while (lastRoundtripTimes.size() > 10) {
             lastRoundtripTimes.remove(0);
         }
