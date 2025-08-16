@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 
 
 
+## [1.9.2] - 2025-08-xx
+
+- ...
+
+
+
 ## [1.9.1] - 2025-08-16
 
 - Enhanced the DirCyler with statistics
