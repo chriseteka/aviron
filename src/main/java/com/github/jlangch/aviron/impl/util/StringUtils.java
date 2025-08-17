@@ -1,7 +1,7 @@
-/*                 _                 
- *       /\       (_)            
- *      /  \__   ___ _ __ ___  _ __  
- *     / /\ \ \ / / | '__/ _ \| '_ \ 
+/*                 _
+ *       /\       (_)
+ *      /  \__   ___ _ __ ___  _ __
+ *     / /\ \ \ / / | '__/ _ \| '_ \
  *    / ____ \ V /| | | | (_) | | | |
  *   /_/    \_\_/ |_|_|  \___/|_| |_|
  *
@@ -52,6 +52,12 @@ public class StringUtils {
         return !isBlank(s);
     }
 
+    public static void requireNonBlank(final String s, final String errMsg) {
+        if (StringUtils.isBlank(s)) {
+            throw new IllegalArgumentException(errMsg);
+        }
+    }
+
     public static List<String> splitIntoLines(final String text) {
         if (text == null || text.isEmpty()) {
             return new ArrayList<>();
@@ -84,7 +90,7 @@ public class StringUtils {
 
     public static List<String> toList(final String... items) {
         final List<String> list = new ArrayList<>();
-        
+
         for(String it : items) {
             list.add(it);
         }

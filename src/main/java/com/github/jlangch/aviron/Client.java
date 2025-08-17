@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -234,9 +235,7 @@ public class Client {
      * @return the scan result
      */
     public ScanResult scan(final InputStream inputStream) {
-        if (inputStream == null) {
-            throw new IllegalArgumentException("An 'inputStream' must not be null!");
-        }
+    	Objects.requireNonNull(inputStream, "An 'inputStream' must not be null!");
 
         // there is no quarantine action for streamed data
         return mocking
@@ -257,9 +256,7 @@ public class Client {
      * @return the scan result
      */
     public ScanResult scan(final InputStream inputStream, final int chunkSize) {
-        if (inputStream == null) {
-            throw new IllegalArgumentException("An 'inputStream' must not be null!");
-        }
+    	Objects.requireNonNull(inputStream, "An 'inputStream' must not be null!");
         if (chunkSize <= 0) {
             throw new IllegalArgumentException("A 'chunkSize' must be greater than 0");
         }
@@ -278,9 +275,7 @@ public class Client {
      * @return the scan result
      */
     public ScanResult scan(final Path path) {
-        if (path == null) {
-            throw new IllegalArgumentException("A 'path' must not be null!");
-        }
+    	Objects.requireNonNull(path, "A 'path' must not be null!");
 
         if (mocking) {
             return mockScan(path,false);
@@ -302,9 +297,7 @@ public class Client {
      * @return the scan result
      */
     public ScanResult scan(final Path path, final boolean continueScan) {
-        if (path == null) {
-            throw new IllegalArgumentException("A 'path' must not be null!");
-        }
+    	Objects.requireNonNull(path, "A 'path' must not be null!");
 
         if (mocking) {
             return mockScan(path, continueScan);
@@ -326,9 +319,7 @@ public class Client {
      * @return the scan result
      */
     public ScanResult parallelScan(final Path path) {
-        if (path == null) {
-            throw new IllegalArgumentException("A 'path' must not be null!");
-        }
+    	Objects.requireNonNull(path, "A 'path' must not be null!");
 
         if (mocking) {
             return mockScan(path, true);
@@ -406,9 +397,7 @@ public class Client {
      * @param file  the quarantine file to remove
      */
     public void removeQuarantineFile(final QuarantineFile file) {
-        if (file == null) {
-            throw new IllegalArgumentException("A 'file' must not be null!");
-        }
+    	Objects.requireNonNull(file, "A 'file' must not be null!");
 
         quarantine.removeQuarantineFile(file);
     }
@@ -492,9 +481,7 @@ public class Client {
         if (maxWaitTime < 0) {
             throw new IllegalArgumentException("A 'maxWaitTime' must not be negative!");
         }
-        if (unit == null) {
-            throw new IllegalArgumentException("A 'unit' must not be null!");
-        }
+        Objects.requireNonNull(unit, "A 'unit' must not be null!");
 
         final long maxTime = System.currentTimeMillis() + unit.toMillis(maxWaitTime);
         final long sleepTime = 3_000;

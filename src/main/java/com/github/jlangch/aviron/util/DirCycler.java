@@ -31,6 +31,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.github.jlangch.aviron.ex.AvironException;
@@ -65,9 +66,7 @@ public class DirCycler implements IDirCycler {
      * @param stateFile an optional state file
      */
     public DirCycler(final File rootDir, final File stateFile) {
-        if (rootDir == null) {
-            throw new IllegalArgumentException("The rootDir must not be null!");
-        }
+    	Objects.requireNonNull(rootDir, "The rootDir must not be null!");
         if (!rootDir.isDirectory()) {
             throw new RuntimeException("The rootDir does not exist or is not a directory");
         }
@@ -215,9 +214,7 @@ public class DirCycler implements IDirCycler {
 
     @Override
     public void loadStateFromFile(final File file) {
-        if (file == null) {
-            throw new IllegalArgumentException("The file must not be null!");
-        }
+    	Objects.requireNonNull(file, "The file must not be null!");
 
         synchronized (lock) {
             if (Files.isRegularFile(file.toPath())) {
@@ -243,9 +240,7 @@ public class DirCycler implements IDirCycler {
 
     @Override
     public void saveStateToFile(final File file) {
-        if (file == null) {
-            throw new IllegalArgumentException("The file must not be null!");
-        }
+    	Objects.requireNonNull(file, "The file must not be null!");
 
         synchronized (lock) {
             final String lastDir = lastDirName();
