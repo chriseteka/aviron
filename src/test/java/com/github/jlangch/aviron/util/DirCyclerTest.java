@@ -367,20 +367,21 @@ public class DirCyclerTest {
             demoFS.createFilestoreSubDir("000");
             demoFS.createFilestoreSubDir("001");
             demoFS.createFilestoreSubDir("002");
-            demoFS.createFilestoreSubDir("003");
 
             final IDirCycler cycler = demoFS.getFilestoreDirCycler();
 
             cycler.nextDir();  // "000"
             cycler.nextDir();  // "001"
             cycler.nextDir();  // "002"
-            cycler.nextDir();  // "003"
+            cycler.nextDir();  // "000"
+            cycler.nextDir();  // "001"
+            cycler.nextDir();  // "002"
             cycler.nextDir();  // "000"
 
             final DirCyclerStatistics stats = cycler.getStatistics();
 
-            assertEquals(5, stats.getCycles());
-            assertEquals(1, stats.getLastRoundtripTimes().size());
+            assertEquals(7, stats.getCycles());
+            assertEquals(2, stats.getLastRoundtripTimes().size());
         }
     }
 

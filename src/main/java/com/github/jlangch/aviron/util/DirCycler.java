@@ -277,8 +277,9 @@ public class DirCycler implements IDirCycler {
     private void refreshDirs() {
         subDirs.clear();
         subDirs.addAll(dirs());
-        if (lastDirIdx >= 0 && lastDirIdx >= subDirs.size()) {
-        	lastDirIdx = -1;
+        if (lastDirIdx >= subDirs.size()) {
+        	// filestore dir count has shrunk
+        	lastDirIdx = subDirs.size() - 1;
         }
     }
 
