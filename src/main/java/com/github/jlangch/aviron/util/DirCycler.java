@@ -301,8 +301,8 @@ public class DirCycler implements IDirCycler {
     private final File rootDir;
     private final File stateFile;
     private final List<File> subDirs = new ArrayList<>();
+    private final DirCyclerStatistics statistics = new DirCyclerStatistics();
 
     private int lastDirIdx = -1;
     private long roundtripStartTime = 0;
-    private DirCyclerStatistics statistics = new DirCyclerStatistics();
 }
