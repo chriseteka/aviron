@@ -563,7 +563,7 @@ On Linux the Aviron file watcher is based on Java's file **WatchService**
 that relies on *inotify*, a Linux kernel subsystem that reports file system
 changes to applications.
 
-On MacOS the Aviron file watcher is based on the **fspath** tool that uses
+On MacOS the Aviron file watcher is based on the **fswatch** tool that uses
 the FreeBSD's *kqueue* for file notifications.
 
 In order run this example on MacOS the **fswatch** tool must be installed. The 
