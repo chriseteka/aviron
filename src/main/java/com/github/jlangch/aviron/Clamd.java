@@ -124,7 +124,7 @@ public class Clamd {
      * @see #getPids()
      */
     public String getPid() {
-        Shell.validateLinuxOrMacOSX("ClamdPid::getPid");
+        Shell.validateLinuxOrMacOSX("Clamd::getPid");
 
         final String pid = getRawPid();
         return StringUtils.isBlank(pid)
@@ -150,7 +150,7 @@ public class Clamd {
      *         <code>false</code>
      */
     public boolean isProcessAlive() {
-        Shell.validateLinuxOrMacOSX("ClamdPid::isProcessAlive");
+        Shell.validateLinuxOrMacOSX("Clamd::isProcessAlive");
 
         final String pid = getRawPid();
         return StringUtils.isBlank(pid)
@@ -160,7 +160,7 @@ public class Clamd {
 
     /**
      * Activates a CPU limit [0..LIMIT] on the <i>clamd</i> process represented
-     * by this <code>ClamdPid</code>.
+     * by this <code>Clamd</code>.
      *
      * <p>If the clamd process is not running the function is silently skipped.
      *
@@ -180,8 +180,12 @@ public class Clamd {
      *       process will terminate automatically as well.
      *
      * <p>
-     * Note: Still facing "Process found but you aren't allowed to control it"
-     *       problem on MacOS, even when run with sudo!
+     * <b>Setting CPU limits below 20% is generally impractical. You can experiment with it, but
+     * experience will likely lead you to the same conclusion.</b>
+     *
+     * <p>
+     * It’s more effective to skip sending scan jobs to the clamd daemon if the CPU limit is under
+     * 20%.
      *
      * <p>
      * Note: This function is available for Linux and MacOS only!
@@ -192,7 +196,7 @@ public class Clamd {
      * @see #getNrOfCpus()
      */
     public void activateCpuLimit(final int limit) {
-        Shell.validateLinuxOrMacOSX("ClamdPid::activateCpuLimit");
+        Shell.validateLinuxOrMacOSX("Clamd::activateCpuLimit");
 
         final String pid = getRawPid();
         if (StringUtils.isNotBlank(pid)) {
@@ -205,7 +209,7 @@ public class Clamd {
 
     /**
      * Deactivates the CPU limit on the <i>clamd</i> process represented by this
-     * <code>ClamdPid</code>.
+     * <code>Clamd</code>.
      *
      * <p>If the clamd process is not running the function is silently skipped.
      *
@@ -219,7 +223,7 @@ public class Clamd {
      * @see #activateCpuLimit(int)
      */
     public void deactivateCpuLimit() {
-        Shell.validateLinuxOrMacOSX("ClamdPid::deactivateCpuLimit");
+        Shell.validateLinuxOrMacOSX("Clamd::deactivateCpuLimit");
 
         final String pid = getRawPid();
         if (StringUtils.isNotBlank(pid)) {
@@ -228,7 +232,7 @@ public class Clamd {
     }
 
     /**
-     * Kills the <i>clamd</i> process represented by this <code>ClamdPid</code>.
+     * Kills the <i>clamd</i> process represented by this <code>Clamd</code>.
      *
      * <p>Runs the following shell command to kill the process:
      * <pre>
@@ -239,7 +243,7 @@ public class Clamd {
      * Note: This function is available for Linux and MacOS only!
      */
     public void kill() {
-        Shell.validateLinuxOrMacOSX("ClamdPid::kill");
+        Shell.validateLinuxOrMacOSX("Clamd::kill");
 
         final String pid = getRawPid();
         if (StringUtils.isNotBlank(pid)) {
@@ -261,7 +265,7 @@ public class Clamd {
      * @return the list with PIDs
      */
     public static List<String> getCpulimitPids() {
-        Shell.validateLinuxOrMacOSX("ClamdPid::getCpulimitPids");
+        Shell.validateLinuxOrMacOSX("Clamd::getCpulimitPids");
 
         return Shell.pgrep("cpulimit");
     }
@@ -280,7 +284,7 @@ public class Clamd {
      * @return the list with PIDs
      */
     public static List<String> getPids() {
-        Shell.validateLinuxOrMacOSX("ClamdPid::getPids");
+        Shell.validateLinuxOrMacOSX("Clamd::getPids");
 
         return Shell.pgrep("clamd");
     }
@@ -323,9 +327,9 @@ public class Clamd {
         try {
             // best effort, do not check the exit code
             //
-            // note: if there are no cpulimit processes running on the {clamdPID}
-            //       pid pkill returns the exit code 1. we don't want to throw an
-            //       exception in this case
+            // note: if there are no cpulimit processes running on the clamd with
+            //       the pid <code>pkill</code> returns the exit code 1. we don't
+        	//       want to throw an exception in this case
             Shell.execCmd("pkill", "-f", "cpulimit.*" + pid);
         }
         catch(IOException ex) {
