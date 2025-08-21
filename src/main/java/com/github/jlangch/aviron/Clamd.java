@@ -196,6 +196,10 @@ public class Clamd {
      * @see #getNrOfCpus()
      */
     public void activateCpuLimit(final int limit) {
+    	if (limit < 0) {
+    		throw new IllegalArgumentException("A CPU limit must not below 0%!");
+    	}
+
         Shell.validateLinuxOrMacOSX("Clamd::activateCpuLimit");
 
         final String pid = getRawPid();
